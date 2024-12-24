@@ -1,0 +1,250 @@
+ h1.title,
+ h2.title,
+ h3.title {
+     /* font-weight: bold !important; */
+
+     text-shadow:
+         -1px -1px #000000,
+         1px -1px 0 #000;
+
+     /* margin: 30px auto; */
+ }
+
+ h4.title {
+     font-size: 16px !important;
+ }
+
+ h1.title {
+     font-size: 21px;
+     color: #000;
+     margin-bottom: 49px;
+     position: relative;
+ }
+
+ /* 1. there are h1 that are block on large space =>> .underlineLargeblock
+   2. Others have two lines                      =>> .underlinetwoLines
+   3. Others have two lines                      =>> .underlinethreeLines
+   4. Others are  on the left an no extra styles =>> .underlineDefault
+ */
+
+ /* 
+
+ h1.underlineDefault::after,
+ h1.underlineLargeblock::after,
+ h1.underlinetwoLines::after {
+     position: absolute;
+     content: " ";
+     height: 7px;
+     background-color: #ffa200;
+ }
+
+ h1.underlineDefault::after {
+     top: 50px;
+     left: 0px;
+     width: 100px;
+
+ }
+
+ h1.underlineLargeblock::after {
+     top: 50px;
+     left: 45%;
+     width: 100px;
+ }
+
+ h1.underlinetwoLines::after {
+     top: 95px;
+     left: 0px;
+     width: 150px;
+ } */
+
+ h1.bigSectionTitle {
+     font-size: 50px;
+     color: #ffa200;
+     font-weight: bolder;
+ }
+
+ h2.title {
+     font-size: 20px !important;
+     color: #000;
+ }
+
+ .supportAnim {
+     position: absolute;
+     top: 30%;
+     color: #fff;
+     z-index: 2;
+     font-size: 18px;
+ }
+
+ .titleDesc {
+     /* margin-bottom: 40px !important; */
+     /* margin-top: 20px !important; */
+     margin-left: 15px;
+     font-size: 15px;
+     color: #3a3a3a;
+ }
+
+ .smallDesc {
+     margin: auto;
+ }
+
+ .appBorder {
+     border: 1px solid #ffa200;
+     border-radius: 4px;
+     box-shadow: 0 0 5px #fff;
+     transition: box-shadow .5s ease-in, border .5s ease-in;
+ }
+
+ .appBorder:hover {
+     box-shadow: 0 0 5px #000;
+     border: 2px solid #fff;
+ }
+
+ .smallText {
+     font-size: 12px;
+     color: #414141;
+ }
+
+ .pageTitle {
+     height: 150px !important;
+     background-color: #eeeae7;
+     color: #52370a;
+
+ }
+
+ .pageTitle h1.title {
+     font-weight: bold;
+     color: #483f0b;
+     text-shadow: none !important;
+
+ }
+
+ .smalleListTitle {
+     font-size: 14px !important;
+ }
+
+ .pageTitle p {
+     color: #f6efce;
+
+ }
+
+ .contactuslist {
+     line-height: 2rem;
+     color: #000;
+ }
+
+ .lineHeightClass {
+     list-style: none !important;
+ }
+ .redBorder{
+    border: 3px solid #ff8c00;
+    background-color: #fcd19d;
+    border: 2px solid #fff;
+    color: #fff;
+}
+.redBorder:hover{
+    
+    border: 3px solid #ff8c00;
+    background-color: #fcd19d;
+    border: 2px solid #fff;
+    color: #fff;
+ }
+
+ @keyframes showWhatsapp {
+     from {
+         transform: translateX(122px);
+     }
+
+     to {
+         transform: translateX(2px);
+     }
+ }
+
+ .whatsappIcon {
+     animation: showWhatsapp 2s ease-in-out;
+ }
+
+ @media (max-width:980px) {
+     .card {
+         width: 95%;
+         margin: auto;
+         margin-top: 40px;
+     }
+
+     .morecontentParent {
+         position: relative !important;
+     }
+ }
+
+ @media (max-width: 768px) {
+
+     h1.title,
+     h2.title,
+     h3.title,
+     h1.bigSectionTitle {
+         margin: 20px auto;
+
+     }
+
+     h1.title {
+         margin-left: 20px;
+         font-size: 20px;
+         text-shadow: none;
+         font-weight: bolder;
+         font-family: Arial, Helvetica, sans-serif;
+     }
+
+     h2.title {
+         text-shadow: none;
+         font-weight: bolder;
+         font-size: 18px !important;
+     }
+
+     h1.bigSectionTitle {
+         font-size: 27px !important;
+         margin-top: 40px;
+         font-size: 30px;
+     }
+
+
+     p.titleDesc {
+         margin: 10px 25px !important;
+
+     }
+
+     h1.underlineLargeblock::after {
+         left: 37%;
+         top: 64px;
+     }
+
+     h1.underlinetwoLines::after {
+         top: 64px;
+     }
+
+     img {
+         margin: auto;
+         display: block;
+     }
+
+     h1.title p .col-3,
+     h1.title p .col-4 {
+         border: 3px solid #ffa200 !important;
+     }
+ }
+
+
+ ul li {
+     list-style: none;
+ }
+
+ .smallLineHeight {
+     line-height: 2rem;
+ }
+
+ /* -----------------------------Footer */
+ .footer li {
+     font-size: 13px;
+ }
+ .txtAddHeight{
+    height: 55px !important;
+ }

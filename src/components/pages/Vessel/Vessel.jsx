@@ -55,7 +55,7 @@ function Vessel() {
   const [length, setLength] = useState(0)
   const [width, setWidth] = useState(0)
   const [vesselHeight, setVesselHeight] = useState(0);
-  const [dimension, setDimension] = useState(0)
+  const [dimension, setDimension] = useState()
 
 
   const [owner_operator, setOwner_operator] = useState()
@@ -80,10 +80,10 @@ function Vessel() {
       setDocs(files); // Store the files in the state
     }
   };
-  
-  
+
+
   const formRef = useRef();
-  
+
   const handleSubmit = async (event) => {
 
 
@@ -119,18 +119,18 @@ function Vessel() {
           ...StockConn.GetToken,
           'Content-Type': 'multipart/form-data' // This should be handled automatically by axios, but you can explicitly set it
         }
-       
+
       });
-      
+
       if (response.data !== 'Data saved succefully') {
         // setMessage(response.data.message); // Set the response message
         setErrorOccured(true)
         alert(response.data)
-          elementRef.current.scrollIntoView({
-            behavior: 'smooth',  // Optional: for smooth scrolling
-            block: 'start',      // Optional: align at the start of the viewport
-          });
-        
+        elementRef.current.scrollIntoView({
+          behavior: 'smooth',  // Optional: for smooth scrolling
+          block: 'start',      // Optional: align at the start of the viewport
+        });
+
       } else {
         setErrorOccured(false)
         alert('Data saved successfully')
@@ -141,11 +141,11 @@ function Vessel() {
       setErrorOccured(true)
       // setMessage(error.message)
       console.log('==================done ======================')
-      if (error.response ) {
+      if (error.response) {
         alert('An error occured')
         setMessage(error.response.data.message)
       }
-      
+
       console.error(error);
     }
   }
@@ -163,9 +163,9 @@ function Vessel() {
       })
     } else {
 
-      handleSubmit(e)
       setRefresh(!refresh)
-        //reset the form
+      handleSubmit(e)
+      //reset the form
       const formData = new FormData(formRef.current);
       console.log('Form submitted:', Object.fromEntries(formData.entries()));
       // Clear the form after submission
@@ -183,8 +183,8 @@ function Vessel() {
     });
   }
   useEffect(() => {
-    setDimension(length * vesselHeight * width);
-    
+    setDimension(length + ' x ' + vesselHeight + ' x ' + width);
+
   }, [length, vesselHeight, width])
 
   useEffect(() => {
@@ -270,12 +270,12 @@ function Vessel() {
 
             {errorOccured && <><h1 style={{ marginBottom: '10px', fontSize: '19px' }}>Correct the below input values </h1> <br /></>}
 
-            {errorOccured  &&
+            {errorOccured &&
               <Alert variant={errorOccured ? 'danger' : 'success'}>
-                {errorOccured && message }  
+                {errorOccured && message}
               </Alert>}
             <FormInnerRightPane ref={formRef} onSubmitHandler={onSubmitHandler}>
-              <InputRow name='Name ' val={name} handle={(e) => setName(e.target.value)} label='lblname' />
+              <InputRow name='Vessel Name ' val={name} handle={(e) => setName(e.target.value)} label='lblname' />
               <InputRow name='Plate Number ' val={plate_number} handle={(e) => setPlate_number(e.target.value)} label='lblplate_number' />
 
               <Row className=''>
@@ -304,20 +304,15 @@ function Vessel() {
               </Row>
 
               <InputRow num={true} name='Capacity (tons)' val={capacity} handle={(e) => setCapacity(e.target.value)} label='lblcapacity' />
-              <InputRow name='Owner/operator' val={owner_operator}
-                handle={(e) => setOwner_operator(e.target.value)}
+              <InputRow name='Owner/operator' val={owner_operator} handle={(e) => setOwner_operator(e.target.value)}
                 label='owner_operator' />
-              <InputRow num={true} name='Contact/number' val={contact_number}
-                handle={(e) => setContact_number(e.target.value)}
+              <InputRow num={true} name='Contact/number' val={contact_number} handle={(e) => setContact_number(e.target.value)}
                 label='contact_number' />
-              <InputRow name='Rura certificate Number' val={rura_certificate}
-                handle={(e) => setRura_certificate(e.target.value)}
+              <InputRow name='Rura certificate Number' val={rura_certificate} handle={(e) => setRura_certificate(e.target.value)}
                 label='contact_number' />
-              <InputRow name='LOA' val={loa}
-                handle={(e) => setLoa(e.target.value)}
+              <InputRow name='LOA' val={loa} handle={(e) => setLoa(e.target.value)}
                 label='loa' />
-              <FileInputRow label='images' val={setDocs}
-                handle={handleFileChange} name="Documents"
+              <FileInputRow label='images' val={setDocs} handle={handleFileChange} name="RURA Certificates (Optional)"
               />
 
 
@@ -338,11 +333,11 @@ function Vessel() {
               <TableHead>
 
                 <td>ID</td>
+                <td>owner/operator </td>
                 <td>Name </td>
                 <td>Plate Number </td>
-                <td>Dimension </td>
+                <td>Dimension (l <smal>x</smal> w x h) </td>
                 <td>Capacity </td>
-                <td>owner/operator </td>
                 <td>contact number </td>
                 <td>rura certificate Number </td>
                 <td>LOA</td>
@@ -353,12 +348,12 @@ function Vessel() {
                 {vessels.map((vessel) => (
                   <tr key={vessel.id}>
                     <td>{vessel.id}   </td>
+                    <td>{vessel.owner_operator}   </td>
                     <td>{vessel.name}   </td>
                     <td>{vessel.plate_number}   </td>
                     <td>{vessel.dimension}   </td>
-                    <td>{vessel.capacity}   </td>
+                    <td>{vessel.capacity} tons  </td>
 
-                    <td>{vessel.owner_operator}   </td>
                     <td>{vessel.contact_number}   </td>
                     <td>{vessel.rura_certificate}   </td>
                     <td>{vessel.loa}   </td>

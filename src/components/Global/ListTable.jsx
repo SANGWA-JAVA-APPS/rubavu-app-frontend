@@ -15,7 +15,7 @@ import { ic_play_arrow_outline as enabled } from 'react-icons-kit/md/ic_play_arr
 function ListOptioncol(props) {
     return (
         <>
-            <td className='delButton optCol ' >
+            <td className='delButton optCol d-none' >
                 <div className='row d-flex justify-content-center'>
                     <button onClick={props.getEntityById} style={{ width: "20px" }} title="Update Record" className='mr-0 p-0 btn round-circle'>
                         <Icon size={16} style={{ color: '#0fd120', marginRight: "10px" }} icon={edit} />

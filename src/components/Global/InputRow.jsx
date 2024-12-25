@@ -75,7 +75,7 @@ export const GenIputRow = (props) => {
     return (
         <div className={`form-group row m-1 ${props.moreclass}`}>
             <label for={props.label} class="col-sm-3 col-form-label">{props.name}</label>
-            <div class="col-sm-9">
+            <div className={` col-sm-9 ms-0 ps-0 ${props.textboxSize}`}>
                 {props.children}
 
             </div>
@@ -85,7 +85,7 @@ export const GenIputRow = (props) => {
 export const InputAndSearch = (props) => {
     return (
         <>
-            <GenIputRow name={props.name} label={props.labe}>
+            <GenIputRow name={props.name} label={props.labe} >
                 <div className="input-group flex-nowrap">
                     <input type="text" className="form-control"  
                     onChange={props.changedContent} placeholder={props.placeholder}

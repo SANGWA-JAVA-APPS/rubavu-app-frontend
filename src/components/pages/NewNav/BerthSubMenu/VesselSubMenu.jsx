@@ -36,19 +36,7 @@ export const VesselSubMenu = () => {
                     } />
 
             </Col>
-            <Col md={12} className='lightBg p-5 mt-3'>
-                <TitleDesscNormal title={" Unberth "}
-                    desc={
-                        <TitleAndListNormal smallerTitleOn={true}
-                            badge1={<>
-                                {/* <BadgeContent content="Pending" />
-                                <BadgeContent content="Occupied" /> */}
-                            </>}
-                            li1="Search vessel"
-                            li2="Search By client"
-                            li3="Unfinished entries" />
-                    } />
-            </Col>
+            
 
         </>
     )

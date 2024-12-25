@@ -30,7 +30,10 @@ export const AppDataContextProvider = ({ children }) => {
   const [itemOrCargo, setitemOrCargo] = useState('item'); //received cargo or purchase
   const [showcanvaOne, setshowcanvaOne] = useState(false); //To show side menu
   const [searchTableVisible, setSearchTableVisible] = useState(false); //To show side menu
-const [searchItemValue, setSearchItemValue] = useState('')
+  const [searchItemValue, setSearchItemValue] = useState('')
+  const [searchTableVisible2, setSearchTableVisible2] = useState(false)
+
+
   /* #region ----tracking the pressed key in the textbox ---- */
   const [pressedKey, setPressedKey] = useState('');
   const handleKeyPress = (event) => {
@@ -59,8 +62,8 @@ const [searchItemValue, setSearchItemValue] = useState('')
 
     if (Hw_movement === 'in') {
       Hw_movement = (bt === 'business') ? 'Purchased' : 'Tally In'
-    }else if (Hw_movement==='out'){
-       Hw_movement = (bt === 'business') ? 'sold' : 'Tally Out'
+    } else if (Hw_movement === 'out') {
+      Hw_movement = (bt === 'business') ? 'sold' : 'Tally Out'
     } else if (Hw_movement === 'damage') {
       Hw_movement = 'damage'
     } else if (Hw_movement === '+adj.') {
@@ -69,7 +72,7 @@ const [searchItemValue, setSearchItemValue] = useState('')
       Hw_movement = '- Adjustment'
 
     return Hw_movement
-   
+
 
   }
   const ds = (Hw_movement) => {/*dynamic style(ds) changing purchase and sale based on 'purchase, sale or damage, when it is damage it becomes red'*/
@@ -89,7 +92,7 @@ const [searchItemValue, setSearchItemValue] = useState('')
       defaultMeasureUnit, setDefaultMeasureUnit, itemOrCargo, setitemOrCargo,
       showcanvaOne, setshowcanvaOne, //show offCanvas menu
       //search item by tying
-      searchTableVisible,setSearchTableVisible, searchItemValue, setSearchItemValue
+      searchTableVisible, setSearchTableVisible, searchItemValue, setSearchItemValue,searchTableVisible2, setSearchTableVisible2
     }}>
       {children}
     </ColItemContext.Provider>

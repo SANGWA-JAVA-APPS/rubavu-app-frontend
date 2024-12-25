@@ -17,11 +17,14 @@ import { BookingSubMenu } from './BerthSubMenu/BookingSubMenu'
 import { Berth } from './BerthSubMenu/Berth'
 import { Reporting } from './BerthSubMenu/Reporting'
 import { InvoiceSubMenu } from './BerthSubMenu/InvoiceSubMenu'
+import Unberthing from './Processes/Unberthing'
+import { UnberthSubMenu } from './BerthSubMenu/UnberthSubMenu'
 export const Vessels = () => {
 
     const [vesselOption, setVesselOption] = useState(true)
     const [bookingOption, setBookingOption] = useState(false)
     const [berthOption, setBerthOption] = useState(false)
+    const [unberthOption, setUnberthOption] = useState(false)
     const [reportOption, setReportOption] = useState(false)
     const [invoiceOption, setInvoiceOption] = useState(false)
     
@@ -31,6 +34,7 @@ export const Vessels = () => {
         setVesselOption(true)
         setReportOption(false)
         setInvoiceOption(false) 
+        setUnberthOption(false) 
     }
     const berthClick = () => {
         setBerthOption(true)
@@ -38,6 +42,7 @@ export const Vessels = () => {
         setVesselOption(false)
         setReportOption(false)
         setInvoiceOption(false) 
+        setUnberthOption(false) 
     }
     const bookingClick = () => {
         setBerthOption(false)
@@ -45,6 +50,7 @@ export const Vessels = () => {
         setVesselOption(false)
         setReportOption(false)
         setInvoiceOption(false) 
+        setUnberthOption(false) 
     }
     const reportClick = () => {
         setBerthOption(false)
@@ -52,6 +58,7 @@ export const Vessels = () => {
         setVesselOption(false)
         setReportOption(true)
         setInvoiceOption(false) 
+        setUnberthOption(false) 
     }
     const invoiceClick = () => {
         setBerthOption(false)
@@ -59,6 +66,15 @@ export const Vessels = () => {
         setVesselOption(false)
         setReportOption(false)
         setInvoiceOption(true) 
+        setUnberthOption(false) 
+    }
+    const unberthClick = () => {
+        setBerthOption(false)
+        setBookingOption(false)
+        setVesselOption(false)
+        setReportOption(false)
+        setInvoiceOption(false) 
+        setUnberthOption(true) 
     }
     return (
 
@@ -80,15 +96,16 @@ export const Vessels = () => {
                         chosen={berthOption ? "redBorder" : ""}
                         iconName={berth}
                         clickHandle={berthClick} />}
+                    
                     li4={<ListItems title="Invoicing" desc="Bollards, mooring"
                         chosen={invoiceOption ? "redBorder" : ""}
                         iconName={berth}
-                        clickHandle={invoiceClick} />}
-                    li5={<ListItems title="Invoicing" desc="Bollards, mooring"
-                        chosen={reportOption ? "redBorder" : ""}
-                        iconName={berth}
-                        clickHandle={reportClick} />
+                        clickHandle={invoiceClick} />
                     }
+                    li5={<ListItems title="Unberth" desc="Bollards, mooring"
+                        chosen={unberthOption ? "redBorder" : ""}
+                        iconName={berth}
+                        clickHandle={unberthClick} />}
                    
                 />
             </Col>
@@ -104,11 +121,11 @@ export const Vessels = () => {
                          <Berth />
                     }
                    
-                    {invoiceOption &&
-                         <InvoiceSubMenu />
+                    {unberthOption &&
+                         <UnberthSubMenu />
                     }
-                    {reportOption &&
-                         <Reporting />
+                    {invoiceOption   &&
+                         <InvoiceSubMenu />
                     }
                 </Row>
             </Col>

@@ -4,7 +4,7 @@ import { TitleDesscNormal } from '../../../globalcomponents/TitleSmallDesc'
 import { BadgeContent, TitleAndListNormal } from '../../../globalcomponents/TitleAndList'
 import { useNavigate } from 'react-router-dom'
 
-export const Berth = () => {
+export const UnberthSubMenu = () => {
 
     const navigate = useNavigate()
     const gotoBollards = () => {
@@ -12,20 +12,17 @@ export const Berth = () => {
     }
     const gotoUnberth = () => {
         navigate("/unberthform")
-
     }
     return (
         <>
             <Col md={12} className='lightBg p-5'>
-                <TitleDesscNormal title={"Bollards"}
+                <TitleDesscNormal title={"Unberhing"}
                     desc={
                         <TitleAndListNormal smallerTitleOn={true}
                             badge1={<>
                             </>}
-                            eventOne={gotoBollards}
-                            eventTwo={gotoUnberth}
-                            li1="Berthing"
-                            
+                            eventOne={gotoUnberth}
+                            li1="Register Unberthing operation"
                              />
 
                     } />

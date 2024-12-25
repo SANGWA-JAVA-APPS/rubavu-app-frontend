@@ -3,25 +3,44 @@ import OtherStyles from '../../Styles/OtherStyles'
 import { search } from 'react-icons-kit/icomoon/search'
 import { Icon } from 'react-icons-kit'
 import DatePicker from "react-datepicker";
+import { FloatingLabel, Form } from 'react-bootstrap';
 export const InputOnly = (props) => {
     return (
         <>
-            <input type={props.num? 'number':'text'} autoComplete='false' required style={OtherStyles.txt()}
-                value={props.val}  placeholder={props.placeholder}
-                onChange={props.handle} className={`form-control  w-50 ${props.moreclass} `}
-                id={props.label} />
-            {props.additionalelement}
+
+
+            <FloatingLabel controlId="floatingPassword" label={props.name}>
+                <Form.Control type={props.num ? 'number' : 'text'} autoComplete='false' required
+                    value={props.val} placeholder={props.placeholder}
+                    onChange={props.handle} className={`form-control  w-50 ${props.moreclass} `}
+                    id={props.label} />
+                {props.additionalelement}
+            </FloatingLabel>
+
+
         </>
     )
 }
 export const InputOnlyReadOnly = (props) => {
     return (
         <>
-            <input type="text" readonly autoComplete='false' required style={OtherStyles.txt()}
-                value={props.val}  placeholder={props.placeholder}
+            <input type="text" readonly autoComplete='false' style={OtherStyles.txt()}
+                value={props.val} placeholder={props.placeholder}
                 onChange={props.handle} disabled className={`form-control w-50  ${props.moreclass} `}
                 id={props.label} />
             {props.additionalelement}
+        </>
+    )
+}
+export const InputReadOnly = (props) => {
+    return (
+        <>  <GenIputRow name={props.name} label={props.label}>
+            <input type="text" readonly autoComplete='false' style={OtherStyles.txt()}
+                value={props.val} placeholder={props.placeholder}
+                onChange={props.handle} disabled className={`form-control   ${props.moreclass} `}
+                id={props.label} />
+            {props.additionalelement}
+        </GenIputRow>
         </>
     )
 }
@@ -29,8 +48,8 @@ export const FileInputRow = (props) => {
     return (
         <>
             <GenIputRow name={props.name} label={props.label}>
-                <input type="file"   multiple name={props.name}
-                     onChange={props.handle} id={props.label} />
+                <input type="file" multiple name={props.name}
+                    onChange={props.handle} id={props.label} />
                 {props.additionalelement}
             </GenIputRow>
         </>
@@ -39,15 +58,29 @@ export const FileInputRow = (props) => {
 function InputRow(props) {
     return (
         <>
-            <GenIputRow name={props.name} label={props.label}>
-                <input type={props.num? "number": "text"} autoComplete='off' required style={OtherStyles.txt()}
-                    value={props.val}
-                    onChange={props.handle} className="form-control"
-                    id={props.label}  placeholder={props.placeholder} />
+            <GenIputRow name={props.name} label={props.label} moreclass={props.moreclass}>
+                <input type={props.num ? "number" : "text"} autoComplete='off' required style={OtherStyles.txt()}
+                    value={props.val} onChange={props.handle} className={`form-control `}
+                    id={props.label} placeholder={props.placeholder} />
                 {props.additionalelement}
             </GenIputRow>
         </>
     )
+}
+
+
+
+
+export const LongTextINputRow = (props) => {
+    return <>
+        <GenIputRow name={props.name} label={props.label}>
+            <textarea style={{ ...OtherStyles.txt(), resize: 'none', minHeight: '100px' }}
+                value={props.val} onChange={props.handle} className="form-control"
+                id={props.label} placeholder={props.placeholder}>
+            </textarea>
+
+        </GenIputRow>
+    </>
 }
 export const DateInputRow = (props) => {
     const [startDate, date_time] = useState();
@@ -97,10 +130,10 @@ export const InputRowDate = (props) => {
 export const InputRowDateNoLabel = (props) => {
     return (
         <>
-                <DatePicker id="date" className={`form-control ${props.moreclass}`} style={{ width: '100% !important' }}
-                    selected={props.nDate} format='yyyy-MM-dd' title="Pick the date"
-                    onChange={props.handle} showYearDropdown />
-                {props.additionalelement}
+            <DatePicker id="date" className={`form-control ${props.moreclass}`} style={{ width: '100% !important' }}
+                selected={props.nDate} format='yyyy-MM-dd' title="Pick the date"
+                onChange={props.handle} showYearDropdown />
+            {props.additionalelement}
         </>
     )
 }

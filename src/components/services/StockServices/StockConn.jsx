@@ -7,8 +7,8 @@ export default class StockConn {
         // name:'//nyakarambi.codeguru-pro.com:'
         // name: 'http://test_stockdjuma.megisha.com:'
         // name: 'http://192.168.92.6:'
-        // name: 'http://localhost:',
-        'name':'https:codeguru-pro.com:'
+        name: 'http://localhost:',
+        // 'name':'https:codeguru-pro.com:'
     };
     static port = {
         /*the below hosted to Djuma Nyabugogo and djuma town, the both have the same port bcz they are on different servers*/

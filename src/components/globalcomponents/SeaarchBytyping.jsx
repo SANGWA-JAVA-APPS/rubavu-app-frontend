@@ -6,8 +6,8 @@ import TableHead from '../Global/TableHead'
 import { LocalTableHead, LocalTableHeadCommon, TableRows } from '../../components/Global/commonForPages/TableCommons'
 import { ColItemContext } from '../Global/GlobalDataContentx'
 
-function SeaarchBytyping({ tableHead, TableRows ,searchOnThirdSecond, labelName}) {
-    const  {searchItemValue, setSearchItemValue} = useContext(ColItemContext)
+function SeaarchBytyping({  searchOnThirdSecond, labelName,placeholder  }) {
+    const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
     const [completeitemName, setCompleteitemName] = useState() //This is the chosen name of item selected from the list from the backend on the result table
     const [searchedNameLabel, setSearchedNameLabel] = useState('') // this is used on search on the beginning of the form registration
     const [searchedQtyLabel, setSearchedQtyLabel] = useState('') // this is used on search on the beginning of the form registration
@@ -20,8 +20,7 @@ function SeaarchBytyping({ tableHead, TableRows ,searchOnThirdSecond, labelName}
     const [searchProgress, setSearchProgress] = useState(false)//more as units when clicked the 'deploy' button
     const [completedSearch, setCompletedSearch] = useState(false)//  
 
-        const {searchTableVisible,setSearchTableVisible}=useContext(ColItemContext)
-   
+    // const { searchTableVisible, setSearchTableVisible } = useContext(ColItemContext)
     const sendRequestOnThirdChar = (e) => {
         const newValue = e.target.value;
 
@@ -38,7 +37,6 @@ function SeaarchBytyping({ tableHead, TableRows ,searchOnThirdSecond, labelName}
     }
     const searchForItemByName = () => {
         console.log('--------The search initiated Commmon');
-
         if (searchItemValue === '') {
             //   alert('You have to enter the value to search')
         } else {
@@ -47,10 +45,10 @@ function SeaarchBytyping({ tableHead, TableRows ,searchOnThirdSecond, labelName}
     }
     const blurhandler = () => {
     }
-  
-    
+
+
     return (
-        <InputAndSearch val={searchItemValue}
+        <InputAndSearch val={searchItemValue} placeholder={placeholder}
             changedContent={(e) => sendRequestOnThirdChar(e)}
             handle={() => searchForItemByName()}
             blurhandler={blurhandler} label='Item' name={labelName}>
@@ -75,22 +73,25 @@ function SeaarchBytyping({ tableHead, TableRows ,searchOnThirdSecond, labelName}
             <LoadSub showmoreload={searchProgress} /> {/* Show progress upon clicking te deploy button*/}
 
             {/* The first search table */}
-            {  searchTableVisible &&
-                <>
-                    <h4>Vessels    </h4>
-                    <TableOpen changedbgColor={1} >
-                        <TableHead changedbgColor={1}>
-                            {tableHead.map((item, index) => (
-                                <td>{item}</td>
-                            ))}
-                            <td>Option</td>
-                       </TableHead>
-                        <tbody>  {TableRows()}    </tbody>
-                    </TableOpen>
-                </>
-            }
+
         </InputAndSearch>
     )
 }
 
 export default SeaarchBytyping
+
+export const SearchTableResult = ({tableHead,TableRows}) => {
+    return <>
+            <h4>Vessels    </h4>
+            <TableOpen changedbgColor={1} >
+                <TableHead changedbgColor={1}>
+                    {tableHead.map((item, index) => (
+                        <td>{item}</td>
+                    ))}
+                    <td>Option</td>
+                </TableHead>
+                <tbody>  {TableRows()}    </tbody>
+            </TableOpen>
+        </>
+    
+}

@@ -18,12 +18,11 @@ export const BookingSubMenu = () => {
               badge1={<>
                 {/* <BadgeContent content="new" />
                         <BadgeContent content="search entries by date" /> */}
-
               </>}
               eventOne={gotoBooking}
               li1="Book a new Vessel"
-              li2="Cancel Booking"
-              li3="View Booking Status" />
+              
+              />
 
           } />
 

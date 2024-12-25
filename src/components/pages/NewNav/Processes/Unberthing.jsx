@@ -10,7 +10,7 @@ import TableHead from '../../../Global/TableHead'
 import SearchBox from '../../../Global/SearchBox'
 import 'react-datepicker/dist/react-datepicker.css'
 import ContainerRow, { ClearBtnSaveStatus, ContainerRowBtwn, ContainerRowHalf, FormInnerRightPane, FormSidePane, SaveUpdateBtns } from '../../../Global/ContainerRow'
-import InputRow, { DropDownInput, EmptyInputRow } from '../../../Global/Forms/InputRow'
+import InputRow, { DropDownInput, EmptyInputRow, LongTextINputRow } from '../../../Global/Forms/InputRow'
 import FormTools from '../../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../../Global/ListTable'
@@ -157,7 +157,8 @@ setDesc("")
             <InputRow name='Vessel Id ' val={vessel_id} handle={(e) => setVessel_id(e.target.value)} label='lblvessel_id' />
             <InputRow name='ATD ' val={atd} handle={(e) => setAtd(e.target.value)} label='lblatd' />
             <InputRow name='Departure Draft ' val={departure_draft} handle={(e) => setDeparture_draft(e.target.value)} label='lbldeparture_draft' />
-            <InputRow name='Description ' val={desc} handle={(e) => setDesc(e.target.value)} label='lbldesc' />
+            <LongTextINputRow name='Description ' val={desc} handle={(e) => setDesc(e.target.value)} label='lbldesc' />
+            
     
             <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />
           </FormInnerRightPane>

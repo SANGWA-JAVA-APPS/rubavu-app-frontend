@@ -17,47 +17,38 @@ import { MainMenuContainer } from './MainMenuContainer'
 import { map_add as gate } from 'react-icons-kit/ikons/map_add'
 
 import { Reports } from './opsSubMenu/Reports'
-import { Entry } from './GateSubmenu/Entry'
+import {  TruckExit } from './GateSubmenu/TruckExit'
+import { TruckEntry } from './GateSubmenu/TruckEntry'
+import { Truck } from './GateSubmenu/Truck'
+import { TruckInvoice } from './GateSubmenu/TruckInvoice'
 export const Gate = () => {
-    const [gateOption, setGateOption] = useState(true)
-    const [trucksOption, setTruckslOption] = useState(false)
-    const [warehouseOption, setWarehouseOption] = useState(false)
-    const [vesselOption, setVesselOption] = useState(false)
-    const [reportOption, setReportOption] = useState(false)
+    const [truckOption, setTruckOption] = useState(false)
+    const [trucksEntryOption, setTrucksEntryOption] = useState(false)
+    const [truckExitOption, setTruckExitOption] = useState(false)
+    const [truckInvoiceOption, setTruckInvoiceOption] = useState(false)
     const truckClick = () => {
-        setVesselOption(false)
-        setWarehouseOption(false)
-        setTruckslOption(true)
-        setReportOption(false)
-        setGateOption(false)
+        setTruckOption(true)
+        setTrucksEntryOption(false)
+        setTruckExitOption(false)
+        setTruckInvoiceOption(false)   
     }
-    const warehouseClick = () => {
-        setVesselOption(true)
-        setWarehouseOption(false)
-        setTruckslOption(false)
-        setReportOption(false)
-        setGateOption(false)
+    const truckEntryClick = () => {
+        setTruckOption(false)
+        setTrucksEntryOption(true)
+        setTruckExitOption(false)
+        setTruckInvoiceOption(false)   
     }
-    const vesselClick = () => {
-        setVesselOption(false)
-        setWarehouseOption(true)
-        setTruckslOption(false)
-        setReportOption(false)
-        setGateOption(false)
+    const truckExitClick = () => {
+        setTruckOption(false)
+        setTrucksEntryOption(false)
+        setTruckExitOption(true)
+        setTruckInvoiceOption(false)   
     }
-    const reportClick = () => {
-        setVesselOption(false)
-        setWarehouseOption(false)
-        setTruckslOption(false)
-        setReportOption(true)
-        setGateOption(false)
-    }
-    const gateClick = () => {
-        setVesselOption(false)
-        setWarehouseOption(false)
-        setTruckslOption(false)
-        setReportOption(false)
-        setGateOption(true)
+    const truckInvoiceClick = () => {
+        setTruckOption(false)
+        setTrucksEntryOption(false)
+        setTruckExitOption(false)
+        setTruckInvoiceOption(true)   
     }
     return (
         <MainMenuContainer>
@@ -65,33 +56,51 @@ export const Gate = () => {
             <Col md={3}  >
                 <TitleBigList
                     li1={
-                        <ListItems title="Cargo Entry" desc="Trucks, Truck by entries, arrival notes"
-                            chosen={trucksOption ? "redBorder" : ""}
+                        <ListItems title="Truck" desc="Trucks, Truck by entries, arrival notes"
+                            chosen={truckOption ? "redBorder" : ""}
                             iconName={truck}
                             clickHandle={truckClick}
 
                         />}
-                    
+                    li2={
+                        <ListItems title="Cargo Entry" desc="Trucks, Truck by entries, arrival notes"
+                            chosen={trucksEntryOption ? "redBorder" : ""}
+                            iconName={truck}
+                            clickHandle={truckEntryClick}
+
+                        />}
+                        
+                        li3={
+                            <ListItems title="Truck Exit" desc="Trucks, Truck by entries, arrival notes"
+                                chosen={truckExitOption ? "redBorder" : ""}
+                                iconName={truck}
+                                clickHandle={truckExitClick}
+    
+                            />}
+                        li4={
+                            <ListItems title="Truck Parking Invoice" desc="Trucks, Truck by entries, arrival notes"
+                                chosen={truckInvoiceOption ? "redBorder" : ""}
+                                iconName={truck}
+                                clickHandle={truckInvoiceClick}
+    
+                            />}
 
 
                 />
             </Col>
             <Col md={8} className="me-2 mt-4"  >
                 <Row>
-                    {trucksOption &&
-                        <Entry />
+                    {truckOption &&
+                        <Truck />
                     }
-                    {warehouseOption &&
-                        <Warehouse />
+                    {trucksEntryOption &&
+                        <TruckEntry />
                     }
-                    {vesselOption &&
-                        <Vessel />
+                    {truckExitOption &&
+                        <TruckExit />
                     }
-                    {vesselOption &&
-                        <Vessel />
-                    }
-                    {reportOption&&
-                    <Reports/>
+                    {truckInvoiceOption &&
+                        <TruckInvoice />
                     }
                 </Row>
             </Col>

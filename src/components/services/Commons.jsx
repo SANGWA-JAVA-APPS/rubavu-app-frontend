@@ -25,6 +25,10 @@ class Commons {
         return axios.post(Conn.wholePath.name + "/account/", usersDTO, { headers: Conn.GetToken })
     }
 
+    getprofileByCategory(){
+        return axios.get(Conn.server.name + Conn.port.val + "codeguru/api/account/profile", {headers: Conn.GetToken})
+    }
+
     changePassword(user, id) {
         return axios.put(Conn.wholePath.name + "/account/changePassword/" + id, user, { headers: Conn.GetToken })
     }
@@ -98,6 +102,11 @@ class Commons {
         return axios.post(Conn.PubWholePath.name + '/' + account_id + '/' + product_id, sendOrder)
 
     }
+
+    
+
+
+
 
 
 

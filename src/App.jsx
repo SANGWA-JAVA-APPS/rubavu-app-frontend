@@ -52,6 +52,7 @@ import { Bollards } from './components/pages/NewNav/Processes/Bollards';
 import { Gate } from './components/pages/NewNav/Gate';
 import Unberthing from './components/pages/NewNav/Processes/Unberthing';
 import Invoice from './components/pages/Invoice/Invoice';
+import TruckForm from './components/pages/Truck/TruckForm';
 
 function App() {
 
@@ -168,7 +169,10 @@ function App() {
                 <RequireAuth loginPath="/login">
                   <Expenses />
                 </RequireAuth>} />
-
+              <Route path="/truckform" element={
+                <RequireAuth loginPath="/login">
+                  <TruckForm/>
+                </RequireAuth>} />
             </Routes>
 
           </AppDataContextProvider>

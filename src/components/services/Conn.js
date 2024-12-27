@@ -69,4 +69,7 @@ export default class Conn {
     static nonAuthenticated = {
         name: Conn.server.name + Conn.port.val+"/pub/appointment"
     }
+    static truck = {
+        name:  Conn.server.name + Conn.port.val + Conn.basicPath.val + "/truck"
+    }
 }

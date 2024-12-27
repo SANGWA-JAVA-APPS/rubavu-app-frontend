@@ -37,7 +37,10 @@ function Invoice() {
   const [id, setId] = useState()
   const [quay_amount, setQuay_amount] = useState()
   const [etd, setEtd] = useState()
-  const [vessel_handling_charges, setVessel_handling_charges] = useState()
+  const [vessel_handling_charges, setVessel_handling_charges] = useState({
+    id:"",berthing_amount:"", ata:"",capacity:"",mooring_amount: ""
+
+  })
   const [vessel_id, setVessel_id] = useState()
   const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
   /*#endregion ENTITY FIELDS DECLARATION */
@@ -109,7 +112,7 @@ function Invoice() {
 
 
   const getInvoiceById = (id) => {
-    StockStockRepository.findInvoiceById(id).then((res) => {
+    StockRepository.findInvoiceById(id).then((res) => {
       setId(res.data.id)
       setQuay_amount(res.data.quay_amount)
       setEtd(res.data.etd)
@@ -169,6 +172,10 @@ function Invoice() {
     setVessel_id(id)
     setSearchItemValue(name)
 
+    StockRepository.findVesselByVesselId(id).then((res)=>{
+      setVessel_handling_charges(res.data)
+    })
+
   }
   const findVesselByOperator = (searchItemValue) => {
     StockRepository.findVesselByOperator(searchItemValue).then((res) => {
@@ -227,12 +234,12 @@ function Invoice() {
            
             <br/>
             
-            <InputReadOnly name='** Berthing ID ' val={vessel_handling_charges}   label='lblvessel_handling_charges' />
-            <InputReadOnly name='** ATA' val={vessel_handling_charges}   label='lblvessel_handling_charges' />
-            <InputReadOnly name='** Capacity' val={vessel_handling_charges}   label='lblvessel_handling_charges' />
+            <InputReadOnly name='** Berthing ID ' val={vessel_handling_charges.id}   label='lblvessel_handling_charges' />
+            <InputReadOnly name='** ATA' val={vessel_handling_charges.ata}   label='lblvessel_handling_charges' />
+            <InputReadOnly name='** Capacity' val={vessel_handling_charges.capacity}   label='lblvessel_handling_charges' />
             <br/>
-            <InputReadOnly name='Berthing charges ' val={quay_amount} handle={(e) => setQuay_amount(e.target.value)} label='lblquay_amount' />
-            <InputReadOnly name='Mooring Charges ' val={vessel_handling_charges} handle={(e) => setVessel_handling_charges(e.target.value)} label='lblvessel_handling_charges' />
+            <InputReadOnly name='Berthing charges ' val={vessel_handling_charges.berthing_amount} handle={(e) => setQuay_amount(e.target.value)} label='lblquay_amount' />
+            <InputReadOnly name='Mooring Charges ' val={vessel_handling_charges.mooring_amount} handle={(e) => setVessel_handling_charges(e.target.value)} label='lblvessel_handling_charges' />
             <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />
           </FormInnerRightPane>
           {/* <FormSidePane /> */}

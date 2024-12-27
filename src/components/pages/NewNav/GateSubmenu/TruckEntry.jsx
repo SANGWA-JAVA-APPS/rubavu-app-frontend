@@ -4,7 +4,7 @@ import { TitleDesscNormal } from '../../../globalcomponents/TitleSmallDesc'
 import { BadgeContent, TitleAndListNormal } from '../../../globalcomponents/TitleAndList'
 import { useNavigate } from 'react-router-dom'
 
-export const Entry = () => {
+export const TruckEntry = () => {
     const navigate=useNavigate()
     const gotoEntry=()=>{
         navigate("/entryform")
@@ -20,7 +20,7 @@ export const Entry = () => {
                         <BadgeContent content="search entries by date" /> */}
                     </>}
                     eventOne={gotoEntry}
-                    li1="Add entry"
+                    li1="Add Truck Entry"
                     />
 
             } />

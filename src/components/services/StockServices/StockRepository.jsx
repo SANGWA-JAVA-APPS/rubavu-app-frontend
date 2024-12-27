@@ -190,6 +190,10 @@ class StockRepository {
        
         return axios.get(StockRepository.server + "/vessel/vesselByOperator/"+name)
     }
+    findVesselByVesselId(id) {
+       
+        return axios.get(StockRepository.server + "/vessel/total/"+id)
+    }
     findBerthing() {
         return axios.get(StockRepository.server + "/berthing/")
     }
@@ -368,6 +372,22 @@ class StockRepository {
     }
     findProc_fourById(id) {
         return axios.get(StockRepository.server + "/proc_four/" + id, { headers: StockRepository.getHeaders }).catch(() => { StockCommons.RedirectToLogin() })
+    }
+
+    saveTruck(truck) {
+        return axios.post(StockRepository.server + "/truck/",truck,{ headers: StockRepository.getHeaders })
+    }
+    getAllTruck(truck) {
+        return axios.get(StockRepository.server + "/truck/",truck,{ headers: StockRepository.getHeaders })
+    }
+    getTruckById(id) {
+        return axios.get(StockRepository.server + "/truck/" + id,{ headers: StockRepository.getHeaders })
+    }
+    updateTruck(id, truck){
+        return axios.put(StockRepository.server + "/truck/" + id, truck,{ headers: StockRepository.getHeaders })
+    }
+    deleteTruck(id){
+        return axios.delete(StockRepository.server + "/truck/" + id,{ headers: StockRepository.getHeaders })
     }
     /* #endregion */
 }

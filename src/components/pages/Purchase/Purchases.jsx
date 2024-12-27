@@ -127,6 +127,11 @@ function Purchase() {
   const { recPurchase } = useContext(ColItemContext)
   const { purchaseMenu } = useContext(ColItemContext)
 
+  const [lastArrival,setLastArrival] = useState({})
+
+  //arrival variables
+  // const [profiles,setProfiles] = useState([])
+
   var n = 0 // this is the number that is given to a key
   const getitemReport = (id) => {
     console.log(id)
@@ -233,7 +238,30 @@ function Purchase() {
       setCurrencyName(res.data.value)
     })
   }
+
+  //arrival codes
+  const [profiles,setProfiles]  = useState()
+    const [profileId,setProfileId] = useState()
+    
+    const getAllProfiles = () => {
+        StockRepository.getClientProfiles().then(res => {
+          setProfiles(res.data)
+          console.log(res.data)
+        })
+      }
+
+
   useEffect(() => {
+
+
+
+    //creating arrival
+    getAllProfiles()
+
+
+
+
+    //others
     getAllPurchasess(CurrentDate.todaydate(), CurrentDate.todaydate())
     getAllHw_movements()
     setDataLoad(true)
@@ -581,6 +609,13 @@ function Purchase() {
               <Col md={11}  ><h3 className="beerskin1"> {searchItemValue} </h3></Col>
             </Row>}
           <FormFillPane onSubmitHandler={onSubmitHandler}>
+          <DropDownInput handle={(e) => setCatId(e.target.value)} name='Destination' label='trucktype' >
+              {
+                profiles && profiles.map(res=>(
+                  <option value={res.id}>{res.name} {res.surname}</option>
+                ))
+              }
+            </DropDownInput>
             {/* <Container>
               <a href='#' onClick={() => setContentHandler()}>Popup</a>
             </Container> */}

@@ -32,6 +32,7 @@ export const AppDataContextProvider = ({ children }) => {
   const [searchTableVisible, setSearchTableVisible] = useState(false); //To show side menu
   const [searchItemValue, setSearchItemValue] = useState('')
   const [searchTableVisible2, setSearchTableVisible2] = useState(false)
+  const [destination_id,setDestination_id]  = useState(0)
 
 
   /* #region ----tracking the pressed key in the textbox ---- */
@@ -90,7 +91,7 @@ export const AppDataContextProvider = ({ children }) => {
       pressedKey, handleKeyPress, formatDateFn,
       nDate, setNdate, dc, ds, purchaseMenu, setPurchaseMenu, saleMenu, setSaleMenu, recPurchase, setRecPurchase,
       defaultMeasureUnit, setDefaultMeasureUnit, itemOrCargo, setitemOrCargo,
-      showcanvaOne, setshowcanvaOne, //show offCanvas menu
+      showcanvaOne, setshowcanvaOne,destination_id,setDestination_id, //show offCanvas menu
       //search item by tying
       searchTableVisible, setSearchTableVisible, searchItemValue, setSearchItemValue,searchTableVisible2, setSearchTableVisible2
     }}>

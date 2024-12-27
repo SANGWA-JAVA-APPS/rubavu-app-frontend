@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 export const TruckEntry = () => {
     const navigate=useNavigate()
     const gotoEntry=()=>{
-        navigate("/entryform")
+        navigate("/truckentryform")
     }
   return (
     <>

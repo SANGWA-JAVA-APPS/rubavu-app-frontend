@@ -1,62 +1,11 @@
 import React from 'react'
-import Login from '../Login/Login'
-import Home from '../Home/Home'
-import Items from '../item/items'
-import { Route, Routes } from 'react-router-dom'
-import { RequireAuth } from 'react-auth-kit'
-import ItemCategory from '../ItemCategory/item_category'
-import Beer from '../Beer/Beer'
-import Liquor from '../Liquor/Liquor'
-import Sales from '../sale/Sales'
-import Damage from '../damage/Damage'
-import StockLevel from '../StockLevel/StockLevel'
-import Dashboard from '../Dashboard/Dashboard'
-import AccountPage from '../Users/AccountPage'
-import Purchase from '../Purchase/Purchases'
-import Changepassword from '../sale/Changepassword'
-import Account_category from '../AccCategory/Account_category'
-import UnitCosts from '../Unitcosts/UnitCosts'
-import DetailedReport from '../Dashboard/DetailedReport'
-import Currency from '../currency/Currency'
-import Closing from '../closing/Closing'
-import Funding from '../funding/Funding'
-import Expenses from '../expenses/Expenses'
-import MultipleItems from '../Purchase/MultipleItems'
-import SalePurchaseForm from '../sale/SalePurchaseForm'
-import AnySettingsName from '../settings/AnySettingsName'
-import Debts from '../Debts/Debts'
-import Return from '../Returns/Return'
-import CompanyName from '../settings/CompanyName'
-import Testuser from '../TestUser/Testuser'
-import StockNavBar from '../../Navbar/StockNavBar'
-import SecondMenu from '../../Navbar/SecondMenu'
-import Entry from '../Entry/Entry'
-import Vessel from '../Vessel/Vessel'
-import TruckVhNavBar from '../../Navbar/TruckVhNavBar'
-import Booking from '../Booking/Booking'
-import Arrival_note from '../Arrivalnote/Arrival_note'
-import Invoice from '../Invoice/Invoice'
-import Payment from '../Payment/Payment'
-import Exits from '../Exit/Exits'
-import TVTallyIn from '../TruckWh/TVTallyIn'
-import TvVessel from '../TruckVessel/TvVessel'
-import TVBooking from '../TruckVessel/TVBooking'
-import TruckVesselNavBar from '../../Navbar/TruckVesselNavBar'
-import TvArrivalNote from '../TruckVessel/TvArrivalNote'
-import TVTallyout from '../TruckVessel/TVTallyout'
-import TVInvoice from '../TruckVessel/TVInvoice'
-import TVpayment from '../TruckVessel/TVpayment'
-import TVExit from '../TruckVessel/TVExit'
-import WVTallyout from '../WHVessel/WVTallyout'
-import Wvinvoice from '../WHVessel/Wvinvoice'
-import WVPayment from '../WHVessel/WVPayment'
 
 function RootMenu() {
     return (
         <>
-            <SecondMenu />
+            {/* <SecondMenu /> */}
 
-            <Routes>
+            {/* <Routes>
                 <Route path="/" element={
                     <Login />} />
                 <Route path="/home" element={
@@ -180,7 +129,7 @@ function RootMenu() {
                     <RequireAuth loginPath="/login">
                         <Debts />
                     </RequireAuth>} />
-            </Routes>
+            </Routes> */}
         </>
     )
 }

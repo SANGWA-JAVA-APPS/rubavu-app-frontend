@@ -26,7 +26,7 @@ class Commons {
     }
 
     getprofileByCategory(){
-        return axios.get(Conn.server.name + Conn.port.val + "codeguru/api/account/profile", {headers: Conn.GetToken})
+        return axios.get(Conn.server.name + Conn.port.val + "codeguru/api/account/profile/driver", {headers: Conn.GetToken})
     }
 
     changePassword(user, id) {

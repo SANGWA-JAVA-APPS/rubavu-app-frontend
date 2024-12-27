@@ -380,6 +380,9 @@ class StockRepository {
     getAllTruck(truck) {
         return axios.get(StockRepository.server + "/truck/",truck,{ headers: StockRepository.getHeaders })
     }
+    getAllTruck() {
+        return axios.get(StockRepository.server + "/truck/",{ headers: StockRepository.getHeaders })
+    }
     getTruckById(id) {
         return axios.get(StockRepository.server + "/truck/" + id,{ headers: StockRepository.getHeaders })
     }
@@ -388,6 +391,32 @@ class StockRepository {
     }
     deleteTruck(id){
         return axios.delete(StockRepository.server + "/truck/" + id,{ headers: StockRepository.getHeaders })
+    }
+
+    saveTruckEntry(truck) {
+        return axios.post(StockRepository.server + "/truck_entry/",truck,{ headers: StockRepository.getHeaders })
+    }
+    getAllTruckEntry(truck) {
+        return axios.get(StockRepository.server + "/truck_entry/",truck,{ headers: StockRepository.getHeaders })
+    }
+    getTruckEntryById(id) {
+        return axios.get(StockRepository.server + "/truck_entry/" + id,{ headers: StockRepository.getHeaders })
+    }
+    updateTruckEntry(id, truck){
+        return axios.put(StockRepository.server + "/truck_entry/" + id, truck,{ headers: StockRepository.getHeaders })
+    }
+    deleteTruckEntry(id){
+        return axios.delete(StockRepository.server + "/truck_entry/" + id,{ headers: StockRepository.getHeaders })
+    }
+    getClientProfiles(id){
+        return axios.get(StockRepository.server + "/profile/profile",{ headers: StockRepository.getHeaders })
+    }
+    
+    getClientProfiles(category){
+        return axios.get(StockRepository.server + "/account/profile/" +category,{ headers: StockRepository.getHeaders })
+    }
+    saveArrival(profileData){
+        return axios.post(StockRepository.server + "/arrival_note/create",profileData,{ headers: StockRepository.getHeaders })
     }
     /* #endregion */
 }

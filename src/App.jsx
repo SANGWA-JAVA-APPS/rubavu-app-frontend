@@ -53,6 +53,9 @@ import { Gate } from './components/pages/NewNav/Gate';
 import Unberthing from './components/pages/NewNav/Processes/Unberthing';
 import Invoice from './components/pages/Invoice/Invoice';
 import TruckForm from './components/pages/Truck/TruckForm';
+import TruckEntry from './components/pages/Truck/TruckEntryForm';
+// import { CreatingArrival } from './components/pages/Purchase/CreatingArrival';
+// import { CreatingArrival } from './components/pages/Purchase/CreatingArrival';
 
 function App() {
 
@@ -129,6 +132,7 @@ function App() {
               <Route path="/startproc" element={
                 <RequireAuth loginPath="/login">
                   <Generic />
+                  {/* <Arrival_note/> */}
                 </RequireAuth>} />
 
               <Route path="/anysetting" element={
@@ -173,6 +177,15 @@ function App() {
                 <RequireAuth loginPath="/login">
                   <TruckForm/>
                 </RequireAuth>} />
+
+              <Route path="/truckentryform" element={
+                <RequireAuth loginPath="/login">
+                  <TruckEntry/>
+                </RequireAuth>} />
+                {/* <Route path="/createArrival" element={
+                <RequireAuth loginPath="/login">
+                  <CreatingArrival/>
+                </RequireAuth>} /> */}
             </Routes>
 
           </AppDataContextProvider>

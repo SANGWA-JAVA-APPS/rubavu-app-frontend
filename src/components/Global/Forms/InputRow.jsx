@@ -59,7 +59,7 @@ function InputRow(props) {
     return (
         <>
             <GenIputRow name={props.name} label={props.label} moreclass={props.moreclass}>
-                <input type={props.num ? "number" : "text"} autoComplete='off' required style={OtherStyles.txt()}
+                <input name={props.nam ? props.nam : "text"} type={props.num ? "number" : "text"} autoComplete='off' required style={OtherStyles.txt()}
                     value={props.val} onChange={props.handle} className={`form-control `}
                     id={props.label} placeholder={props.placeholder} />
                 {props.additionalelement}

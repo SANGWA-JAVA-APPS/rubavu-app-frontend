@@ -33,7 +33,7 @@ import { TextField } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers'
 
-function TruckForm() {
+function TruckEntry() {
 
   const [profile,setProfile] = useState()
 
@@ -245,7 +245,9 @@ function TruckForm() {
                 <td>Plate Number</td>
                 <td>Driver Id</td>
                 <td>Truck type</td>
-
+                <td>Weight Of Truck</td>
+                <td>Get In Time</td>
+                <td>Cargo Type</td>
                 {userType == 'admin' && <td className='delButton'>Option</td>}
               </TableHead>
               <tbody>
@@ -254,7 +256,7 @@ function TruckForm() {
                     <td>{truck.id}   </td>
                     <td>{truck.plate_number}   </td>
                     <td>{truck.truck_type}   </td>
-                    <td>{truck.driver_id}   </td>
+                    <td></td>
 
                     {userType == 'admin' && <ListOptioncol getEntityById={() => getTrucksById(truck.id)} delEntityById={() => deleteTruckById(truck.id)} />}
                   </tr>
@@ -271,7 +273,7 @@ function TruckForm() {
   )
 }
 
-export default TruckForm
+export default TruckEntry
 
 
 

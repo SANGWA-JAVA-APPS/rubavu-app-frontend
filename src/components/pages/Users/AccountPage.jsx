@@ -36,6 +36,9 @@ function AccountPage() {
     const [password, setPassword] = useState(123)
     const [account_category, setAccount_category] = useState()
     const [profileId, setProfile] = useState()
+
+    const [isClient,setIsClient] = useState(false)
+    const [tin_number,setTin_number] = useState(null)
     // profile
     const [name, setName] = useState()
     const [surname, setSurname] = useState()
@@ -64,7 +67,7 @@ function AccountPage() {
         setShowLoader(true)
 
         var usersDTO = {
-            id: id,
+            id: id,tin_number:tin_number,
             name: name, surname: surname, gender: gender, account_category_id: catId, username: username, password: password
         }
         if (id) {
@@ -220,6 +223,15 @@ function AccountPage() {
     /*#endregion Listing data*/
 
 
+    const [selectedText, setSelectedText] = useState("");
+
+    const handleSelectChange = (e) => {
+
+        setCatId(e.target.value)
+      const selectedOptionText = e.target.options[e.target.selectedIndex].text;
+      setSelectedText(selectedOptionText); // Update the state with the selected text
+    };
+
     return (
 
         <PagesWapper>
@@ -228,7 +240,20 @@ function AccountPage() {
                     <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
                     <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
 
+                        Selected items    {selectedText} : id:{catId}
+                    
+
+
+
                         {/* profile     */}
+                        <DropDownInput handle={(e) => handleSelectChange(e)} name='category' label='category' >
+                            {account_categorys.map((cat) => (
+                                <option selected={catId === cat.id} value={cat.id} key={cat.id}> {cat.name} </option>
+                            ))}
+                        </DropDownInput>
+                        {selectedText==='client'&&
+                        <InputRow name='TIN' val={tin_number} handle={(e) => setTin_number(e.target.value)} label='lblname' />
+                        }
 
                         <InputRow name='Name' val={name} handle={(e) => setName(e.target.value)} label='lblname' />
                         <InputRow name='Surname' val={surname} handle={(e) => setSurname(e.target.value)} label='lblsurname' />
@@ -242,11 +267,6 @@ function AccountPage() {
                         <InputRow name='Username' val={username} handle={(e) => setUsername(e.target.value)} label='lblusername' />
                         <InputRowPsw name='Password' val={password} handle={(e) => setPassword(e.target.value)} label='lblpassword' />
                         {/* Account category */}
-                        <DropDownInput handle={(e) => setCatId(e.target.value)} name='category' label='category' >
-                            {account_categorys.map((cat) => (
-                                <option selected={catId === cat.id} value={cat.id} key={cat.id}> {cat.name} </option>
-                            ))}
-                        </DropDownInput>
 
                         <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />
                     </FormInnerRightPane>

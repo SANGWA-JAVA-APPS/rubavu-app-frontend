@@ -54,6 +54,8 @@ import Unberthing from './components/pages/NewNav/Processes/Unberthing';
 import Invoice from './components/pages/Invoice/Invoice';
 import TruckForm from './components/pages/Truck/TruckForm';
 import TruckEntry from './components/pages/Truck/TruckEntryForm';
+// import { TruckArrivalForm2 } from './components/pages/Entry/Actions/Test2';
+// import { ShowingForm } from './components/pages/NewNav/BerthSubMenu/OptForms/ShowingForm';
 // import { CreatingArrival } from './components/pages/Purchase/CreatingArrival';
 // import { CreatingArrival } from './components/pages/Purchase/CreatingArrival';
 
@@ -182,10 +184,7 @@ function App() {
                 <RequireAuth loginPath="/login">
                   <TruckEntry/>
                 </RequireAuth>} />
-                {/* <Route path="/createArrival" element={
-                <RequireAuth loginPath="/login">
-                  <CreatingArrival/>
-                </RequireAuth>} /> */}
+                
             </Routes>
 
           </AppDataContextProvider>

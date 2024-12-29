@@ -301,7 +301,7 @@ class StockRepository {
     findStock_outById(id) {
         return axios.get(StockRepository.server + "/stock_out/" + id, { headers: StockRepository.getHeaders }).catch(() => { StockCommons.RedirectToLogin() })
     }
-    //---\n
+    //---\n 
 
     findInvoice_pay_items() {
         return axios.get(StockRepository.server + "/invoice_pay_items/")
@@ -417,6 +417,9 @@ class StockRepository {
     }
     saveArrival(profileData){
         return axios.post(StockRepository.server + "/arrival_note/create",profileData,{ headers: StockRepository.getHeaders })
+    }
+    getArrivalsWithItem(){
+        return axios.get(StockRepository.server + "/arrival_note/byItem",{ headers: StockRepository.getHeaders })
     }
     /* #endregion */
 }

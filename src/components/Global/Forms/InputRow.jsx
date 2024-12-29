@@ -227,7 +227,7 @@ export const DropDownInput = (props) => {
                     <div className='unitsLoading' style={{ backgroundColor: '#fff', position: 'relative', overflow: 'hidden', width: '380px', height: '40px' }}>
                     </div>
                 </div>}
-            <select required style={OtherStyles.txt()} onChange={props.handle} className="form-select" id={props.label} >
+            <select name={props.nam? props.nam: "text"} required style={OtherStyles.txt()} onChange={props.handle} className="form-select" id={props.label} >
                 <option></option>
                 {props.children}
             </select>

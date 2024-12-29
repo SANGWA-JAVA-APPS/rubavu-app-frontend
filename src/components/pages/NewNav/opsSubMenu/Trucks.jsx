@@ -19,7 +19,8 @@ export const Trucks = () => {
         <>
             <Col md={12} className='lightBg p-5'>
                 <Row className="d-flex justify-content-between">
-                    <Col md={5}> <TitleDesscNormal title={"Truck Warehouse"}
+                    <Col md={5}> 
+                    <TitleDesscNormal title={"Truck Warehouse"}
                         desc={
                             <TitleAndListNormal smallerTitleOn={true}
                                 badge1={<>
@@ -30,16 +31,15 @@ export const Trucks = () => {
                                 li2="List of Trucks"
                                 li3="Arrival notices"
                             />
-                        } /></Col>
+                        } />
+                    </Col>
                     <Col md={5} style={{ borderLeft: '3px solid orange' }}>
                         <Link className='startProcess'
                          style={{ border: '1px solid #ccc', padding: '9px' }} 
-                         to="/startproc"><Icon size={30} style={{ color: '#0b3059' }} className="me-2" icon={arrowRight} />
+                         onClick={(e)=>handleClick(e,5)}><Icon size={30} style={{ color: '#0b3059' }} className="me-2" icon={arrowRight} />
                             Start a new Process</Link>
                     </Col>
                 </Row>
-
-
             </Col>
             <Col md={12} className='lightBg p-5 mt-3'>
                 <Row className="d-flex justify-content-between">

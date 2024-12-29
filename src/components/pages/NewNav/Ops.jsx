@@ -69,7 +69,6 @@ export const Ops = () => {
                             chosen={trucksOption ? "redBorder" : ""}
                             iconName={truck}
                             clickHandle={truckClick}
-
                         />}
                     li2={<ListItems title="Warehouse" desc="Tonnage, vessels"
                         iconName={whouse}
@@ -83,8 +82,6 @@ export const Ops = () => {
                         chosen={reportOption ? "redBorder" : ""}
                         iconName={reports}
                         clickHandle={reportClick} />}
-
-
                 />
             </Col>
             <Col md={8} className="me-2 mt-4"  >
@@ -98,9 +95,9 @@ export const Ops = () => {
                     {vesselOption &&
                         <Vessel />
                     }
-                    {vesselOption &&
+                    {/* {vesselOption &&
                         <Vessel />
-                    }
+                    } */}
                     {reportOption&&
                     <Reports/>
                     }

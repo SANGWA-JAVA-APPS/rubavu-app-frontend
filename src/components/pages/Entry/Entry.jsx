@@ -27,9 +27,8 @@ const Entry = () => {
       destination_id == 5? <TruckWarehouse title ="Truck to warehouse"/>:
       destination_id == 6? <VesselWarehouse title = "Vessel to Warehouse"/>:
       destination_id == 7? <WarehouseTruck title = "Warehouse to Truck"/>:
-      destination_id == 8? <WarehouseVessel title = "Warehouse to Vessel"/>:handleNavigate()
+      <WarehouseVessel title = "Warehouse to Vessel"/>
     }
-    <VesselWarehouse />
   </>
 }
 

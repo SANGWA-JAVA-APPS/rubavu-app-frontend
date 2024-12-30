@@ -6,7 +6,7 @@ import Loader, { DataListLoading } from '../../Global/Loader';
 import TableHead from '../../Global/TableHead';
 import SearchBox from '../../Global/SearchBox';
 import ContainerRow, { ClearBtnSaveStatus, ContainerRowBtwn, FormInnerRightPane, SaveUpdateBtns } from '../../Global/ContainerRow';
-import InputRow, { DropDownInput, InputRowNumber } from '../../Global/Forms/InputRow';
+import InputRow, { DropDownInput, InputRowDate, InputRowNumber } from '../../Global/Forms/InputRow';
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar';
 import ListOptioncol, { TableOpen } from '../../Global/ListTable';
 import FormTools from '../../Global/Forms/PubFnx';
@@ -26,6 +26,10 @@ function TruckTruck(props) {
   const [existingArrivals, setExistingArrivals] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [createArrival, setCreateArrival] = useState(true);
+  const [invoiceDisplay,setInvoiceDisplay] = useState(0);
+
+  const [amount,setAmount] = useState()
+  // const [invoiceDisplay,setDisplay] = useState(false);
   const [vesselValues, setVesselValues] = useState({
     capacity: "",
     contact_number: "",
@@ -113,6 +117,8 @@ function TruckTruck(props) {
     setUserType(localStorage.getItem('catname') || 'guest');
   }, [refresh]);
 
+
+
   // Render arrival form
   const renderArrivalForm = () => (
     <AnimateHeight id="arrivalForm" duration={300} animateOpacity={true} height="auto">
@@ -135,10 +141,52 @@ function TruckTruck(props) {
     </AnimateHeight>
   );
 
+  const renderInvoice = () => {
+    return <AnimateHeight id="arrivalForm" duration={300} animateOpacity={true} height="auto">
+      <ContainerRowBtwn clearBtn={false} form="Invoice" showLoader={false}>
+        <FormInnerRightPane onSubmitHandler={saveArrival}>
+            <InputRowNumber name="amount" val={amount} handle={(e) => setAmount(e.target.value)} label="Weight" />
+          <p title='save invoice and continue to receipt' className="btn" style={{backgroundColor:"rgb(212, 111, 43)",border:"none"}}   onClick={()=> setInvoiceDisplay(2)}>Receipt</p>
+
+          {/* <SaveUpdateBtns saveOrUpdate="Save" /> */}
+        </FormInnerRightPane>
+      </ContainerRowBtwn>
+    </AnimateHeight>
+  }
+
+  const renderReceipt = () => {
+    // const [amount,setAmount] = useState()
+    return <AnimateHeight id="receiptform" duration={300} animateOpacity={true} height="auto">
+      <ContainerRowBtwn clearBtn={false} form="Receipt" showLoader={false}>
+        <FormInnerRightPane onSubmitHandler={saveArrival}>
+            <InputRowNumber name="amount" val={amount} handle={(e) => setAmount(e.target.value)} label="Weight" />
+            <p className="btn" style={{backgroundColor:"rgb(212, 111, 43)",border:"none"}}   onClick={()=> setInvoiceDisplay(3)}>Receipt</p>
+
+          {/* <SaveUpdateBtns saveOrUpdate="Save" /> */}
+        </FormInnerRightPane>
+      </ContainerRowBtwn>
+    </AnimateHeight>
+  }
+
+  
+  const renderExit = () => {
+    // const [amount,setAmount] = useState()
+    return <AnimateHeight id="receiptform" duration={300} animateOpacity={true} height="auto">
+      <ContainerRowBtwn clearBtn={false} form="exit" showLoader={false}>
+        <FormInnerRightPane onSubmitHandler={saveArrival}>
+            <InputRowNumber name="amount" val={amount} handle={(e) => setAmount(e.target.value)} label="Weight" />
+            {/* <p className="btn" style={{backgroundColor:"rgb(212, 111, 43)",border:"none"}}   onClick={()=> setInvoiceDisplay(2)}>exit</p> */}
+
+          <SaveUpdateBtns saveOrUpdate="Save" />
+        </FormInnerRightPane>
+      </ContainerRowBtwn>
+    </AnimateHeight>
+  }
+
   // Render main form
   const renderMainForm = () => (
     <AnimateHeight id="mainForm" duration={300} animateOpacity={true} height="auto">
-      <ContainerRowBtwn clearBtn={false} form="Arrival Details" showLoader={false}>
+      <ContainerRowBtwn clearBtn={false} form="Tally Details" showLoader={false}>
         <FormInnerRightPane onSubmitHandler={(e) => e.preventDefault()}>
           <h2 className="fw-bold">Arrival ID: {arrivalId.toString().padStart(3, "0")}</h2>
           <InputRowNumber name="Number of Items" val={unit} handle={(e) => setUnit(e.target.value)} label="Unit" />
@@ -167,8 +215,10 @@ function TruckTruck(props) {
               </option>
             ))}
           </DropDownInput>
-          
-          <SaveUpdateBtns saveOrUpdate="Save" />
+          <p className="btn btn-primary" style={
+            {backgroundColor:"rgb(212, 111, 43)",border:"none"}
+          } onClick={()=> setInvoiceDisplay(1)}>invoice</p>
+          {/* <SaveUpdateBtns saveOrUpdate="Save" /> */}
         </FormInnerRightPane>
       </ContainerRowBtwn>
     </AnimateHeight>
@@ -193,7 +243,9 @@ function TruckTruck(props) {
   return (
     <>
         <h3>{props.title}</h3>
-      {createArrival ? renderArrivalForm() : renderMainForm()}
+      {createArrival ? renderArrivalForm() : invoiceDisplay == 0?renderMainForm():
+      invoiceDisplay == 1?renderInvoice():invoiceDisplay == 3?renderReceipt():renderExit()
+      }
       <ContainerRow mt="3">
         <ListToolBar
           listTitle="Arrival Records History"

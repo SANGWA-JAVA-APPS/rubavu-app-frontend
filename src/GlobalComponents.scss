@@ -1,0 +1,461 @@
+// Global variables
+$paneHoverColor: #ff8c00;
+$scrollHandlerColor: lighten($paneHoverColor, 30%);
+
+
+.custom-modal h1.title,
+h2.title,
+h3.title {
+    font-weight: bolder !important;
+    font-family: Arial, Helvetica, sans-serif;
+    /* text-shadow:
+         -1px -1px #000000,
+         1px -1px 0 #000; */
+
+    /* margin: 30px auto; */
+}
+
+h4.title {
+    font-size: 16px !important;
+}
+
+h1.title {
+    font-size: 21px;
+    color: #000;
+    margin-bottom: 49px;
+    position: relative;
+}
+
+
+//  .DataTableBox,
+//  .dataTable {
+//      padding-left: 20px;
+//      padding-right: 50px;
+//  }
+.dataTableBox {}
+
+/* 1. there are h1 that are block on large space =>> .underlineLargeblock
+   2. Others have two lines                      =>> .underlinetwoLines
+   3. Others have two lines                      =>> .underlinethreeLines
+   4. Others are  on the left an no extra styles =>> .underlineDefault
+ */
+
+/* 
+
+ h1.underlineDefault::after,
+ h1.underlineLargeblock::after,
+ h1.underlinetwoLines::after {
+     position: absolute;
+     content: " ";
+     height: 7px;
+     background-color: #ffa200;
+ }
+
+ h1.underlineDefault::after {
+     top: 50px;
+     left: 0px;
+     width: 100px;
+
+ }
+
+ h1.underlineLargeblock::after {
+     top: 50px;
+     left: 45%;
+     width: 100px;
+ }
+
+ h1.underlinetwoLines::after {
+     top: 95px;
+     left: 0px;
+     width: 150px;
+ } */
+
+h1.bigSectionTitle {
+    font-size: 50px;
+    color: #ffa200;
+    font-weight: bolder;
+}
+
+h2.title {
+    font-size: 20px !important;
+    color: #000;
+}
+
+.supportAnim {
+    position: absolute;
+    top: 30%;
+    color: #fff;
+    z-index: 2;
+    font-size: 18px;
+}
+
+.titleDesc {
+    /* margin-bottom: 40px !important; */
+    /* margin-top: 20px !important; */
+    margin-left: 15px;
+    font-size: 15px;
+    color: #3a3a3a;
+}
+
+.smallDesc {
+    margin: auto;
+}
+
+.appBorder {
+    border: 1px solid #ffa200;
+    border-radius: 4px;
+    box-shadow: 0 0 5px #fff;
+    transition: box-shadow .5s ease-in, border .5s ease-in;
+}
+
+.appBorder:hover {
+    box-shadow: 0 0 5px #000;
+    border: 2px solid #fff;
+}
+
+.smallText {
+    font-size: 12px;
+    color: #414141;
+}
+
+.pageTitle {
+    height: 150px !important;
+    /* background-color: #eeeae7; */
+    color: #52370a;
+
+}
+
+.pageTitle h1.title {
+    font-weight: bold;
+    color: #483f0b;
+    text-shadow: none !important;
+
+}
+
+.smalleListTitle {
+    font-size: 14px !important;
+}
+
+.pageTitle p {
+    color: #f6efce;
+
+}
+
+.contactuslist {
+    line-height: 2rem;
+    color: #000;
+}
+
+.lineHeightClass {
+    list-style: none !important;
+    line-height: 1.2rem;
+}
+
+.redBorder {
+    border: 3px solid #ff8c00;
+    background-color: #fcd19d;
+    border: 2px solid #fff;
+    color: #fff;
+}
+
+.redBorderWhite:hover {
+    border: 3px solid #ff8c00;
+    background-color: lighten($paneHoverColor , 47%) !important;
+    border: 2px solid #fff;
+    cursor: pointer;
+}
+
+
+.redBorder:hover {
+
+    border: 3px solid #ff8c00;
+    background-color: #fcd19d;
+    border: 2px solid #fff;
+    color: #fff;
+}
+
+@keyframes showWhatsapp {
+    from {
+        transform: translateX(122px);
+    }
+
+    to {
+        transform: translateX(2px);
+    }
+}
+
+.whatsappIcon {
+    animation: showWhatsapp 2s ease-in-out;
+}
+
+@media (max-width:980px) {
+    .card {
+        width: 95%;
+        margin: auto;
+        margin-top: 40px;
+    }
+
+    .morecontentParent {
+        position: relative !important;
+    }
+}
+
+@media (max-width: 768px) {
+
+    h1.title,
+    h2.title,
+    h3.title,
+    h1.bigSectionTitle {
+        margin: 20px auto;
+
+    }
+
+    h1.title {
+        margin-left: 20px;
+        font-size: 20px;
+        text-shadow: none;
+        font-weight: bolder;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h2.title {
+        text-shadow: none;
+        font-weight: bolder;
+        font-size: 18px !important;
+    }
+
+    h1.bigSectionTitle {
+        font-size: 27px !important;
+        margin-top: 40px;
+        font-size: 30px;
+    }
+
+
+    p.titleDesc {
+        margin: 10px 25px !important;
+
+    }
+
+    h1.underlineLargeblock::after {
+        left: 37%;
+        top: 64px;
+    }
+
+    h1.underlinetwoLines::after {
+        top: 64px;
+    }
+
+    img {
+        margin: auto;
+        display: block;
+    }
+
+    h1.title p .col-3,
+    h1.title p .col-4 {
+        border: 3px solid #ffa200 !important;
+    }
+}
+
+
+ul li {
+    list-style: none;
+line-height: 2rem;;
+}
+
+.smallLineHeight {
+    line-height: 2rem;
+}
+
+/* -----------------------------Footer */
+.footer li {
+    font-size: 13px;
+}
+
+.txtAddHeight {
+    height: 55px !important;
+}
+
+.printTemplate .customData h5 {
+    font-weight: bolder !important;
+}
+
+.castomCard {
+    position: relative;
+
+    border-radius: 10px;
+
+    ;
+}
+
+.cardIcon {
+    position: absolute;
+    top: -20px;
+    left: 18px;
+    height: 65px;
+    width: 65px;
+
+    padding: 10px;
+    /* background-color: #262626; */
+}
+
+.castomCard,
+.threecharts .chartopPart {
+    box-shadow: 0 0 2px #000;
+}
+
+.cardIcon,
+.threecharts .chartopPart {
+    border-radius: 10px;
+}
+
+.chartopPartparent {
+    box-shadow: 0 -4px 5px -4px #000,
+        /* Top */
+        -4px 0 5px -4px #000,
+        /* Left */
+        4px 0 5px -4px #000;
+    /* Right */
+}
+
+.cardIcon:nth-child(1) {}
+
+.castomCard .c1 {
+    background-color: #fcb740;
+}
+
+.castomCard .c2 {
+    background-color: #82d845;
+}
+
+.castomCard .c3 {
+    background-color: #45c7d8;
+}
+
+.castomCard .c4 {
+    background-color: #9345d8;
+}
+
+.threecharts {
+    height: 200px;
+}
+
+.chartopPartparent {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.threecharts .chartopPart {
+    border-radius: 10px;
+    width: 90%;
+    margin-left: 5%;
+
+}
+
+.threecharts .bottom {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow:
+        0 4px 5px -4px #000,
+        /* Bottom */
+        -4px 0 5px -4px #000,
+        /* Left */
+        4px 0 5px -4px #000;
+    /* Right */
+    position: relative;
+}
+
+.threecharts .bottom .refresh {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    width: 30px;
+    height: 30px;
+
+
+}
+
+.threecharts .bg1 {
+    /* background-image: radial-gradient(circle at center,  #dbdbdb 0,  #d8d4db, #b7b4ba 100%) */
+    background-color: rgb(225, 225, 230);
+}
+
+.threecharts .bg2 {
+    /* background-image: radial-gradient(circle at center, #36a8b7 0, #2b8692, #277d89 100%) */
+    background-color: rgb(213, 234, 234);
+}
+
+.threecharts .bg3 {
+    /* background-image: radial-gradient(circle at center,  #569728 0, #4a8123, #41741d 100%) */
+    background-color: rgb(238, 227, 210);
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.threecharts .bottom .refresh {
+    animation: rotate 5s linear infinite;
+}
+
+.bgLight {
+    background-color: #fff;
+}
+
+.modal-90w {
+    width: 90%;
+}
+
+.custom-modal_97 {
+    width: 97vw !important;
+    /* 90% of viewport width */
+    max-width: 97vw !important;
+    /* Override Bootstrap's max-width */
+    height: 90vh !important;
+    /* 90% of viewport height */
+    margin: 5vh auto !important;
+    /* Center it with 5% top/bottom margin */
+
+}
+
+
+
+
+/* -------------------------------- This is the styled scrollbar for any component ------------------------*/
+.styledVHScrollBar {
+    position: relative;
+}
+
+.styledVHScrollBar::-webkit-scrollbar {
+    width: 7px;
+    border-top: 5px;
+    border-bottom: 5px;
+}
+
+.styledVHScrollBar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.styledVHScrollBar::-webkit-scrollbar-thumb {
+    background: #888;
+    background-color: $scrollHandlerColor;
+    border-top: 5px;
+    border-bottom: 5px;
+}
+
+.styledVHScrollBar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    background-color: $scrollHandlerColor;
+}
+
+/* -------------------------------- End stuled scrollbar ---------------------------------- */
+
+
+.custom-Inputheight {
+    height: 40px !important;
+}

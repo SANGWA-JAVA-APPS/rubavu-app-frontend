@@ -109,7 +109,6 @@ export const Client = () => {
         });
     }
     useEffect(() => {
-        
 
         // Repository.findAllTallyingsCount().then((res2) => {
         //     setState({ totalRows: res2.data });
@@ -175,41 +174,42 @@ export const Client = () => {
         color: "#000",
         fontWeight: "bolder"
     }
+
     /* #region ------------------SEARCH CLIENT BY TYPING ------------------------------------------------- */
     const { searchTableVisible, setSearchTableVisible } = useContext(ColItemContext)
     const { showSelected, setShowSelected } = useContext(ColItemContext)
     const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
     const inputRef = useRef(null);
     const [itemssbyname, setItemssbyname] = useState([]) //Data List searched by name
-    const tableHead = ['id', 'Client name', 'tin number'  ]
+    const tableHead = ['id', 'Client name', 'tin number']
 
     const hideSelectorLink = () => {
         setShowSelected(false)
         setSearchItemValue('')
     }
     const findClientByNameLike = (searchItemValue) => {
-        
-            StockRepository.findClientByNameLike(searchItemValue, authHeader).then((res) => {
-                setItemssbyname(res.data.content);
-                
-                setDataLoad(true)
-            });
-        
+
+        StockRepository.findClientByNameLike(searchItemValue, authHeader).then((res) => {
+            setItemssbyname(res.data.content);
+
+            setDataLoad(true)
+        });
+
     }
     const [numCaharacters, setNumCaharacters] = useState(0)
     const searchOnThirdSecond = (e) => {
         // setSearchTableVisible(true)
-        const newVal = e.target.value 
+        const newVal = e.target.value
         setSearchItemValue(newVal)
         setNumCaharacters(newVal.length)
-        if  (newVal.length > 3) {
+        if (newVal.length > 3) {
             setSearchTableVisible(true)
             findClientByNameLike(searchItemValue)
-        }else{
+        } else {
             setSearchTableVisible(false)
         }
-      
-       
+
+
         if (searchItemValue) {//if the user has typed in something
             // setCompletedSearch(false)
             // setSearchProgress(true) // Go and show the progress bar,
@@ -219,15 +219,15 @@ export const Client = () => {
 
     const searchDone = (id, name, platenumber, status) => {
         setSearchTableVisible(false)
-        
-        
+
+
         setSearchItemValue(name)
         setShowSelected()
 
-            StockRepository.findClientCargonById(id, authHeader).then((res) => {
-                setClients(res.data)
-            })
-        
+        StockRepository.findClientCargonById(id, authHeader).then((res) => {
+            setClients(res.data)
+        })
+
     }
     /* #endregion */
 
@@ -237,26 +237,17 @@ export const Client = () => {
 
 
                 <ContainerRow mt='3'>
-                
                     <SeaarchBytyping placeholder="Enter a Cleint Name"
-                        labelName='Search Client By Name ' searchTableVisible={searchTableVisible}
-                        showSelected={showSelected}
-                        hideSelectorLink={hideSelectorLink}
-                        currentTypingVal={searchItemValue}
-                        ref={inputRef}
-                        sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)} />
+                        labelName='Search Client By Name ' searchTableVisible={searchTableVisible} showSelected={showSelected} hideSelectorLink={hideSelectorLink}
+                        currentTypingVal={searchItemValue} ref={inputRef}                        sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)} />
 
-                    {searchTableVisible && <SearchTableResult tableHead={tableHead}
-                        TableRows={() => <ClientTableRows clients={itemssbyname} searchDone={searchDone} />} />}
+                    {searchTableVisible && <SearchTableResult tableHead={tableHead}                         TableRows={() => <ClientTableRows clients={itemssbyname} searchDone={searchDone} />} />}
 
 
-                   
+
 
                     <ClientCargo clients={clients} />
-                    {/* <ListToolBar height={height} entity='Arrival note'
-                        changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)}
-                        changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)}
-                        handlePrint={handlePrint} searchHeight={searchHeight} /> */}
+                  
 
                     <SearchformAnimation searchHeight={searchHeight}>
                         <SearchBox noDates={true} noDates={true} />

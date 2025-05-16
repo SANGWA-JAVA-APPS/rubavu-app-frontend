@@ -50,6 +50,7 @@ import BookingReport from './BookingReport';
 import { BerthingReport } from '../reporting/BerthingReport';
 import { IncomingOutgoing } from './IncomingOutgoing';
 import { BerthedList } from './BerthedList';
+import { DetailedReportLoaderModal } from './DetailedReportLoaderModal';
 
 function Dashboard() {
 
@@ -308,10 +309,12 @@ function Dashboard() {
   const [tallyOut, setTallyOut] = useState([])
   const { startDate, endDate } = useContext(DateRangeContext)
   const [truckAmount, setTruckAmount] = useState(0)
+  const [dataFinishedFetching, setDataFinishedFetching] = useState(false)
   const getAllREvenue = (date1, date2) => {
 
     Reporting.revenueReport(date1, date2, authHeader).then((res) => {
       // setPurchasess(res.data.res);
+      setTruckAmount(res.data.totalAmountParkingInvoice)
       setBerthingReport(res.data.berthReport)
       setTruckReport(res.data.truckReport)
       setCargoAmountReport(res.data.cargoAmount)
@@ -319,21 +322,19 @@ function Dashboard() {
       //group by hour
       setBerthReportGrpByhour(res.data.berthReportGrpByhour)
       setBerthReportGrpByMonth(res.data.berthReportGrpByMonth)
-      setTruckAmount(res.data.totalAmountParkingInvoice)
+      setDataFinishedFetching(true)
+      
     })
   }
 
   useEffect(() => {
     // getAllPurchasess(CurrentDate.todaydate(), CurrentDate.todaydate())
+    
     getSettingByName()
-    // getAllHw_movements
-    // getAllItem_categorys(0, 2)
-
-    // getSummary(todaydate(), todaydate())
-    //Reporting
+   
     getAllREvenue(startDate, endDate)
     setDataLoad(true)
-
+    // setShowModal(true)
 
   }, [])
 
@@ -451,7 +452,7 @@ function Dashboard() {
   const [totIncomingWoodedboats, setTotIncomingWoodedboats] = useState(0)
   const [totOutgoingWoodedboats, setTotOutgoingWoodedboats] = useState(0)
   const [totBerthedWoodedboats, setTotBerthedWoodedboats] = useState(0)
-  
+
   let allAvailableAtPort = 0
   const loadAllData = () => {
     Reporting.revenueReport(startDate, endDate, authHeader).then((res) => {
@@ -469,6 +470,8 @@ function Dashboard() {
       setTotIncomingWoodedboats(res.data.totIncomingWoodedboats)//only a number
       setTotOutgoingWoodedboats(res.data.totOutgoingWoodedboats)//only a number
       setTotBerthedWoodedboats(res.data.totBerthedWoodedboats)//only a number
+      setTruckAmount(res.data.totalAmountParkingInvoice)
+      
     })
     Reporting.vesselTruckWeightReport(startDate, endDate, authHeader).then((res) => {
       setTruckReport(res.data.BerthedVessels)
@@ -506,6 +509,8 @@ function Dashboard() {
         setTruckReport(res.data.truckReport)
         setCargoAmountReport(res.data.cargoAmount)
         setPaneReportDataLoad(false)
+        setTruckAmount(res.data.totalAmountParkingInvoice)
+        
       })
       Reporting.vesselTruckWeightReport(startDate, endDate, authHeader).then((res) => {
         setTruckReport(res.data.BerthedVessels)
@@ -526,10 +531,13 @@ function Dashboard() {
 
 
   let berthingCount = 0, totalTruckAtPort = 0
-
-
+  
   return (
     <>
+     
+      <DetailedReportLoaderModal show={showModal} onHide={ ()=>setShowModal(false)} />
+    
+      
       {allTrucksAtTheport.map((truck) => { totalTruckAtPort += 1 })}
       {vessels.map((vessel) => { allAvailableAtPort += 1 })}
       {berthingReport.map((inv) => {
@@ -550,38 +558,25 @@ function Dashboard() {
         totBerthingNumber += 1
       })}
       <PagesWapper>
-        <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={modalTitle} content=
-          {<>
-            {paneReportDataLoad &&
-              <Row className="d-flex justify-content-center">
-                <Col className='loader' md={3}>Loading ...</Col>
-              </Row>
-            }
-            <LocalReportLayouts modalTitle={modalTitle} berthingReport={berthingReport}
-              truckReport={truckReport}
-              cargoAmountReport={allTallies}
-              berthingAmount={totalBerthing} trucksamount={totalTruck} cargoAmount={toCargotAmount}
-              grandTotal={totalBerthing + totalTruck + toCargotAmount}  />
-          </>
-          } />
+        
 
         <Container fluid  >
           {/* summarized */}
           {/* <DashboardReportsFilters /> */}
 
           {dataLoad ? <>
-            <SingleNumberTop topRightTxt1={(totalBerthing).toLocaleString()} topRightTxt2={(truckAmount ? truckAmount : 0).toLocaleString()}
-              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()}
+            <SingleNumberTop topRightTxt1={(totalBerthing).toLocaleString()} topRightTxt2={(truckAmount ?truckAmount:0).toLocaleString()}
+              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()} clickHandler={()=>setShowModal(true)}
               topRightTxt4={(totalBerthing + totalTruck + toCargotAmount).toLocaleString()}
               bottomLeftTxt1={`${berthingCount} Vessel(s) charged `} bottomLeftTxt2={`${totalTruckNumber} Trucks (Gate)`} bottomLeftTxt3={`${toCargotNumber} invoices`} />
 
-            <IncomingOutgoing 
+            <IncomingOutgoing
               allBerthings={allBerthings}
               allEnteredTrucks={allTruckEntries}
               allunberthedVessels={allunberthedVessels}
               alloutgoingTrucks={alloutgoingTrucks}
               allAvailableAtPort={allAvailableAtPort}
-              totalTruckAtPort={totalTruckAtPort} totIncomingWoodedboats={totIncomingWoodedboats} totOutgoingWoodedboats={totOutgoingWoodedboats} totBerthedWoodedboats={totBerthedWoodedboats}  />
+              totalTruckAtPort={totalTruckAtPort} totIncomingWoodedboats={totIncomingWoodedboats} totOutgoingWoodedboats={totOutgoingWoodedboats} totBerthedWoodedboats={totBerthedWoodedboats} />
             {/* <ThreeCharts dataOne={berthReportGrpByMonth} /> */}
             <Row className="  m-5 mt-0  p-4   ">
 

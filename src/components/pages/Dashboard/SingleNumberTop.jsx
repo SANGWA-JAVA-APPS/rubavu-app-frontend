@@ -10,15 +10,15 @@ import { useState } from 'react'
 import { useContext } from 'react'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 export const SingleNumberTop = ({ topRightTxt1, topRightTxt2, topRightTxt3, topRightTxt4, dataTodisplay ,
-    bottomLeftTxt1, bottomLeftTxt2, bottomLeftTxt3
+    bottomLeftTxt1, bottomLeftTxt2, bottomLeftTxt3, clickHandler
 }) => {
     return (
         <Container fluid>
             <Row className="m-5 mt-5" style={{}}>
-                <SingleNumCol topRightTxt1="Vessels" topRightTxt2={`RWF ${topRightTxt1}`} bottomLeftTxt1={bottomLeftTxt1} bottomLeftTxt2="" bg="c1" icon={boat}         dataTodisplay={dataTodisplay} />
-                <SingleNumCol topRightTxt1="Trucks" topRightTxt2={`RWF ${topRightTxt2}`} bottomLeftTxt1={bottomLeftTxt2} bottomLeftTxt2=""   bg="c2" icon={truck}           dataTodisplay={dataTodisplay} />
-                <SingleNumCol topRightTxt1="Cargo" topRightTxt2={`RWF ${topRightTxt3}`} bottomLeftTxt1={bottomLeftTxt3} bottomLeftTxt2=""    bg="c3" icon={truck}           dataTodisplay={dataTodisplay} />
-                <SingleNumCol topRightTxt1="All Revenue" topRightTxt2={`RWF ${topRightTxt4}`} bottomLeftTxt1="" bottomLeftTxt2=""  bg="c4" icon={money}         dataTodisplay={dataTodisplay} />
+                <SingleNumCol topRightTxt1="Vessels" clickHandler={clickHandler}   topRightTxt2={`RWF ${topRightTxt1}`} bottomLeftTxt1={bottomLeftTxt1} bottomLeftTxt2="" bg="c1" icon={boat}         dataTodisplay={dataTodisplay} />
+                <SingleNumCol topRightTxt1="Trucks" clickHandler={clickHandler}     topRightTxt2={`RWF ${topRightTxt2}`} bottomLeftTxt1={bottomLeftTxt2} bottomLeftTxt2=""   bg="c2" icon={truck}           dataTodisplay={dataTodisplay} />
+                <SingleNumCol topRightTxt1="Cargo" clickHandler={clickHandler}     topRightTxt2={`RWF ${topRightTxt3}`} bottomLeftTxt1={bottomLeftTxt3} bottomLeftTxt2=""    bg="c3" icon={truck}           dataTodisplay={dataTodisplay} />
+                <SingleNumCol topRightTxt1="All Revenue" clickHandler={clickHandler}     topRightTxt2={`RWF ${topRightTxt4}`} bottomLeftTxt1="" bottomLeftTxt2=""  bg="c4" icon={money}         dataTodisplay={dataTodisplay} />
                 {/* <SingleNumCol topRightTxt1="Incoming" topRightTxt2={`RWF ${topRightTxt4}`} bottomLeftTxt1="" bottomLeftTxt2=""  bg="c4" icon={money}         dataTodisplay={dataTodisplay} /> */}
 
             </Row>
@@ -53,10 +53,14 @@ export const CustomCardRows = ({ topRightTxt1, topRightTxt2, bottomLeftTxt1, bot
 
 export const SingleNumCol = ({ topRightTxt1 = "Booking", topRightTxt2 = "281", bottomLeftTxt1 = "+55%", bottomLeftTxt2 = "than last week", bg, icon, clickHandler, dataTodisplay }) => {
 
-    const { cardIconShow, cardBg, cardHeight, colSize, colWidth, setShowModal, modalTitle, setDataTodisplayInModal, setMOdalTitle } = useContext(ColItemContext)
+    const { cardIconShow, cardBg, cardHeight, colSize, colWidth,showModal, setShowModal, modalTitle, setDataTodisplayInModal, setMOdalTitle } = useContext(ColItemContext)
     const setupModal = () => {
+
         setShowModal(true)
+        
         setMOdalTitle(topRightTxt1)
+
+        
         // setDataTodisplayInModal(topRightTxt1)
     }
     return (

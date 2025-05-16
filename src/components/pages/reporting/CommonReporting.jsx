@@ -8,6 +8,9 @@ import Utils from '../../Global/Utils'
 import { useEffect } from 'react'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 import CustomModalPopup from '../../Global/CustomModalPopup'
+import { SmallSplitter, Splitter } from '../../globalcomponents/Splitter'
+import { Col, Row } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
 export default function CommonReporting() {
   const { setModalSize, showModal, setShowModal, modalTitle } = useContext(ColItemContext)
@@ -23,6 +26,11 @@ export default function CommonReporting() {
     <PagesWapper>
       <ItemsContainer>
         {/* <DashboardReportsFilters /> */}
+        <Row>
+          <Col >  <Link href="#" to="/rrarec" className='btn btn-primary-outline'>Import from Other sources</Link>
+          </Col>
+        </Row>
+        <SmallSplitter />
         <TitleSmallDesc title=" Reporting" />
         <SingleNumber />
 

@@ -194,8 +194,12 @@ class StockRepository {
     findClient(authHeader) {
         return axios.get(StockRepository.server + "/client/", { headers: this.getHeaders(authHeader) });
     }
-    findClientCargonById(id, authHeader){
-        return axios.get(StockRepository.server + "/client/findclientCargoById/"+id, { headers: this.getHeaders(authHeader) });
+    findClientCargonById(id, authHeader) {
+        return axios.get(StockRepository.server + "/client/findclientCargoById/" + id, { headers: this.getHeaders(authHeader) });
+
+    }
+    allCargInWh(  authHeader) {
+        return axios.get(StockRepository.server + "/client/allCargInWh/"  , { headers: this.getHeaders(authHeader) });
 
     }
 
@@ -304,8 +308,8 @@ class StockRepository {
             .catch(() => StockCommons.RedirectToLogin());
     }
 
-    findArrival_note(startDate, endDate,userid, authHeader) {
-        return axios.get(StockRepository.server + "/arrival_note/"+userid, {
+    findArrival_note(startDate, endDate, userid, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/" + userid, {
             headers: this.getHeaders(authHeader),
             params: {
                 startDate: startDate,
@@ -313,8 +317,9 @@ class StockRepository {
             }
         }).catch(() => StockCommons.RedirectToLogin());
     }
-    findArrival_noteByProcess(startDate, endDate,userid,chosenProcessId, authHeader) {
-        return axios.get(StockRepository.server + "/arrival_note/"+userid+'/'+chosenProcessId, {            headers: this.getHeaders(authHeader),
+    findArrival_noteByProcess(startDate, endDate, userid, chosenProcessId, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/" + userid + '/' + chosenProcessId, {
+            headers: this.getHeaders(authHeader),
             params: {
                 startDate: startDate,
                 endDate: endDate
@@ -427,10 +432,11 @@ class StockRepository {
             .catch(() => StockCommons.RedirectToLogin());
     }
 
-    findInvoice(startDate, endDate,authHeader) {
-        return axios.get(StockRepository.server + "/invoice/", { headers: this.getHeaders(authHeader) ,
-            params:{
-                startDate:startDate,endDate:endDate
+    findInvoice(startDate, endDate, authHeader) {
+        return axios.get(StockRepository.server + "/invoice/", {
+            headers: this.getHeaders(authHeader),
+            params: {
+                startDate: startDate, endDate: endDate
             }
         })
             .catch(() => StockCommons.RedirectToLogin());
@@ -471,11 +477,11 @@ class StockRepository {
     getAllTruck(truck, authHeader) {
         return axios.get(StockRepository.server + "/truck/", truck, { headers: this.getHeaders(authHeader) });
     }
-    findOnlyTrucks( authHeader) {
-        return axios.get(StockRepository.server + "/truck/onlyTrucks" , { headers: this.getHeaders(authHeader) });
+    findOnlyTrucks(authHeader) {
+        return axios.get(StockRepository.server + "/truck/onlyTrucks", { headers: this.getHeaders(authHeader) });
     }
-    getUniqueTrucksWithEntries( authHeader) {
-        return axios.get(StockRepository.server + "/truck/getUniqueTrucksWithEntries" , { headers: this.getHeaders(authHeader) });
+    getUniqueTrucksWithEntries(authHeader) {
+        return axios.get(StockRepository.server + "/truck/getUniqueTrucksWithEntries", { headers: this.getHeaders(authHeader) });
     }
 
     findTruck_entry(authHeader, startDate, endDate) {
@@ -484,8 +490,8 @@ class StockRepository {
             params: { startDate: startDate, endDate: endDate }
         });
     }
-    findTruck_entryByPlate_number(plateNumber,authHeader){
-        return axios.get(StockRepository.server + "/truck_entry/getTruckEntryByPlateNumber/"+plateNumber, { headers: this.getHeaders(authHeader) });
+    findTruck_entryByPlate_number(plateNumber, authHeader) {
+        return axios.get(StockRepository.server + "/truck_entry/getTruckEntryByPlateNumber/" + plateNumber, { headers: this.getHeaders(authHeader) });
     }
     findTruck_entryById(truckId, authHeader) {
         return axios.get(StockRepository.server + "/truck_entry/" + truckId, { headers: this.getHeaders(authHeader) }).catch(() => StockCommons.RedirectToLogin());
@@ -589,13 +595,14 @@ class StockRepository {
             .catch(() => StockCommons.RedirectToLogin());
     }
 
-    findTruck_exit(startDate,endDate, authHeader) {
-        return axios.get(StockRepository.server + "/truck_exit/", { headers: this.getHeaders(authHeader),
-            params:{
-                startDate:startDate,
-                endDate:endDate
+    findTruck_exit(startDate, endDate, authHeader) {
+        return axios.get(StockRepository.server + "/truck_exit/", {
+            headers: this.getHeaders(authHeader),
+            params: {
+                startDate: startDate,
+                endDate: endDate
             }
-         });
+        });
     }
 
     findTruck_exitById(id, authHeader) {
@@ -654,10 +661,11 @@ class StockRepository {
             .catch(() => StockCommons.RedirectToLogin());
     }
 
-    findGen_exit(startDate,endDate, authHeader) {
-        return axios.get(StockRepository.server + "/gen_exit/", { headers: this.getHeaders(authHeader),
-            params:{startDate, endDate:endDate}
-         });
+    findGen_exit(startDate, endDate, authHeader) {
+        return axios.get(StockRepository.server + "/gen_exit/", {
+            headers: this.getHeaders(authHeader),
+            params: { startDate, endDate: endDate }
+        });
     }
 
     findGen_exitById(id, authHeader) {
@@ -687,6 +695,13 @@ class StockRepository {
                 startDate: startDate,
                 endDate: endDate
             }
+        })
+            .catch(() => StockCommons.RedirectToLogin());
+    }
+
+    getStorageCost(weights, storagePeriod, authHeader) {
+        return axios.get(StockRepository.server + "/destination/getStorageCost/" + weights + "/" + storagePeriod, {
+            headers: this.getHeaders(authHeader),
         })
             .catch(() => StockCommons.RedirectToLogin());
     }
@@ -737,14 +752,14 @@ class StockRepository {
         return axios.get(StockRepository.server + "/truck_exit/" + id, { headers: this.getHeaders(authHeader) })
             .catch(() => StockCommons.RedirectToLogin());
     }
-    findClientByName(clientName,authHeader){
+    findClientByName(clientName, authHeader) {
         return axios.get(StockRepository.server + "/client/clientByNameLike/" + clientName, { headers: this.getHeaders(authHeader) })
-        .catch(() => StockCommons.RedirectToLogin());
+            .catch(() => StockCommons.RedirectToLogin());
     }
-    
-    findClientByNameLike(clientName,authHeader){
+
+    findClientByNameLike(clientName, authHeader) {
         return axios.get(StockRepository.server + "/client/clientByNameLike/" + clientName, { headers: this.getHeaders(authHeader) })
-        .catch(() => StockCommons.RedirectToLogin());
+            .catch(() => StockCommons.RedirectToLogin());
     }
 
 }

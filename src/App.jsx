@@ -78,6 +78,7 @@ import { TruckReceiptPrint } from './components/pages/Entry/TruckReceiptPrint';
 import { TruckParkingInvoicePrint } from './components/pages/Entry/TruckParkingInvoicePrint';
 import { TruckExitPrint } from './components/pages/Entry/TruckExitPrint';
 import { Client } from './components/Client/Client';
+import RraRecords from './components/pages/reporting/RraRecords';
 
 function App() {
 
@@ -247,6 +248,9 @@ function App() {
                   </RequireAuth>} />
                   <Route path="/clients" element={<RequireAuth loginPath="/login">
                     <Client />
+                  </RequireAuth>} />
+                  <Route path="/rrarec" element={<RequireAuth loginPath="/login">
+                    <RraRecords />
                   </RequireAuth>} />
 
                 </Routes>

@@ -201,7 +201,7 @@ function Gen_receipt() {
           <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
             <DropDownInput handle={(e) => getInvoiceById(e.target.value)} name='Invoice' label='Invoice' >
               {gen_invoices.map((invoice) => (
-                <option value={invoice.id} key={invoice.id}>   {invoice.id}</option>
+                <option value={invoice.id} key={invoice.id}>   {invoice.id} ----------- RWF{(invoice.amount).toLocaleString()} --------- {(invoice.total_weight).toLocaleString()}KG </option>
               ))}
             </DropDownInput>
             <InputRow name='Amount ' val={amount} handle={(e) => setAmount(e.target.value)} label='lblamount' />

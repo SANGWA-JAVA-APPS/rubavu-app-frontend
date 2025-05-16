@@ -100,11 +100,7 @@ function Entry() {
   const onSubmitHandler = (e) => {
     e.preventDefault()
     setShowLoader(true)
-
-
-
     TruckEntryDTO = {
-
       //truck
       plate_number: plate_number,
       driver_id: null,

@@ -402,6 +402,7 @@ function Arrival_note({ DynamicMenu }) {
   const [trucksByArrivalTwo, setTrucksByArrivalTwo] = useState([])
   const [vesselsByArrival, setVesselsByArrival] = useState([])
   const [vesselsByArrivalTwo, setVesselsByArrivalTwo] = useState([])
+  const [type, setType] = useState('')
 
   const DoZero = (item) => {
     return item === undefined ? 0 : item
@@ -487,6 +488,7 @@ function Arrival_note({ DynamicMenu }) {
   const printArrivalnote = (arrival_note) => {
     const _sourceId = arrival_note.source_id ? arrival_note.source_id : 0  // the zero means warehouse
     const _destId = arrival_note.dest_id ? arrival_note.dest_id : 0  // the zero means warehouse
+    alert(arrival_note.mdl_destination.name)
     StockRepository.truckarrival(arrival_note.mdl_destination.name, _sourceId, _destId, arrival_note.mdl_destination.category, arrival_note.id, authHeader).then((res) => {
       setObj(res.data)
       setArriPrintprint(true)
@@ -533,9 +535,13 @@ function Arrival_note({ DynamicMenu }) {
     })
   }
   const getCommonSearchByDate = (startDate, endDate, name, type) => {
-    setStartDate(startDate)
-    setEndDate(endDate)
-    setRefresh(!refresh)
+    if ('client_tin'===type) {
+      
+    } else {
+      setStartDate(startDate)
+      setEndDate(endDate)
+      setRefresh(!refresh)
+    }
   }
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const getSortSymbol = (key) => {
@@ -557,7 +563,7 @@ function Arrival_note({ DynamicMenu }) {
     setVessels(sortedData);
     setSortConfig({ key, direction });
   };
-
+  let totalRows = 0
   return (
     <>
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
@@ -660,7 +666,7 @@ function Arrival_note({ DynamicMenu }) {
           <FormInnerRightPaneFull onSubmitHandler={onSubmitHandler}>
 
             {chosenProcess &&
-              chosenProcess.split(' ')[0] === 'Warehouse' &&
+
               <> {step === 1 &&
                 <DropDownInput handle={(e) => handleArrivalDetails(e)} name='Select Arrival Note' label='arrivalnote' >
                   {arrival_notesNoDestination.map((an) => (
@@ -797,7 +803,8 @@ function Arrival_note({ DynamicMenu }) {
       <ContainerRow mt='3'>
         <ListToolBar height={height} entity='Arrival note' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
-          <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
+          <SearchBox getCommonSearchByDate={getCommonSearchByDate}
+            options={[{ name: 'client_tin', value: 'client_tin', label: 'Client TIN' }]} setType={setType} />
         </SearchformAnimation>
 
         <Row className='d-flex justify-content-start d-none'>
@@ -845,11 +852,17 @@ function Arrival_note({ DynamicMenu }) {
                 </TableHead>
                 <tbody>
 
-                  {chosenProcess.split(' ')[0] === 'Warehouse' ? arrival_notesNoDestination.map((arrival_note) => (<ArrivalRows arrival_note={arrival_note} userType={userType} truckarrivalGrpByDestination={truckarrivalGrpByDestination} printArrivalnote={printArrivalnote} getArrival_noteById={getArrival_noteById} />))
+                  {chosenProcess.split(' ')[0] === 'Warehouse' ? arrival_notesNoDestination.map((arrival_note) => {
+                    totalRows += 1
+                    return (<ArrivalRows arrival_note={arrival_note} userType={userType} truckarrivalGrpByDestination={truckarrivalGrpByDestination} printArrivalnote={printArrivalnote} getArrival_noteById={getArrival_noteById} />)
+                  })
                     :
-                    arrival_notesNoDestination ? arrival_notes.map((arrival_note) => (
-                      <ArrivalRows arrival_note={arrival_note} userType={userType} truckarrivalGrpByDestination={truckarrivalGrpByDestination} printArrivalnote={printArrivalnote} getArrival_noteById={getArrival_noteById} />
-                    ))
+                    arrival_notesNoDestination ? arrival_notes.map((arrival_note) => {
+                      totalRows += 1
+                      return (
+                        <ArrivalRows arrival_note={arrival_note} userType={userType} truckarrivalGrpByDestination={truckarrivalGrpByDestination} printArrivalnote={printArrivalnote} getArrival_noteById={getArrival_noteById} />
+                      )
+                    })
                       : <Row>
                         <Col md={6}>No Records at {startDate} {"->"} {endDate}</Col>
                       </Row>
@@ -871,7 +884,7 @@ function Arrival_note({ DynamicMenu }) {
 
 export default Arrival_note
 
-export const ArrivalRows = ({ arrival_note, userType, truckarrivalGrpByDestination ,getArrival_noteById}) => {
+export const ArrivalRows = ({ arrival_note, userType, truckarrivalGrpByDestination, getArrival_noteById }) => {
   return (
     <tr key={arrival_note.id}>
       <td>{arrival_note.id}   </td>

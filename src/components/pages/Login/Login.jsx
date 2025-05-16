@@ -14,6 +14,10 @@ import StockConn from '../../services/StockServices/StockConn';
 import loginbg from '../../images/login/loginbg.jpg'
 import { Fade } from 'react-reveal';
 import { TitleSmallDesc } from '../../globalcomponents/TitleSmallDesc';
+import { InputLabel } from '@mui/material';
+import InputRow from '../../Global/InputRow';
+import { InputOnly } from '../../Global/Forms/InputRow';
+import { ButtonContext } from '../../globalcomponents/ButtonContext';
 
 function Login() {
 
@@ -25,10 +29,10 @@ function Login() {
   const navigate = useNavigate()
 
   const { brandName } = useContext(BrandContext);  // Access item1 and its setter
-   
+
   useEffect(() => {
 
-   
+
 
 
 
@@ -104,9 +108,30 @@ function Login() {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const { handleChange } = useContext(ButtonContext)
+
+  const inputs = [
+    { id: 700, arrivalNote: " 700", quantity: "300 jerycans", newquantity: "200" },
+    { id: 701, arrivalNote: " 701", quantity: "300 jerycans", newquantity: "200" },
+  ];
+  const [plate_number, setPlate_number] = useState('')
+  const handleInvoiceClick = (arrivalNote, quantity) => {
+    console.log("Arrival Note:", arrivalNote, "Quantity:", quantity);
+  };
+  const handleEditableChange = (id, value, qty) => {
+    const updatedData = inputs.map(item =>
+      item.id === id ? { ...item, editableValue: value } : item
+    );
+    alert(qty)
+    // Note: This is a simple in-memory update. For a real app, use state management.
+  };
+
   return (
     <>
-      <Container fluid>
+    
+
+      <Container fluid className="">
 
         <Row className='d-flex   justify-content-around  ' >
           <Col md={12} className='p-3'> </Col>

@@ -33,6 +33,7 @@ import CustomModalPopup from '../../Global/CustomModalPopup'
 import { ArrivalMovementsSummary } from '../Arrivalnote/ArrivalMovementsSummary'
 import CurrentDate from '../../Global/CurrentDate'
 import { BillDetails } from './BillDetails'
+import { StorageCalculation } from '../Dashboard/StorageCalculation';
 
 function Gen_invoice() {
 
@@ -58,7 +59,8 @@ function Gen_invoice() {
   const [refresh, setRefresh] = useState(false);
 
   const { arrival_id, chosenProcess,
-    setSourceId, setdestId, setArrival_id, obj, setObj, arrivalInvModal, setArrivalInvModal, showModal, setShowModal } = useContext(ColItemContext)
+    setSourceId, setdestId, setArrival_id, obj, setObj, arrivalInvModal, setArrivalInvModal, showModal, setShowModal } 
+    = useContext(ColItemContext)
 
   const { serviceName, setServiceName, chargeCriteria, setChargeCriteria } = useContext(ButtonContext)
   const [setTariffs] = useState([])
@@ -69,8 +71,11 @@ function Gen_invoice() {
   const [total_weight, setTotal_weight] = useState()
   const [total_amount, setTotal_amount] = useState()
   const authHeader = useAuthHeader()();
-  
+
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
+  const [invoiceType, setInvoiceType] = useState('')
+  const [invoiceTypedata,setInvoiceTypeDAta]=useState({})
+
 
   function getFormattedDate() {
     const now = new Date();
@@ -98,6 +103,7 @@ function Gen_invoice() {
   const [dest_id, setDest_id] = useState(0)
   const [destCat, setDestCat] = useState()
   const [description, setDescription] = useState()
+  const [storageOthercosts, setstorageOthercosts] = useState(false)//this helps to switch from storage calculation vs other costs. it then help to show the modal with different content
 
   const auth = useAuthUser()
   const user = auth();
@@ -129,19 +135,21 @@ function Gen_invoice() {
 
   /*#region ------------All Records, Deleting and By Id------------------------*/
   const getAllGen_invoices = () => {
-    StockRepository.findGen_invoice( authHeader, date1, date2).then((res) => {
+    StockRepository.findGen_invoice(authHeader, date1, date2).then((res) => {
       setGen_invoices(res.data);
       setDataLoad(true)
     });
   }
   const getAllArrival_notes = (startDate, endDate) => {
-    StockRepository.findArrival_note(date1, date2,user?.userid, authHeader).then((res) => {
+    StockRepository.findArrival_note(date1, date2, user?.userid, authHeader).then((res) => {
       setArrival_notes(res.data);
       // setDataLoad(true)
 
     });
   }
   useEffect(() => {
+    setObj({})
+    setInvoiceTypeDAta({})
     getAllGen_invoices(0, 20)
     getAllArrival_notes(date1, date2)
     setInvoiceToBePrinted(false)
@@ -220,6 +228,7 @@ function Gen_invoice() {
   const selectAnotherArrival = () => {
     setArrivalSelection(!arrivalSelection)
   }
+
   useEffect(() => {
     if (arrival_id) {
 
@@ -230,39 +239,55 @@ function Gen_invoice() {
           setTallies(res.data.PurchaseTallies)
         } else if (res.data.SalesTallies.length > 0) {
           setTallies(res.data.SalesTallies)
-
         }
-
         setArrivalObj(res.data.arrival)
+        setArrivalObj(res.data.PurchaseTallies)
         setChargeCriteria(res.data.ChargeCriteria)
         setPayment(res.data.Payment)
         setTallyItems(res.data.Payment.res)
-        setServiceName(res.data.Payment.service)
-        setObj(res.data)
-        setInvoiceToBePrinted(false)
+        console.log('--------------obj value -----------------------')
+        console.log(obj)
+        console.log('--------------obj value -----------------------')
+        if (invoiceType  === 'tally') {
+          setObj(res.data)
+          setServiceName(res.data.Payment.service)
+        } else{
+          setObj(invoiceTypedata)
+          setServiceName('Storage')
+        }
 
+        setInvoiceToBePrinted(false)
+        setArrival_id(arrival_id)
         if (invoiceToBePrinted) {
           navigate("/printInvoice")
         }
+
+      }).catch(err => {
+        alert(err)
+
       })
+
     }
 
   }, [arrival_id, invoiceToBePrinted])
 
 
   const navigate = useNavigate()
-  const printInvoice = (destIName, source_id, dest_id, destCat, arrivalId, invoiceId) => {
+  const printInvoice = (destIName, source_id, dest_id, destCat, arrivalId, invoiceId, gen_invoice) => {
 
-    //get the invoice details 
-    //change the state
-    console.log('----------------------')
-    console.log(destIName + '--' + source_id + '--' + dest_id + '--' + destCat + '--' + arrivalId)
-    console.log('----------------------')
+
+    // console.log('----------------------')
+    // console.log(destIName + '--' + source_id + '--' + dest_id + '--' + destCat + '--' + arrivalId)
+    // console.log('----------------------')
+    setObj('')
     setDestName(destIName)
     setSourceId(source_id)
     setdestId(dest_id)
     setArrival_id(arrivalId)
     setDestCat(destCat)
+    setInvoiceType(gen_invoice.invoiceType)
+    setInvoiceTypeDAta(gen_invoice)
+        
     setInvoiceToBePrinted(true)
 
   }
@@ -288,9 +313,12 @@ function Gen_invoice() {
   const [movementsSummary, setMovementsSummary] = useState([])
 
   const truckarrivalGrpByDestination = (destIName, source_id, dest_id, destCat, arrivalId) => {
+    console.log()
     const starDate = CurrentDate.todaydate()
     const endDate = CurrentDate.todaydate()
     setShowModal(true)
+    setstorageOthercosts(false)
+    setArrival_id(arrivalId)
     StockRepository.truckarrivalGrpByDestination(destIName, source_id, dest_id, destCat, arrivalId, date1, date2, authHeader).then((res) => {
       setArrivalTallyMovt(res.data.groupedTallies)
       setArrivalSalesyMovt(res.data.salesmovements)
@@ -307,12 +335,17 @@ function Gen_invoice() {
     setRefresh(!refresh)
   }
 
-  let cashOnCargo=0.0
+  let cashOnCargo = 0.0
+
+  const invoiceByCleint = (client) => {
+    setstorageOthercosts(true)
+    setShowModal(true)
+  }
   return (
     // <PagesWapper>
     <>
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
-        <>
+        storageOthercosts ? <StorageCalculation refresh={refresh} setRefresh ={setRefresh}/> : <>
           <ArrivalMovementsSummary setShowModal={setShowModal} movementsSummary={movementsSummary} purchMvt={arrivalPurchasesMovt}
             saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt} startDate={date1} endDate={date2} />
         </>} />
@@ -321,7 +354,9 @@ function Gen_invoice() {
         <ContainerRowBtwn clearBtn={clearBtn} noTitle={true} form={'Invoice'} showLoader={showLoader}  >
           <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
           <FormInnerRightPaneFull onSubmitHandler={onSubmitHandler}>
-            <Link className='my-5 ' onClick={() => selectAnotherArrival()} title="My arrival (Created by me)">Select Arrival</Link>
+            <Link className=' mx-3 btn btn-primary' onClick={() => selectAnotherArrival()} title="My arrival  ">Invoice Handling</Link>
+            <Link className=' mx-3 btn btn-dark' onClick={() => invoiceByCleint()} title="Invoice Storage">Invoice Storage</Link>
+
             {arrivalSelection
               && <TableOpen>
                 <TableHead>
@@ -356,9 +391,7 @@ function Gen_invoice() {
               </TableOpen>}
             <Row className="mt-3  ">
 
-              {/* <BillDetails tallyItems={tallyItems[0]}  ata={arrivalObj?.date_time} invDate={arrivalObj?.date_time} movement={payment.service}
-                  arrivalNo={arrivalObj?.id} arrivalDate={arrivalObj?.date_time} arrivalName={arrivalObj?.name} tinNumber={arrivalObj?.tin_number} telephone={arrivalObj?.telephone}
-                  tallies={tallies}   totalWeight={totalWeight}   total_amount={total_amount}/> */}
+
 
             </Row>
 
@@ -378,7 +411,7 @@ function Gen_invoice() {
         </SearchformAnimation>
 
         <div ref={componentRef} className="dataTableBox">
-          
+
           <PrintCompanyInfo />
           <TableOpen>
             <TableHead>
@@ -394,32 +427,32 @@ function Gen_invoice() {
             <tbody>
               {gen_invoices.map((gen_invoice) => {
                 cashOnCargo += gen_invoice.amount
-                
-                return(
-                <tr key={gen_invoice.id}>
-                  <td>{gen_invoice.id}   </td>
-                  <td>{gen_invoice.arrivalId}   </td>
-                  <td>{gen_invoice.date_time}   </td>
-                  
-                  <td>{gen_invoice.destIName}   </td>
-                  <td>{gen_invoice.description}   </td>
-                  <td>{gen_invoice.total_weight && (gen_invoice.total_weight).toLocaleString()}   </td>
-                  <td>RWF {gen_invoice.amount && (gen_invoice.amount).toLocaleString()}   </td>
-                  {userType == 'admin' && <ListOptioncol print={true}
-                    printData={() => printInvoice(gen_invoice.destIName, gen_invoice.source_id, gen_invoice.dest_id, gen_invoice.destCat, gen_invoice.arrivalId, gen_invoice.id
-                    )} getEntityById={() => getGen_invoiceById(gen_invoice.id)}
-                    delEntityById={() => delGen_invoiceById(gen_invoice.id)} />}
-                </tr>
-              ) 
+
+                return (
+                  <tr key={gen_invoice.id}>
+                    <td>{gen_invoice.id}   </td>
+                    <td>{gen_invoice.arrivalId}   </td>
+                    <td>{gen_invoice.date_time}   </td>
+
+                    <td>{gen_invoice.destIName}   </td>
+                    <td>{gen_invoice.description}   </td>
+                    <td>{gen_invoice.total_weight && (gen_invoice.total_weight).toLocaleString()}   </td>
+                    <td>RWF {gen_invoice.amount && (gen_invoice.amount).toLocaleString()}   </td>
+                    {userType == 'admin' && <ListOptioncol print={true}
+                      printData={() => printInvoice(gen_invoice.destIName, gen_invoice.source_id, gen_invoice.dest_id, gen_invoice.destCat, gen_invoice.arrivalId, gen_invoice.id, gen_invoice
+                      )} getEntityById={() => getGen_invoiceById(gen_invoice.id)}
+                      delEntityById={() => delGen_invoiceById(gen_invoice.id)} />}
+                  </tr>
+                )
               }
-            )}
-            <tr>
-              <td className="text-end" colSpan={6}> </td>
-              <td style={{fontWeight:'bold' , fontSize:'20px'}} className="text-start" > Total:  {cashOnCargo.toLocaleString()}</td>
-            </tr>
+              )}
+              <tr>
+                <td className="text-end" colSpan={6}> </td>
+                <td style={{ fontWeight: 'bold', fontSize: '20px' }} className="text-start" > Total:  {cashOnCargo.toLocaleString()}</td>
+              </tr>
             </tbody>
           </TableOpen>
-            
+
         </div>
       </ContainerRow>
       {!dataLoad && <DataListLoading />
@@ -432,3 +465,5 @@ function Gen_invoice() {
 }
 
 export default Gen_invoice
+
+

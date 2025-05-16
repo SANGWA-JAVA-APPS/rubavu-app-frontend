@@ -84,6 +84,7 @@ export const AppDataContextProvider = ({ children }) => {
   })
 
   const [obj, setObj] = useState({})
+  const [HandlingObj, setHandlingObj] = useState({})
 
 
   /* #region ----tracking the pressed key in the textbox ---- */
@@ -189,7 +190,8 @@ export const AppDataContextProvider = ({ children }) => {
       modalSize, setModalSize, showModal, setShowModal, modalTitle, setMOdalTitle,
       setupBycolor, //currently used on manin menu pages only
       disableBodyScroll, arrivalInvModal, setArrivalInvModal,
-      dataTodisplayInModal, setDataTodisplayInModal // this holds the data type to be displayed in the modal, so is for now the report and dashboard data
+      dataTodisplayInModal, setDataTodisplayInModal, // this holds the data type to be displayed in the modal, so is for now the report and dashboard data
+      HandlingObj, setHandlingObj
     }}>
       {children}
     </ColItemContext.Provider>

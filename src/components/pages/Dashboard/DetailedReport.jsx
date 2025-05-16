@@ -13,7 +13,7 @@ import { DateRangeContext } from '../../globalcomponents/ButtonContext';
 import { TitleAndList } from '../../globalcomponents/TitleAndList';
 import { Col, Row } from 'react-bootstrap';
 
-function BerthingRevenue({ invoiceReport = [] }) {
+function BerthingRevenue({ invoiceReport }) {
   const { selectedItem } = useColItemContext(); // Get the selected item from the context
   const styles = {
     fontWeight: 'bold', paddingTop: '0px', color: '#000', fontSize: '15px'
@@ -52,7 +52,7 @@ function BerthingRevenue({ invoiceReport = [] }) {
         </span>
         <TableOpen>
           <TableHead  >
-            <td>Berth Ref.No.</td>
+            {/* <td>Berth Ref.No.</td> */}
             <td>Vessel Operator</td>
             <td>Vessel Name</td>
             <td>Vessel License Plate</td>
@@ -70,13 +70,13 @@ function BerthingRevenue({ invoiceReport = [] }) {
               totWharfageAmount += vessel.handlingCharges
               return (
                 <tr key={vessel.id}>
-                  <td>{vessel.id}</td>
+                  {/* <td>{vessel.id}</td> */}
                   <td>{vessel.owner_operator}</td>
                   <td>{vessel.name}</td>
                   <td>{vessel.plate_number}</td>
                   <td>{vessel.loa}</td>
-                  <td>{(vessel.ata).includes('T') ? (vessel.ata).split('T')[0] + ' ' + (vessel.ata).split('T')[1] : vessel.ata}</td>
                   <td>{(vessel.etd).includes('T') ? (vessel.etd).split('T')[0] + ' ' + (vessel.etd).split('T')[1] : vessel.etd}</td>
+                  <td>{(vessel.ata).includes('T') ? (vessel.ata).split('T')[0] + ' ' + (vessel.ata).split('T')[1] : vessel.ata}</td>
                   <td>{(vessel.loading_port)}</td>
                   <td>{(vessel.handlingCharges).toLocaleString()}</td>
                   <td>{(vessel.quayAmount.toLocaleString())}</td>
@@ -108,7 +108,7 @@ function BerthingRevenue({ invoiceReport = [] }) {
 }
 export default BerthingRevenue
 
-export const TrucksRevenue = ({ truckReport = [] }) => {
+export const TrucksRevenue = ({ truckReport }) => {
 
   const styles = {
     fontWeight: 'bold', paddingTop: '30px', fontSize: '15px'
@@ -123,6 +123,7 @@ export const TrucksRevenue = ({ truckReport = [] }) => {
   const getCommonSearchByDate = (date1, date2) => {
     setStartDate(date1)
     setendDate(date2)
+
   }
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
@@ -144,19 +145,16 @@ export const TrucksRevenue = ({ truckReport = [] }) => {
       <LocalReportAddress reportTitle={`Trucks Report from ${startDate} to ${endDate} `} />
       <TableOpen>
         <TableHead>
-          <td>Gate Ref. No.</td>
+          {/* <td>Gate Ref. No.</td> */}
           <td>Truck Driver</td>
           <td>Licence Plate Number</td>
           <td>Arrival Time</td>
           <td>Exit Time</td>
           <td>12-hour blocks</td>
           <td>Amount</td>
-          {/* <td>Total Hours</td> */}
-          {/* <td>Total Minutes</td> */}
-          {/* <td>Entry Time</td> */}
         </TableHead>
         <tbody>
-          { truckReport &truckReport.map((truck, i) => {
+          {truckReport.map((truck, i) => {
             const hasDigit = truck.driverName && /\d/.test(truck.driverName);
             const timeHasDigit = truck.get_out_time && /\d/.test(truck.get_out_time);
             let driverWrongval = hasDigit ? 'NA' : truck.driverName
@@ -164,20 +162,19 @@ export const TrucksRevenue = ({ truckReport = [] }) => {
             totalAmount += truck.amount
             return (
               <tr key={truck.id}>
-                <td>{truck.id} </td>
+                {/* <td>{truck.id} </td> */}
+
                 <td>{driverWrongval}</td>
-                <td>{truck.licence_plate_number || "N/A"}</td>
+                <td>{truck.licence_plate_number}</td>
                 <td>{truck.entryTime && (truck.entryTime).toLocaleString()}</td>
                 <td>{truck.get_out_time && ((truck.get_out_time).split('T')[0] + ' ' + (truck.get_out_time).split('T')[1])}</td>
-                <td>{(truck.totalDays + 1) ?? "N/A"}</td>
+                <td>{(truck.totalDays + 1)}</td>
                 <td>{truck.amount && (truck.amount).toLocaleString()}</td>
-                {/* <td>{truck.totalHours ?? "N/A"}</td> */}
-                {/* <td>{truck.totalMin ?? "N/A"}</td> */}
 
-                {/* <td>{truck.get_out_time || "N/A"}</td> */}
               </tr>
             )
-          })}
+          })
+          }
           <td colSpan={5}>
             <SmallSplitter />
             <TitleAndList title="Summary"
@@ -280,7 +277,7 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
           </tr>
 
           {cargoAmountReport.tallyIn && cargoAmountReport.tallyIn.map((record) => {
-            tallyIn += 'Assorted' === record.cargoAssorted? record.weight :record.weight * record.purchased_qty
+            tallyIn += 'Assorted' === record.cargoAssorted ? record.weight : record.weight * record.purchased_qty
             toWarehouseAmount += record.invoiceAmount
             return (
               <tr key={record.id}>
@@ -290,8 +287,8 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                 <td>{record.destName}</td>
                 <td>{record.date_time}</td>
                 <td>{record.invDate}</td>
-                <td>{'Assorted' === record.cargoAssorted?(record.weight).toLocaleString()  : (record.weight * record.purchased_qty).toLocaleString()}</td>
-                <td>{'1'===  record.importExport?'Export':'Import'}</td>
+                <td>{'Assorted' === record.cargoAssorted ? (record.weight).toLocaleString() : (record.weight * record.purchased_qty).toLocaleString()}</td>
+                <td>{'1' === record.importExport ? 'Export' : 'Import'}</td>
                 <td>0</td>
                 <td>{(record.invoiceAmount).toLocaleString()}</td>
                 <td>N/A </td>
@@ -305,28 +302,39 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                 Total Tonnage Moved To the Warehouse:  </p>
             </td>
             <td colspan={2}> <p style={styles}>{tallyIn.toLocaleString()} KG</p> </td>
-            <td colSpan={2}>
+            <td colSpan={3}>
               <p style={styles}> Total Amount: RWF {toWarehouseAmount.toLocaleString()} </p>
             </td>
           </tr>
-
           {cargoAmountReport.tallyOut && cargoAmountReport.tallyOut.map((record) => {
-            tallyOut += record.weight
-            totalOutWarehouse += record.amount_paid
+            tallyOut += record.weight* record.sold_qty
+            // totalOutWarehouse += record.amount_paid
+            totalOutWarehouse += (record.weight * record.sold_qty) * 0.6
             return (
               <tr key={record.id}>
                 <td>{record.id}</td>
+                <td>{record.user_name}</td>
                 <td>{record.itemName}</td>
+                <td>Warehouse Truck</td>
                 <td>{record.date_time}</td>
-                <td>{record.weight && (record.weight).toLocaleString()} </td>
+                <td>{endDate}</td>
+                <td>{(record.weight * record.sold_qty).toLocaleString()}</td>
+                <td>Import</td>
+                <td>15 </td>
+                <td>N/A</td>
+                <td>RWF{(record.weight * record.sold_qty) * 0.6}</td>
+
               </tr>
             )
           })}
           <tr>
-            <td colSpan={4}> <p style={styles}> Total Tonnage Moved from the warehouse:  {tallyOut.toLocaleString()} KG</p></td>
+            <td colSpan={6}> <p style={styles}> Total Tonnage Moved from the warehouse:  </p></td>
 
             <td colSpan={2}>
-              <p style={styles}> Total Amount: {totalOutWarehouse} </p>
+            <p style={styles}>  {tallyOut.toLocaleString()} KG</p>
+            </td>
+            <td colSpan={3}>
+              <p style={styles}> Total Amount: RWF {(totalOutWarehouse).toLocaleString()} </p>
             </td>
           </tr>
           <tr>

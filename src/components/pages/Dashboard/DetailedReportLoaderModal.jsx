@@ -8,8 +8,6 @@ import { useNavigate } from 'react-router-dom'
 import { DateRangeContext } from '../../globalcomponents/ButtonContext'
 import { useEffect } from 'react'
 import BerthingRevenue, { AllRevenue, CargoRevenue, TrucksRevenue } from './DetailedReport'
-import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
-import SearchBox from '../../Global/SearchBox'
 import { useReactToPrint } from 'react-to-print'
 
 export const DetailedReportLoaderModal = (props) => {

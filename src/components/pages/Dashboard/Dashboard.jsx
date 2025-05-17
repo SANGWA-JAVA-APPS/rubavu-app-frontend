@@ -39,15 +39,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, } from 'chart.js';
 import DoughnutChart from '../reporting/DoughnutChart';
 import { SingleNumberTop } from './SingleNumberTop';
-import { ThreeCharts } from './ThreeCharts';
 import PagesWapper from '../../Global/PagesWapper';
 import { useAuthHeader } from 'react-auth-kit';
-import { ListByTitle } from '../reporting/revenueReports';
-import BerthingRevenue, { AllRevenue, CargoRevenue, TrucksRevenue } from './DetailedReport';
-import { SettingsEthernet } from '@mui/icons-material';
 import { DateRangeContext } from '../../globalcomponents/ButtonContext';
-import BookingReport from './BookingReport';
-import { BerthingReport } from '../reporting/BerthingReport';
 import { IncomingOutgoing } from './IncomingOutgoing';
 import { BerthedList } from './BerthedList';
 import { DetailedReportLoaderModal } from './DetailedReportLoaderModal';
@@ -632,19 +626,3 @@ function Dashboard() {
 }
 
 export default Dashboard
-
-export const LocalReportLayouts = ({ modalTitle, berthingReport, truckReport, cargoAmountReport, berthingAmount, trucksamount, cargoAmount, grandTotal }) => {
-  if ('Vessels' === modalTitle) {
-    return <BerthingRevenue invoiceReport={berthingReport} />
-  } else if ('Trucks' === modalTitle) {
-    return <TrucksRevenue truckReport={truckReport} />
-  } else if ('Cargo' === modalTitle) {
-    return <CargoRevenue cargoAmountReport={cargoAmountReport} />
-  } else if ('All Revenue' === modalTitle) {
-    return <AllRevenue berthingAmount={berthingAmount} trucksamount={trucksamount} cargoAmount={cargoAmount}
-      grandTotal={grandTotal} />
-  } else if ('allTrucksAtTheport' == modalTitle) {
-
-
-  }
-}

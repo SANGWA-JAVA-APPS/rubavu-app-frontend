@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useColItemContext } from '../../Global/GlobalDataContentx';
 import { TableOpen } from '../../Global/ListTable';
 import TableHead from '../../Global/TableHead';
@@ -12,6 +12,7 @@ import { useContext } from 'react';
 import { DateRangeContext } from '../../globalcomponents/ButtonContext';
 import { TitleAndList } from '../../globalcomponents/TitleAndList';
 import { Col, Row } from 'react-bootstrap';
+import { Form, InputGroup } from 'react-bootstrap';
 
 function BerthingRevenue({ invoiceReport }) {
   const { selectedItem } = useColItemContext(); // Get the selected item from the context
@@ -194,8 +195,156 @@ export const TrucksRevenue = ({ truckReport }) => {
     </div>
   </>
 }
-export const CargoRevenue = ({ cargoAmountReport }) => {
 
+const CargoSearchBox = ({ getCommonSearchByDate, onGoodsFilter, onTonnageFilter }) => {
+  const [goodsFilter, setGoodsFilter] = useState('');
+  const [tonnageFilter, setTonnageFilter] = useState('');
+  const [tonnageOperator, setTonnageOperator] = useState('=');
+  const [filterType, setFilterType] = useState('individual'); // 'individual' or 'aggregate'
+  const [aggregatePeriod, setAggregatePeriod] = useState('daily'); // 'daily' or 'monthly'
+  const [aggregateOperator, setAggregateOperator] = useState('>');
+  const [aggregateTonnage, setAggregateTonnage] = useState('');
+
+  const handleGoodsFilterChange = (e) => {
+    const value = e.target.value;
+    setGoodsFilter(value);
+    onGoodsFilter(value);
+  };
+
+  const handleTonnageFilterChange = (e) => {
+    const value = e.target.value;
+    setTonnageFilter(value);
+    onTonnageFilter(tonnageOperator, value);
+  };
+
+  const handleTonnageOperatorChange = (e) => {
+    const value = e.target.value;
+    setTonnageOperator(value);
+    onTonnageFilter(value, tonnageFilter);
+  };
+
+  const handleFilterTypeChange = (e) => {
+    const value = e.target.value;
+    setFilterType(value);
+    // Reset filters when switching types
+    setTonnageFilter('');
+    setAggregateTonnage('');
+    onGoodsFilter('');
+  };
+
+  const handleAggregatePeriodChange = (e) => {
+    const value = e.target.value;
+    setAggregatePeriod(value);
+    onTonnageFilter(aggregateOperator, aggregateTonnage, value);
+  };
+
+  const handleAggregateOperatorChange = (e) => {
+    const value = e.target.value;
+    setAggregateOperator(value);
+    onTonnageFilter(value, aggregateTonnage, aggregatePeriod);
+  };
+
+  const handleAggregateTonnageChange = (e) => {
+    const value = e.target.value;
+    setAggregateTonnage(value);
+    onTonnageFilter(aggregateOperator, value, aggregatePeriod);
+  };
+
+  return (
+    <Row className="mb-3">
+      <Col md={12} className="mb-2">
+        <Form.Select 
+          value={filterType} 
+          onChange={handleFilterTypeChange}
+          className="mb-2"
+        >
+          <option value="individual">Filter Individual Records</option>
+          <option value="aggregate">Filter by Goods Type Aggregate</option>
+        </Form.Select>
+      </Col>
+
+      {filterType === 'individual' ? (
+        <>
+          <Col md={3}>
+            <InputGroup>
+              <InputGroup.Text>Goods</InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Filter by goods..."
+                value={goodsFilter}
+                onChange={handleGoodsFilterChange}
+              />
+            </InputGroup>
+          </Col>
+          <Col md={4}>
+            <InputGroup>
+              <InputGroup.Text>Tonnage (tons)</InputGroup.Text>
+              <Form.Select
+                value={tonnageOperator}
+                onChange={handleTonnageOperatorChange}
+                style={{ maxWidth: '100px' }}
+              >
+                <option value="=">=</option>
+                <option value=">">&gt;</option>
+                <option value="<">&lt;</option>
+                <option value=">=">&gt;=</option>
+                <option value="<=">&lt;=</option>
+              </Form.Select>
+              <Form.Control
+                type="number"
+                placeholder="Enter tonnage..."
+                value={tonnageFilter}
+                onChange={handleTonnageFilterChange}
+              />
+            </InputGroup>
+          </Col>
+        </>
+      ) : (
+        <>
+          <Col md={3}>
+            <InputGroup>
+              <InputGroup.Text>Period</InputGroup.Text>
+              <Form.Select
+                value={aggregatePeriod}
+                onChange={handleAggregatePeriodChange}
+              >
+                <option value="daily">Daily</option>
+                <option value="monthly">Monthly</option>
+              </Form.Select>
+            </InputGroup>
+          </Col>
+          <Col md={4}>
+            <InputGroup>
+              <InputGroup.Text>Tonnage (tons)</InputGroup.Text>
+              <Form.Select
+                value={aggregateOperator}
+                onChange={handleAggregateOperatorChange}
+                style={{ maxWidth: '100px' }}
+              >
+                <option value=">">&gt;</option>
+                <option value="<">&lt;</option>
+                <option value="=">=</option>
+                <option value=">=">&gt;=</option>
+                <option value="<=">&lt;=</option>
+              </Form.Select>
+              <Form.Control
+                type="number"
+                placeholder="Enter tonnage..."
+                value={aggregateTonnage}
+                onChange={handleAggregateTonnageChange}
+              />
+            </InputGroup>
+          </Col>
+        </>
+      )}
+      <Col md={5}>
+        <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
+      </Col>
+    </Row>
+  );
+};
+
+export const CargoRevenue = ({ cargoAmountReport }) => {
   const styles = {
     fontWeight: 'bold', paddingTop: '30px', fontSize: '15px'
   }
@@ -206,16 +355,125 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   const [searchHeight, setSearchHeight] = useState(0);
   const [height, setHeight] = useState(0);
   const { setStartDate, setendDate, startDate, endDate } = useContext(DateRangeContext)
+  const [filteredTally, setFilteredTally] = useState([]);
+  const [filteredTallyIn, setFilteredTallyIn] = useState([]);
+  const [filteredTallyOut, setFilteredTallyOut] = useState([]);
+
   const getCommonSearchByDate = (date1, date2) => {
     setStartDate(date1)
     setendDate(date2)
   }
+
+  const convertKgToTons = (kg) => kg / 1000;
+
+  const handleGoodsFilter = (value) => {
+    if (!value) {
+      setFilteredTally(cargoAmountReport.tally || []);
+      setFilteredTallyIn(cargoAmountReport.tallyIn || []);
+      setFilteredTallyOut(cargoAmountReport.tallyOut || []);
+      return;
+    }
+
+    const filterByGoods = (items) => {
+      return items.filter(item => 
+        item.cargo?.toLowerCase().includes(value.toLowerCase()) ||
+        item.itemName?.toLowerCase().includes(value.toLowerCase())
+      );
+    };
+
+    setFilteredTally(filterByGoods(cargoAmountReport.tally || []));
+    setFilteredTallyIn(filterByGoods(cargoAmountReport.tallyIn || []));
+    setFilteredTallyOut(filterByGoods(cargoAmountReport.tallyOut || []));
+  };
+
+  const handleTonnageFilter = (operator, value, period = null) => {
+    if (!value) {
+      setFilteredTally(cargoAmountReport.tally || []);
+      setFilteredTallyIn(cargoAmountReport.tallyIn || []);
+      setFilteredTallyOut(cargoAmountReport.tallyOut || []);
+      return;
+    }
+
+    const filterByTonnage = (items) => {
+      if (period) {
+        // Group by goods type and date
+        const groupedByGoods = items.reduce((acc, item) => {
+          const goodsType = item.cargo || item.itemName;
+          const date = new Date(item.entry_date || item.date_time);
+          const key = period === 'monthly' 
+            ? `${goodsType}-${date.getFullYear()}-${date.getMonth()}`
+            : `${goodsType}-${date.toISOString().split('T')[0]}`;
+          
+          if (!acc[key]) {
+            acc[key] = {
+              goodsType,
+              totalWeight: 0,
+              items: []
+            };
+          }
+          
+          const weight = 'Assorted' !== item.cargoAssorted ? 
+            (item.weight * (item.unit || item.purchased_qty || item.sold_qty)) : 
+            item.weight;
+          
+          acc[key].totalWeight += weight;
+          acc[key].items.push(item);
+          
+          return acc;
+        }, {});
+
+        // Filter groups based on total weight
+        const filteredGroups = Object.values(groupedByGoods).filter(group => {
+          const totalTons = convertKgToTons(group.totalWeight);
+          switch(operator) {
+            case '>': return totalTons > Number(value);
+            case '<': return totalTons < Number(value);
+            case '>=': return totalTons >= Number(value);
+            case '<=': return totalTons <= Number(value);
+            default: return totalTons === Number(value);
+          }
+        });
+
+        // Flatten filtered groups back to items
+        return filteredGroups.flatMap(group => group.items);
+      } else {
+        // Individual record filtering
+        return items.filter(item => {
+          const weight = 'Assorted' !== item.cargoAssorted ? 
+            (item.weight * (item.unit || item.purchased_qty || item.sold_qty)) : 
+            item.weight;
+          
+          const weightInTons = convertKgToTons(weight);
+          
+          switch(operator) {
+            case '>': return weightInTons > Number(value);
+            case '<': return weightInTons < Number(value);
+            case '>=': return weightInTons >= Number(value);
+            case '<=': return weightInTons <= Number(value);
+            default: return weightInTons === Number(value);
+          }
+        });
+      }
+    };
+
+    setFilteredTally(filterByTonnage(cargoAmountReport.tally || []));
+    setFilteredTallyIn(filterByTonnage(cargoAmountReport.tallyIn || []));
+    setFilteredTallyOut(filterByTonnage(cargoAmountReport.tallyOut || []));
+  };
+
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
     documentTitle: 'emp-data'
   });
   /* #endregion */
+
+  // Initialize filtered data when component mounts or cargoAmountReport changes
+  useEffect(() => {
+    setFilteredTally(cargoAmountReport.tally || []);
+    setFilteredTallyIn(cargoAmountReport.tallyIn || []);
+    setFilteredTallyOut(cargoAmountReport.tallyOut || []);
+  }, [cargoAmountReport]);
 
   return <>
     <TitleSmallDesc title={`Cargo  Report on ${CurrentDate.todaydate()} `} moreclass="showOnPrint" />
@@ -224,7 +482,11 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
       changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)}
       handlePrint={handlePrint} searchHeight={searchHeight} />
     <SearchformAnimation searchHeight={searchHeight}>
-      <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
+      <CargoSearchBox 
+        getCommonSearchByDate={getCommonSearchByDate}
+        onGoodsFilter={handleGoodsFilter}
+        onTonnageFilter={handleTonnageFilter}
+      />
     </SearchformAnimation>
     <div ref={componentRef} className="DashboardPrintView"  >
       <LocalReportAddress reportTitle={`Cargo Report from ${startDate} to ${endDate} `} leftAddress="MAGERWA" />
@@ -232,7 +494,7 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
       <TableOpen>
         <TableHead>
           <td>Ref. No.</td>
-          <td>CArgo Owner</td>
+          <td>Cargo Owner</td>
           <td>Cargo </td>
           <td>Movement </td>
           <td>Entry Date</td>
@@ -240,12 +502,11 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
           <td>Total Weight (KG)</td>
           <td>Import/Export</td>
           <td>Number Of Days</td>
-
           <td>Handling Amount</td>
           <td>Storage Amount</td>
         </TableHead>
         <tbody>
-          {cargoAmountReport.tally && cargoAmountReport?.tally.map((record) => {
+          {filteredTally.map((record) => {
             tally += record.weight
             amount += record.invoiceAmount
             return (
@@ -266,7 +527,6 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
             )
           })}
           <tr>
-
             <td colSpan={6}>
               <p style={styles}>Total Tonnage (transhipments): </p>
             </td>
@@ -276,7 +536,7 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
             </td>
           </tr>
 
-          {cargoAmountReport.tallyIn && cargoAmountReport.tallyIn.map((record) => {
+          {filteredTallyIn.map((record) => {
             tallyIn += 'Assorted' === record.cargoAssorted ? record.weight : record.weight * record.purchased_qty
             toWarehouseAmount += record.invoiceAmount
             return (
@@ -306,9 +566,8 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
               <p style={styles}> Total Amount: RWF {toWarehouseAmount.toLocaleString()} </p>
             </td>
           </tr>
-          {cargoAmountReport.tallyOut && cargoAmountReport.tallyOut.map((record) => {
+          {filteredTallyOut.map((record) => {
             tallyOut += record.weight* record.sold_qty
-            // totalOutWarehouse += record.amount_paid
             totalOutWarehouse += (record.weight * record.sold_qty) * 0.6
             return (
               <tr key={record.id}>
@@ -323,15 +582,13 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                 <td>15 </td>
                 <td>N/A</td>
                 <td>RWF{(record.weight * record.sold_qty) * 0.6}</td>
-
               </tr>
             )
           })}
           <tr>
             <td colSpan={6}> <p style={styles}> Total Tonnage Moved from the warehouse:  </p></td>
-
             <td colSpan={2}>
-            <p style={styles}>  {tallyOut.toLocaleString()} KG</p>
+              <p style={styles}>  {tallyOut.toLocaleString()} KG</p>
             </td>
             <td colSpan={3}>
               <p style={styles}> Total Amount: RWF {(totalOutWarehouse).toLocaleString()} </p>
@@ -360,6 +617,7 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
     </div>
   </>
 }
+
 export const AllRevenue = ({ berthingAmount, trucksamount, cargoAmount, grandTotal }) => {
   return <TitleAndList title="All Revenue"
     li1={`Berthing RWF ${berthingAmount && (berthingAmount).toLocaleString()} `}

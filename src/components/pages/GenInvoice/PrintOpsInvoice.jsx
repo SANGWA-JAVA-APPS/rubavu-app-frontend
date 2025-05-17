@@ -134,7 +134,7 @@ export const TallyInvoice = ({ obj, serviceName }) => {
 
 export const StorageInvoice = ({ obj, serviceName }) => {
     const componentRef = useRef();
-const { weitypeLabels } = useContext(ColItemContext)
+    const { weitypeLabels } = useContext(ColItemContext)
     return <>
         <Printtemplate
             ref={componentRef}
@@ -168,33 +168,19 @@ const { weitypeLabels } = useContext(ColItemContext)
             <Splitter />
 
             <Col md={12} style={{ marginTop: '80px' }}>
-
+                
                 <TitleSmallDesc title="BILL DETAILS" />
-                    
+
                 <TableOpen>
                     <InvoiceHeader />
-                    <tr  className="  border border-bottom">
-                        <td className=" border border-down text-center">
-                             1
-                        </td>
-                        <td style={{ textTransform: 'capitalize' }} className=" border border-down ">
-                            {serviceName} -  {obj.description}
-                        </td>
-                        <td className=" border border-down text-center">
-                            {(obj.total_weight ).toLocaleString()}
-                        </td>
-                        <td className=" border border-down text-center">
-                            {obj.unitPrice}
-                        </td>
-                        <td className=" border border-down text-center">
+                    {obj.storagePeriod && 'double period' === obj.storagePeriod ?
+                        <>
+                            <StorageRows rowNumber={1} serviceName={serviceName} obj={obj} unitPrice="0.6" amount={(obj.total_weight * 0.6).toLocaleString()} />
+                            <StorageRows rowNumber={2} serviceName={serviceName} obj={obj} unitPrice="1.2" amount={(obj.total_weight * 1.2).toLocaleString()} />
+                        </> :
+                        <StorageRows rowNumber={1} serviceName={serviceName} obj={obj} unitPrice="0.6" amount={(obj.total_amount).toLocaleString()} />
+                    }
 
-                            {obj.total_amount}
-                        </td>
-                        <td className=" border border-down  ">
-                            OK
-                        </td>
-
-                    </tr>
                     <tr>
                         <td colSpan="5" style={{ fontSize: '20px' }} className="  fw-bold text-end"> Total Amount: Rwf {(obj.total_amount).toLocaleString()}    </td>
                     </tr>
@@ -208,4 +194,28 @@ const { weitypeLabels } = useContext(ColItemContext)
         </Printtemplate>
     </>
 
+}
+
+export const StorageRows = ({ rowNumber,serviceName,obj, unitPrice,amount }) => {// these will show detailed storage type when there have been charged double perio(15 to 30 days and 3o days onwards) at the same time
+    return <tr className="  border border-bottom">
+        <td className=" border border-down text-center">
+            {rowNumber}
+        </td>
+        <td style={{ textTransform: 'capitalize' }} className=" border border-down ">
+            {serviceName} -  {obj.description}
+        </td>
+        <td className=" border border-down text-center">
+            {(obj.total_weight).toLocaleString()}
+        </td>
+        <td className=" border border-down text-center">
+            {unitPrice}
+        </td>
+        <td className=" border border-down text-center">
+            {amount}
+        </td>
+        <td className=" border border-down  ">
+            OK
+        </td>
+
+    </tr>
 }

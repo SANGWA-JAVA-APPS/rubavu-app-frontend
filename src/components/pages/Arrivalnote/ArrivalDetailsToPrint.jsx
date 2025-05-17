@@ -16,10 +16,14 @@ export const ArrivalDetailsToPrint = () => {
     const { obj, weitypeLabels, chosenProcess } = useContext(ColItemContext)
     const navigate = useNavigate()
     useEffect(() => {
-        if (!obj || !obj.arrival) {
+
+        console.log('----------------- in print page obj to print----------------------')
+
+        console.log((obj))
+        if (!obj || !obj.arrivalObj) {
             navigate('/startproc')
         }
-    }, [obj.arrival])
+    }, [obj.arrivalObj])
     const componentRef = useRef();
     let totWeight = 0
 
@@ -31,50 +35,50 @@ export const ArrivalDetailsToPrint = () => {
                 leftAddress="MAGERWA"
                 title={`Printing Arrival note  `}
                 rightSideAddress="RUBAVU PORT"
-                contentTitle={` ARRIVAL NOTE No. ${obj.arrival?.id}  `} diffTitleSize={true}>
+                contentTitle={` ARRIVAL NOTE No. ${obj.arrivalObj?.id}  `} diffTitleSize={true}>
 
                 <h6 className=" text-underline"><u><b>{chosenProcess}
                 </b></u></h6>
                 <Row>
-                    <Col md={6} className="col-6">
+                    <Col md={5} className="col-6">
                         <Row>
-                            <PrintRow txt="Arrival Date:" txtValue={obj?.arrival?.date_time} />
-                            <PrintRow txt="DDCOM:" txtValue={obj?.arrival?.ddcom} />
-                            <PrintRow txt="Exporter:" txtValue={obj?.arrival?.exporter} />
-                            <PrintRow txt="Clearing Agent:" txtValue={obj?.arrival?.clearingAgent} />
+                            <PrintRow txt="Arrival Date:" txtValue={obj?.arrivalObj?.date_time} />
+                            <PrintRow txt="DDCOM:" txtValue={obj?.arrivalObj?.ddcom} />
+                            <PrintRow txt="Exporter:" txtValue={obj?.arrivalObj?.exporter} />
+                            <PrintRow txt="Clearing Agent:" txtValue={obj?.arrivalObj?.clearingAgent} />
                         </Row>
                     </Col>
                     <Col md={6} className="col-6">
                         <Row>
                             <Col md={6} className="mt-2 col-6 border-bottom ">Client Name </Col>
-                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrival?.name} </Col>
+                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrivalObj?.name} </Col>
                             <Col md={6} className="mt-2 col-6 border-bottom ">Client Telephone </Col>
-                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrival?.telephone} </Col>
+                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrivalObj?.telephone} </Col>
                             <Col md={6} className="mt-2 col-6 border-bottom "> Date time </Col>
-                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrival?.date_time} </Col>
+                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrivalObj?.date_time} </Col>
                             <Col md={6} className="mt-2 col-6 border-bottom ">Client TIN </Col>
-                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrival?.tin_number} </Col>
+                            <Col md={6} className="mt-2 col-6 border-bottom "> {obj.arrivalObj?.tin_number} </Col>
                         </Row>
                     </Col>
                 </Row>
                 <Col md={12} style={{ fontSize: '14px' }}>
                     <Row>
                         <Col md={2} className="mt-2 ps-5 col-2 border-bottom ">Description</Col>
-                        <Col md={6} className="mt-2 ps-5 col-6 border-bottom text-left">{obj?.arrival?.description}</Col>
+                        <Col md={6} className="mt-2 ps-5 col-6 border-bottom text-left">{obj?.arrivalObj?.description}</Col>
                     </Row>
                     <h5 className="mt-5 text-underline"><u>CARGO</u></h5>
                     <TableOpen>
                         <ArrivalPrintTableComp />
                         {obj.singleArrival && obj.singleArrival.map((tly, index) => {// THIS IS THE STOCK IN  - OR TALLY IN
                             // totWeight += tly.weight
-                            totWeight += tly.cargoAssorted === 'Assorted' ? (tly.weight  )  : (tly.weight * tly.unit)
+                            totWeight += tly.cargoAssorted === 'Assorted' ? (tly.weight) : (tly.weight * tly.unit)
                             return (
                                 <tr key={index}>
                                     <td className="mt-2 border-bottom text-center" style={{ textTransform: 'capitalize' }}>{index + 1}.</td>
                                     <td className="mt-2 border-bottom " style={{ textTransform: 'capitalize' }}>{tly.cargo}</td>
                                     <td className="mt-2 border-bottom text-center" style={{ textTransform: 'capitalize' }}>{tly.unit}</td>
                                     <td className="mt-2 border-bottom text-center" style={{ textTransform: 'capitalize' }}>       {weitypeLabels(tly.weighttype)}</td>
-                                    <td className="mt-2 border-bottom text-center" style={{ textTransform: 'capitalize' }}>{ totWeight} Kg</td>
+                                    <td className="mt-2 border-bottom text-center" style={{ textTransform: 'capitalize' }}>{totWeight} Kg</td>
                                     <td className="mt-2 border-bottom " style={{ textTransform: 'capitalize' }}>{tly.description} </td>
                                 </tr>
                             )

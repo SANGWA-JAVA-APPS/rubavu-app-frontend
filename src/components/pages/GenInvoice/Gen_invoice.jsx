@@ -347,7 +347,7 @@ function Gen_invoice() {
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
         storageOthercosts ? <StorageCalculation refresh={refresh} setRefresh ={setRefresh}/> : <>
           <ArrivalMovementsSummary setShowModal={setShowModal} movementsSummary={movementsSummary} purchMvt={arrivalPurchasesMovt}
-            saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt} startDate={date1} endDate={date2} />
+            saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt} startDate={date1} endDate={date2} setRefresh={setRefresh}refresh={refresh} />
         </>} />
 
       <AnimateHeight id="animForm" duration={300} animateOpacity={true} height={height}>

@@ -608,8 +608,8 @@ class StockCommons {
             { headers: this.getHeaders(authHeader) }
         );
     }
-    updateWarehouse(itemId, arrivalId, quantity, newQuantity, userid,totalAmount,totalWeights ,authHeader) {
-        return axios.post(StockConn.wholePath.name + "/arrival_note/removefromwh/" + itemId + '/' + arrivalId + '/' + quantity + '/' + newQuantity + '/' + userid+'/'+totalAmount+'/'+totalWeights,
+    updateWarehouse(itemId, arrivalId, quantity, newQuantity, userid,totalAmount,totalWeights,period ,authHeader) {
+        return axios.post(StockConn.wholePath.name + "/arrival_note/removefromwh/" + itemId + '/' + arrivalId + '/' + quantity + '/' + newQuantity + '/' + userid+'/'+totalAmount+'/'+totalWeights+'/'+period,
             { headers: this.getHeaders(authHeader) }
         );
     }

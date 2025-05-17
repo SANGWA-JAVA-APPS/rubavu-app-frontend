@@ -11,6 +11,7 @@ import { InputOnly } from '../../Global/Forms/InputRow';
 
 export const StorageCalculation = ({ refresh, setRefresh }) => {
     const [clients, setClients] = useState([])
+    const [clientsItems, setClientsItems] = useState([])
     const [cargoINWh, setCargoINWh] = useState([])
     const [dataLoad, setDataLoad] = useState(false)
 
@@ -19,13 +20,14 @@ export const StorageCalculation = ({ refresh, setRefresh }) => {
     const user = auth();
     useEffect(() => {
         StockRepository.allCargInWh(authHeader).then((res) => {
-            const arrivalNotes = res.data.map(note => ({
+            const arrivalNotes = res.data.allCargoByClient.map(note => ({
                 id: note.id, arrivalNote: note.itemName || '', quantity: note.cargoBalance || note.noGrpCargoBalance || 0, // Use cargoBalance or noGrpCargoBalance as quantity
                 newQuantity: 0, appendedValue: 0, tinNumber: note.tin_number,
                 name: note.name, surname: note.surname, category: note.category,
                 dateTime: note.date_time, lastDate: note.lastDate, prevQty: note.prevQty,
                 weight: note.weight, itemId: note.itemId, userId: user, period: "", InvoicableCost: 0,
             }));
+            
             setClients(arrivalNotes)
         })
     }, [])
@@ -78,7 +80,15 @@ export const StorageCalculation = ({ refresh, setRefresh }) => {
         setShowSelected()
 
         StockRepository.findClientCargonById(id, authHeader).then((res) => {
-            setClients(res.data)
+            setClients(res.data.allCargoByClient)
+            const clientsItems = res.data.allCargoByClientAndItem.map(note => ({
+                id: note.id, arrivalNote: note.itemName || '', quantity: note.cargoBalance || note.noGrpCargoBalance || 0, // Use cargoBalance or noGrpCargoBalance as quantity
+                newQuantity: 0, appendedValue: 0, tinNumber: note.tin_number,
+                name: note.name, surname: note.surname, category: note.category,
+                dateTime: note.date_time, lastDate: note.lastDate, prevQty: note.prevQty,
+                weight: note.weight, itemId: note.itemId, userId: user, period: "", InvoicableCost: 0,
+            }));
+            setClientsItems(clientsItems)
         })
 
     }
@@ -94,7 +104,7 @@ export const StorageCalculation = ({ refresh, setRefresh }) => {
                             labelName='Search Client By Name ' searchTableVisible={searchTableVisible} showSelected={showSelected} hideSelectorLink={hideSelectorLink}
                             currentTypingVal={searchItemValue} ref={inputRef} sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)} />
                         {searchTableVisible && <SearchTableResult tableHead={tableHead} TableRows={() => <ClientTableRows clients={itemssbyname} searchDone={searchDone} />} />}
-                        <ClientCargo clients={clients} setClients={setClients} refresh={refresh} setRefresh={setRefresh} />
+                        <ClientCargo clients={clients} clientsItems={clientsItems} setClients={setClients} refresh={refresh} setRefresh={setRefresh} />
 
                     </div>
                 </div>

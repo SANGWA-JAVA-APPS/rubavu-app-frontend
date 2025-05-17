@@ -28,12 +28,12 @@ import { Tabcomponent } from '../../Global/Tabcomponent'
 import { StorageCalculation } from '../Dashboard/StorageCalculation'
 
 
-export const ArrivalMovementsSummary = ({ purchMvt, saleMvt, tallyMvt, movementsSummary, setShowModal, startDate, endDate }) => {
+export const ArrivalMovementsSummary = ({ purchMvt, saleMvt, tallyMvt, movementsSummary, setShowModal, startDate, endDate, setRefresh, refresh }) => {
 
     const { setIconHeight,
         setColSize,
         setColWidth,
-        setColSizeTwo, setIconShow, cardHeight, weitypeLabels,HandlingObj,setHandlingObj, chosenProcessCategory, obj, setObj, chosenProcess } = useContext(ColItemContext)
+        setColSizeTwo, setIconShow, cardHeight, weitypeLabels, HandlingObj, setHandlingObj, chosenProcessCategory, obj, setObj, chosenProcess } = useContext(ColItemContext)
 
     // o----------------------
     const [tallyCargo, setTallyCargo] = useState([])
@@ -192,7 +192,7 @@ export const ArrivalMovementsSummary = ({ purchMvt, saleMvt, tallyMvt, movements
                             </TableOpen> </>
                         ) : (
                             <StepTwoContent clickedDestName={clickedDestName} arrivalNoteid={movementsSummary.arrivalNote} arrivalObj={arrivalObj}
-                                singleArrival={singleArrival} setShowModal={setShowModal} startDate={startDate} endDate={endDate} storageCalculation={storageCalculation} />
+                                singleArrival={singleArrival} setShowModal={setShowModal} startDate={startDate} endDate={endDate} storageCalculation={storageCalculation} setRefresh={setRefresh} refresh={refresh} />
                         )}
                     </Row>
                 </>
@@ -203,7 +203,7 @@ export const ArrivalMovementsSummary = ({ purchMvt, saleMvt, tallyMvt, movements
     </>
     )
 }
-export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, arrivalObj, setShowModal, startDate, endDate, storageCalculation }) => {
+export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, arrivalObj, setShowModal, startDate, endDate, storageCalculation, setRefresh, refresh }) => {
     function getFormattedDate() {
         const now = new Date();
         const year = now.getFullYear();
@@ -228,8 +228,11 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
     const [date_time, setDate_time] = useState()
     const [ref_id, setRef_id] = useState()
     const [description, setDescription] = useState()
-    const { obj, setObj,HandlingObj, setHandlingObj, setChosenProcess, arrivalInvModal } = useContext(ColItemContext)
+    const { obj, setObj, HandlingObj, setHandlingObj, setChosenProcess, arrivalInvModal } = useContext(ColItemContext)
     const { setChargeCriteria, serviceName, setServiceName, showModal } = useContext(ButtonContext)
+
+
+
 
 
 
@@ -241,11 +244,24 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
             ...prevObj,
             ...{ "singleArrival": singleArrival },
             ...{ "arrivalObj": arrivalObj }
-        }));
 
+
+        }));
+         
+
+        console.log('-----------------obj to print----------------------')
         navigate("/arrivalPrint")
         console.log((obj))
     }
+    useEffect(() => {
+
+        setTotal_Weight(totalWeight)
+    }, [totalDisp])
+    useEffect(() => {
+
+        setTotal_Weight(totalWeight)
+
+    }, [totalWeight])
 
     useEffect(() => {
         if (obj.arrival) { }
@@ -280,7 +296,7 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
     }
     useEffect(() => {
         if (HandlingObj.arrival) {
-            
+
             StockRepository.truckarrivalInvoice(clickedDestName, HandlingObj.arrival.source_id, HandlingObj.arrival.dest_id, clickedDestName.split(' ')[0], HandlingObj.arrival.id, authHeader, startDate, endDate).then((res) => {
                 if (res.data.Tallies.length > 0) {
                     setTallies(res.data.Tallies)
@@ -289,18 +305,18 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
                 } else if (res.data.SalesTallies.length > 0) {
                     setTallies(res.data.SalesTallies)
                 }
-                
+
                 setChargeCriteria(res.data.ChargeCriteria)
                 setPayment(res.data.Payment)
                 setTallyItems(res.data.Payment.res)
                 setServiceName(res.data.Payment.service)
-                
+
                 setInvoiceToBePrinted(false)
 
-                
+
             })
         }
-    }, [ invoiceToBePrinted])
+    }, [invoiceToBePrinted])
     /* #endregion */
 
     const [showBillingDetails, setShowBillingDetails] = useState(false)
@@ -313,13 +329,13 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
         }));
 
 
-        setSource_id(DoZero(obj.arrival.source_id))
-        setDest_id(DoZero(obj.arrival.dest_id))
+        setSource_id(DoZero(HandlingObj.arrival.source_id))
+        setDest_id(DoZero(HandlingObj.arrival.dest_id))
         setDestCat(clickedDestName.split(' ')[0])
-        setArrival_id(obj.arrival.id)
+        setArrival_id(HandlingObj.arrival.id)
 
         setTotalCost(storageCalculation ? finalCost : totalCost)
-        totalCost=storageCalculation ? finalCost : totalCost
+        totalCost = storageCalculation ? finalCost : totalCost
         setTotal_Qty(totalQty)
         setTotal_Weight(totalWeight)
         // setArrivalSelection(!arrivalSelection)
@@ -358,15 +374,16 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
         setRef_id(0)
     }
     var gen_invoice = {
-        id: id, date_time: getFormattedDate(date_time), amount: total_Cost, ref_id: ref_id, total_weight: total_Weight, total_amount: total_Cost, description: description, type:'tally'
+        id: id, date_time: getFormattedDate(date_time), amount: total_Cost, ref_id: ref_id, total_weight: total_Weight, total_amount: total_Cost, description: description, type: 'tally'
     }
     const saveInvoice = () => {
-        alert(total_Weight)
+
         if (total_Cost === 0 || total_Weight === 0 || !description) {
             alert('You have To calculate the cost, add description')
         } else {
             StockCommons.saveGen_invoice(gen_invoice, arrival_id, authHeader).then((res) => {
                 console.log(res.data)
+                setRefresh(!refresh)
                 if (res.data != null) {
                     resetAfterSave()
                 }
@@ -383,98 +400,99 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
         setTotalCost(storageCalculation ? finalCost : totalCost)
     }, [totalCost, total_Cost])
 
-    return ( <Row>
-                <Col md={12} className={arrivalInvModal ? 'border p-2' : ''}>
+    return (<Row>
+        <Col md={12} className={arrivalInvModal ? 'border p-2' : ''}>
 
-                    <TableOpen>
-                        <ArrivalPrintTableComp />
-                        {singleArrival.map((arrival, index) => {
-                            totalWeight += ('Not Assorted' === arrival.cargoAssorted) ? (arrival.weight * arrival.unit)
-                                : arrival.weight
-                            OnlySumOfWeight += arrival.weight
-                            totalQty += arrival.unit
-                            totalDisp = totalWeight
-                            collectType = arrival.cargoAssorted
-                            if (storageCalculation) {
-                                totalCost = finalCost
-                            } else {
-                                totalCost += collectType == 'Assorted' ? arrival.weight : arrival.weight * arrival.unit * arrival.unitPrice
-                            }
-
-                            fee = arrival.unitPrice
-                            return (<>
-                                <ArrivalTallyRows tly={arrival} index={index} collectType={collectType} />
-                            </>
-                            )
-                        })}
-                        <tr>  <td colSpan="4" style={{ fontSize: '20px' }} className="  fw-bold text-end"> Total: {(collectType == 'Not Assorted' ? totalWeight : OnlySumOfWeight).toLocaleString()} Kg</td>       </tr>
-
-                        <tr className="d-none">
-                            <td colSpan={4} style={{ fontSize: '15px' }} className="fw-bold">
-                                The Total Cost: {totalWeight.toLocaleString()}
-                            </td>
-                        </tr>
-                        <tr className="">
-                            <td colSpan={3} style={{ fontSize: '15px' }}  >
-                                <ul>
-                                    <li><b>Quantity: </b>{(totalQty).toLocaleString()} </li>
-                                    <li><b>Weight: </b>{(totalWeight).toLocaleString()} </li>
-                                    <li><b>Fee: </b>{fee} </li>
-                                    <li><b>collection Type: </b>{collectType} </li>
-                                    {storageCalculation &&
-                                        <li>
-                                            <Row>
-                                                <Col md={4}> <b>Cost Options: </b></Col>
-                                                <Col md={4}>
-                                                    <DropDownInputNoLabel val={storagePeriod} handle={getStorageCost} name='Select Option' label='arrivalnote' >
-                                                        <option value={"0  day  to 15 days"} >0  day  to 15 days</option>
-                                                        <option value={"15 days to 31 days"} >15 days to 31 days</option>
-                                                        <option value={"31 days onwards"} >31 days onwards</option>
-                                                    </DropDownInputNoLabel>
-                                                </Col>
-                                                <Col className="col-auto"> {costLoader && <div className="loader" style={{ height: '40px' }}></div>}
-                                                    <b>  RWF {finalCost.toLocaleString()}</b>  </Col>
-                                            </Row>
-
-                                        </li>}
-                                </ul>
-
-                            </td>
-                        </tr>
-
-                    </TableOpen>
-                    <Row className="d-flex justify-content-end">
-                        <Col className="col-12 d-flex justify-content-end">
-                            {arrivalInvModal === 'arrival' ?
-                                (<Button onClick={printArrival} className="bg-dark" >Print</Button>)
-                                : (<Button onClick={calculatecosts} className="bg-dark" >
-                                    {storageCalculation ? 'Confirm Cost' : 'Calculate Cost'}
-                                </Button>)
-                            }
-                        </Col>
-
-                    </Row>
-
-                </Col>
-                <Splitter />
-                <Row className={`d-flex justify-content-center ${arrivalInvModal === 'invoice' ? 'border ms-1 p-2' : ''}`}>
-                    <Col md={11}>
-                        <Row>   {showBillingDetails &&
-                            <BillDetails serviceName={serviceName}
-                                tallyItems={(totalCost).toLocaleString()} ata={arrivalObj?.date_time} invDate={arrivalObj?.date_time} movement={payment.service}
-                                arrivalNo={arrivalObj?.id} arrivalDate={arrivalObj?.date_time} arrivalName={arrivalObj?.name} tinNumber={arrivalObj?.tin_number} telephone={arrivalObj?.telephone}
-                                tallies={tallies} totalWeight={totalWeight} total_amount={total_amount} />
-                        }
-                        </Row>
-                    </Col>
-                    {arrivalInvModal === 'invoice' && <>
-                        <LongTextINputRow name='Description ' val={description} handle={(e) => setDescription(e.target.value)} label='lbldesc' />
-                        <Col md={11} className='d-flex justify-content-end mb-5'>
-                            <Button onClick={saveInvoice} className="bg-success btn-block" >Save</Button>
-                        </Col> </>
+            <TableOpen>
+                <ArrivalPrintTableComp />
+                {singleArrival.map((arrival, index) => {
+                    totalWeight += ('Not Assorted' === arrival.cargoAssorted) ? (arrival.weight * arrival.unit)
+                        : arrival.weight
+                    OnlySumOfWeight += arrival.weight
+                    totalQty += arrival.unit
+                    totalDisp = totalWeight
+                    collectType = arrival.cargoAssorted
+                    if (storageCalculation) {
+                        totalCost = finalCost
+                    } else {
+                        totalCost += collectType == 'Assorted' ? arrival.weight * arrival.unitPrice : arrival.weight * arrival.unit * arrival.unitPrice
                     }
-                </Row>
+
+                    fee = arrival.unitPrice
+                    return (<>
+                        <ArrivalTallyRows tly={arrival} index={index} collectType={collectType} />
+                    </>
+                    )
+                })}
+                <tr>  <td colSpan="4" style={{ fontSize: '20px' }} className="  fw-bold text-end"> Total: {(collectType == 'Not Assorted' ? totalWeight : OnlySumOfWeight).toLocaleString()} Kg</td>       </tr>
+
+                <tr className="d-none">
+                    <td colSpan={4} style={{ fontSize: '15px' }} className="fw-bold">
+                        The Total Cost: {totalWeight.toLocaleString()}
+                    </td>
+                </tr>
+                <tr className="">
+                    <td colSpan={3} style={{ fontSize: '15px' }}  >
+                        <ul>
+                            <li><b>Quantity: </b>{(totalQty).toLocaleString()} </li>
+                            <li><b>Weight: </b>{(totalWeight).toLocaleString()} </li>
+                            <li><b>Fee: </b>{fee} </li>
+                            <li><b>collection Type: </b>{collectType} </li>
+
+                            {storageCalculation &&
+                                <li>
+                                    <Row>
+                                        <Col md={4}> <b>Cost Options: </b></Col>
+                                        <Col md={4}>
+                                            <DropDownInputNoLabel val={storagePeriod} handle={getStorageCost} name='Select Option' label='arrivalnote' >
+                                                <option value={"0  day  to 15 days"} >0  day  to 15 days</option>
+                                                <option value={"15 days to 31 days"} >15 days to 31 days</option>
+                                                <option value={"31 days onwards"} >31 days onwards</option>
+                                            </DropDownInputNoLabel>
+                                        </Col>
+                                        <Col className="col-auto"> {costLoader && <div className="loader" style={{ height: '40px' }}></div>}
+                                            <b>  RWF {finalCost.toLocaleString()}</b>  </Col>
+                                    </Row>
+
+                                </li>}
+                        </ul>
+
+                    </td>
+                </tr>
+
+            </TableOpen>
+            <Row className="d-flex justify-content-end">
+                <Col className="col-12 d-flex justify-content-end">
+                    {arrivalInvModal === 'arrival' ?
+                        (<Button onClick={printArrival} className="bg-dark" >Print</Button>)
+                        : (<Button onClick={calculatecosts} className="bg-dark" >
+                            {storageCalculation ? 'Confirm Cost' : 'Calculate Cost'}
+                        </Button>)
+                    }
+                </Col>
+
             </Row>
+
+        </Col>
+        <Splitter />
+        <Row className={`d-flex justify-content-center ${arrivalInvModal === 'invoice' ? 'border ms-1 p-2' : ''}`}>
+            <Col md={11}>
+                <Row>   {showBillingDetails &&
+                    <BillDetails serviceName={serviceName}
+                        tallyItems={(totalCost).toLocaleString()} ata={arrivalObj?.date_time} invDate={arrivalObj?.date_time} movement={payment.service}
+                        arrivalNo={arrivalObj?.id} arrivalDate={arrivalObj?.date_time} arrivalName={arrivalObj?.name} tinNumber={arrivalObj?.tin_number} telephone={arrivalObj?.telephone}
+                        tallies={tallies} totalWeight={totalWeight} total_amount={total_amount} />
+                }
+                </Row>
+            </Col>
+            {arrivalInvModal === 'invoice' && <>
+                <LongTextINputRow name='Description ' val={description} handle={(e) => setDescription(e.target.value)} label='lbldesc' />
+                <Col md={11} className='d-flex justify-content-end mb-5'>
+                    <Button onClick={saveInvoice} className="bg-success btn-block" >Save</Button>
+                </Col> </>
+            }
+        </Row>
+    </Row>
 
 
     )

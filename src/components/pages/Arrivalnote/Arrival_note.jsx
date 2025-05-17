@@ -488,7 +488,7 @@ function Arrival_note({ DynamicMenu }) {
   const printArrivalnote = (arrival_note) => {
     const _sourceId = arrival_note.source_id ? arrival_note.source_id : 0  // the zero means warehouse
     const _destId = arrival_note.dest_id ? arrival_note.dest_id : 0  // the zero means warehouse
-    alert(arrival_note.mdl_destination.name)
+     
     StockRepository.truckarrival(arrival_note.mdl_destination.name, _sourceId, _destId, arrival_note.mdl_destination.category, arrival_note.id, authHeader).then((res) => {
       setObj(res.data)
       setArriPrintprint(true)
@@ -569,7 +569,7 @@ function Arrival_note({ DynamicMenu }) {
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
         <>
           <ArrivalMovementsSummary movementsSummary={movementsSummary} purchMvt={arrivalPurchasesMovt} saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt}
-            startDate={startDate} endDate={endDate} />
+            startDate={startDate} endDate={endDate}  />
         </>
       } />
 

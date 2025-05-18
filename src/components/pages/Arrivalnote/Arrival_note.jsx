@@ -488,7 +488,7 @@ function Arrival_note({ DynamicMenu }) {
   const printArrivalnote = (arrival_note) => {
     const _sourceId = arrival_note.source_id ? arrival_note.source_id : 0  // the zero means warehouse
     const _destId = arrival_note.dest_id ? arrival_note.dest_id : 0  // the zero means warehouse
-     
+
     StockRepository.truckarrival(arrival_note.mdl_destination.name, _sourceId, _destId, arrival_note.mdl_destination.category, arrival_note.id, authHeader).then((res) => {
       setObj(res.data)
       setArriPrintprint(true)
@@ -535,8 +535,8 @@ function Arrival_note({ DynamicMenu }) {
     })
   }
   const getCommonSearchByDate = (startDate, endDate, name, type) => {
-    if ('client_tin'===type) {
-      
+    if ('client_tin' === type) {
+
     } else {
       setStartDate(startDate)
       setEndDate(endDate)
@@ -569,7 +569,7 @@ function Arrival_note({ DynamicMenu }) {
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
         <>
           <ArrivalMovementsSummary movementsSummary={movementsSummary} purchMvt={arrivalPurchasesMovt} saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt}
-            startDate={startDate} endDate={endDate}  />
+            startDate={startDate} endDate={endDate} />
         </>
       } />
 
@@ -657,7 +657,6 @@ function Arrival_note({ DynamicMenu }) {
                   </> : ''
         }
       />
-
       <TitleSmallDesc title={` Next arrival: ${(nextArrival + 1)}  (${chosenProcess} )     `} />
       <AnimateHeight id="animForm" duration={300} animateOpacity={true} height={height}>
         <ContainerRowBtwn full={true} clearBtn={clearBtn} noTitle={true} nocaps={true}
@@ -666,7 +665,7 @@ function Arrival_note({ DynamicMenu }) {
           <FormInnerRightPaneFull onSubmitHandler={onSubmitHandler}>
 
             {chosenProcess &&
-
+              chosenProcess.split(' ')[0] === 'Warehouse' &&
               <> {step === 1 &&
                 <DropDownInput handle={(e) => handleArrivalDetails(e)} name='Select Arrival Note' label='arrivalnote' >
                   {arrival_notesNoDestination.map((an) => (

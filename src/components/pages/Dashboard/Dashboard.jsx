@@ -45,6 +45,8 @@ import { DateRangeContext } from '../../globalcomponents/ButtonContext';
 import { IncomingOutgoing } from './IncomingOutgoing';
 import { BerthedList } from './BerthedList';
 import { DetailedReportLoaderModal } from './DetailedReportLoaderModal';
+import VesselStatsModal from './VesselStatsModal';
+import TruckStatsModal from './TruckStatsModal';
 
 function Dashboard() {
 
@@ -526,10 +528,15 @@ function Dashboard() {
 
   let berthingCount = 0, totalTruckAtPort = 0
   
+  const [showVesselStats, setShowVesselStats] = useState(false);
+  const [showTruckStats, setShowTruckStats] = useState(false);
+
   return (
     <>
      
       <DetailedReportLoaderModal show={showModal} onHide={ ()=>setShowModal(false)} />
+      <VesselStatsModal show={showVesselStats} onHide={() => setShowVesselStats(false)} />
+      <TruckStatsModal show={showTruckStats} onHide={() => setShowTruckStats(false)} />
     
       
       {allTrucksAtTheport.map((truck) => { totalTruckAtPort += 1 })}
@@ -559,10 +566,42 @@ function Dashboard() {
           {/* <DashboardReportsFilters /> */}
 
           {dataLoad ? <>
-            <SingleNumberTop topRightTxt1={(totalBerthing).toLocaleString()} topRightTxt2={(truckAmount ?truckAmount:0).toLocaleString()}
-              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()} clickHandler={()=>setShowModal(true)}
+            <SingleNumberTop 
+              topRightTxt1={(totalBerthing).toLocaleString()} 
+              topRightTxt2={(truckAmount ? truckAmount : 0).toLocaleString()}
+              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()} 
+              clickHandler={() => setShowModal(true)}
               topRightTxt4={(totalBerthing + totalTruck + toCargotAmount).toLocaleString()}
-              bottomLeftTxt1={`${berthingCount} Vessel(s) charged `} bottomLeftTxt2={`${totalTruckNumber} Trucks (Gate)`} bottomLeftTxt3={`${toCargotNumber} invoices`} />
+              bottomLeftTxt1={
+                <div className="d-flex align-items-center justify-content-between">
+                  <span>{berthingCount} Vessel(s) charged</span>
+                  <button 
+                    className="btn btn-primary btn-sm ms-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowVesselStats(true);
+                    }}
+                  >
+                    View Statistics
+                  </button>
+                </div>
+              } 
+              bottomLeftTxt2={
+                <div className="d-flex align-items-center justify-content-between">
+                  <span>{totalTruckNumber} Trucks (Gate)</span>
+                  <button 
+                    className="btn btn-primary btn-sm ms-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowTruckStats(true);
+                    }}
+                  >
+                    View Statistics
+                  </button>
+                </div>
+              } 
+              bottomLeftTxt3={`${toCargotNumber} invoices`} 
+            />
 
             <IncomingOutgoing
               allBerthings={allBerthings}

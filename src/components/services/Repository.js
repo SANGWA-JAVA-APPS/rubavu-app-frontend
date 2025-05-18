@@ -40,9 +40,33 @@ class Repository {
         return axios.get(Repository.server + "/profile/").catch(() => { Commons.RedirectToLogin() })
     }
     findProfileById(id) {
-        return axios.get(Repository.server + "/profile/profile/" + id, { headers: Repository.getHeaders }).catch(() => { Commons.RedirectToLogin() })
-
+        return axios.get(Repository.server + "/profile/profile/" + id, { headers: Repository.getHeaders }).catch(() => {console.log(err) })
     }
+
+    findCombinedInvoices() {
+        const headers = {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json'
+        };
+        return axios.get(Conn.server.name + Conn.port.val + "codeguru/api/combinedInvoices/all", { headers: headers }).catch((error) => { 
+            console.error('Error fetching combined invoices:', error);
+            Commons.RedirectToLogin();
+        });
+    }
+    findCombinedInvoicesByStartAndEnd(start, end) {
+            const headers = {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            };
+        return axios.get(Conn.server.name + Conn.port.val + "codeguru/api/combinedInvoices/by-date-range", { 
+            headers: headers,
+            params: {
+                startDate: start,
+                endDate: end
+            }
+        }).catch(() => { Commons.RedirectToLogin() })
+    }
+
     findAccount() {
         return axios.get(Repository.server + "/account", { headers: Repository.getHeaders }).catch(() => { Commons.RedirectToLogin() })
     }

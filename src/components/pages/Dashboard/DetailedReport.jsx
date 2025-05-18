@@ -16,6 +16,7 @@ import { Form, InputGroup } from 'react-bootstrap';
 import { Card } from 'react-bootstrap';
 import Reporting from '../../services/StockServices/Reporting';
 import { useAuthHeader } from 'react-auth-kit';
+import RevenueTable from './RevenueTable';
 
 function BerthingRevenue({ invoiceReport }) {
   const { selectedItem } = useColItemContext(); // Get the selected item from the context
@@ -51,7 +52,6 @@ function BerthingRevenue({ invoiceReport }) {
       </SearchformAnimation>
       <div ref={componentRef} className="DashboardPrintView"  >
         <LocalReportAddress reportTitle={`Berthing Report from ${startDate} to ${endDate} `} />
-        <VesselEntryStats />
         <span className="showOnPrint" style={{ display: 'none' }}>
         </span>
         <TableOpen>
@@ -620,13 +620,13 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   </>
 }
 
-export const AllRevenue = ({ berthingAmount, trucksamount, cargoAmount, grandTotal }) => {
-  return <TitleAndList title="All Revenue"
-    li1={`Berthing RWF ${berthingAmount && (berthingAmount).toLocaleString()} `}
-    li2={`Trucks RWF ${trucksamount.toLocaleString()} `}
-    li3={`Cargo RWF ${cargoAmount.toLocaleString()} `}
-    li4={<h2 style={{ display: 'inline' }}>Grand Total {grandTotal && (grandTotal).toLocaleString()} </h2>}
-  />
+export const AllRevenue = () => {
+  return (
+    <div>
+      <TitleAndList title="All Revenue" />
+      <RevenueTable />
+    </div>
+  );
 }
 
 export const LocalReportAddress = ({ reportTitle, leftAddress = "MAGERWA", rightSideAddress }) => {
@@ -647,131 +647,3 @@ export const localStyle = () => {
     fontWeight: 'bold', paddingTop: '0px', color: '#000', fontSize: '15px'
   }
 }
-
-const VesselEntryStats = () => {
-  const [monthlyStats, setMonthlyStats] = useState([]);
-  const [todayCount, setTodayCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const authHeader = useAuthHeader()();
-
-  useEffect(() => {
-    const fetchVesselStats = async () => {
-      setIsLoading(true);
-      try {
-        // Get today's date and 12 months ago
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 12);
-        
-        // Format dates for API
-        const formatDate = (date) => {
-          return date.toISOString().split('T')[0];
-        };
-
-        // Fetch data for the entire year
-        const response = await Reporting.revenueReport(
-          formatDate(startDate),
-          formatDate(endDate),
-          authHeader
-        );
-
-        const vessels = response.data.berthReport || [];
-        
-        // Get today's date at midnight
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Count vessels that arrived today
-        const todayVessels = vessels.filter(vessel => {
-          const arrivalDate = new Date(vessel.etd);
-          arrivalDate.setHours(0, 0, 0, 0);
-          return arrivalDate.getTime() === today.getTime();
-        });
-        setTodayCount(todayVessels.length);
-
-        // Calculate monthly statistics for the past 12 months
-        const stats = [];
-        for (let i = 0; i < 12; i++) {
-          const date = new Date();
-          date.setMonth(date.getMonth() - i);
-          const month = date.getMonth();
-          const year = date.getFullYear();
-
-          const monthVessels = vessels.filter(vessel => {
-            const arrivalDate = new Date(vessel.etd);
-            return arrivalDate.getMonth() === month && arrivalDate.getFullYear() === year;
-          });
-
-          stats.push({
-            month: date.toLocaleString('default', { month: 'long' }),
-            year: year,
-            count: monthVessels.length
-          });
-        }
-        setMonthlyStats(stats);
-      } catch (error) {
-        console.error('Error fetching vessel statistics:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchVesselStats();
-  }, []); // Empty dependency array means this runs once on mount
-
-  if (isLoading) {
-    return (
-      <div className="vessel-stats-container">
-        <Row>
-          <Col md={12} className="text-center">
-            <p>Loading vessel statistics...</p>
-          </Col>
-        </Row>
-      </div>
-    );
-  }
-
-  return (
-    <div className="vessel-stats-container">
-      <Row>
-        <Col md={12} className="mb-4">
-          <Card className="text-center">
-            <Card.Body>
-              <Card.Title>Vessels Entered Today</Card.Title>
-              <Card.Text className="display-4">{todayCount}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={12}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Monthly Vessel Entries (Past 12 Months)</Card.Title>
-              <div className="table-responsive">
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Month</th>
-                      <th>Year</th>
-                      <th>Number of Vessels</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {monthlyStats.map((stat, index) => (
-                      <tr key={index}>
-                        <td>{stat.month}</td>
-                        <td>{stat.year}</td>
-                        <td>{stat.count}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </div>
-  );
-};

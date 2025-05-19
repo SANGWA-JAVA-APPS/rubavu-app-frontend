@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   getSortedRowModel,
+  getFilteredRowModel,
 } from '@tanstack/react-table';
-import { Button, Row, Col } from 'react-bootstrap';
+import { Button, Row, Col, Form } from 'react-bootstrap';
 import { CSVLink } from 'react-csv';
 import Repository from '../../services/Repository';
 import { useAuthHeader } from 'react-auth-kit';
@@ -17,6 +18,9 @@ const RevenueTable = () => {
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [columnFilters, setColumnFilters] = useState([]);
+  const [clientSearch, setClientSearch] = useState('');
+  const [selectedClients, setSelectedClients] = useState([]);
   const authHeader = useAuthHeader()();
 
   const formatDateForAPI = (date) => {
@@ -62,36 +66,51 @@ const RevenueTable = () => {
     }
   };
 
+  // Robustly determine the source
   const getSource = (invoice) => {
-    if (invoice.invoiceType === 'VESSEL') {
+    if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'VESSEL') {
       return 'Berthing';
-    } else if (invoice.invoiceType === 'TRUCK') {
+    } else if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'TRUCK_PARKING') {
       return 'Truck';
     }
     return 'Ops';
   };
 
-  const getClient = (invoice) => {
-    if (invoice.invoiceType === 'VESSEL') {
-      return `Vessel ${invoice.vesselId}`;
-    } else if (invoice.invoiceType === 'TRUCK') {
-      return invoice.licencePlateNumber || 'N/A';
-    }
-    return invoice.clientName || 'N/A';
-  };
-
+  // Robustly get the amount for each invoice type
   const getAmount = (invoice) => {
-    if (invoice.invoiceType === 'VESSEL') {
-      return (invoice.vesselHandlingCharges || 0) + (invoice.quayAmount || 0);
+    if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'VESSEL') {
+      return (invoice.quayAmount || 0) + (invoice.vesselHandlingCharges || 0);
     }
     return invoice.amount || 0;
   };
 
-  const columns = [
+  // Get all unique client names (case-insensitive, sorted)
+  const allClientNames = useMemo(() => {
+    const namesSet = new Set();
+    invoices.forEach(inv => {
+      if (inv.clientName) namesSet.add(inv.clientName);
+    });
+    return Array.from(namesSet).sort((a, b) => a.localeCompare(b));
+  }, [invoices]);
+
+  // Filter client names by search
+  const filteredClientNames = useMemo(() => {
+    if (!clientSearch) return allClientNames;
+    return allClientNames.filter(name => name.toLowerCase().includes(clientSearch.toLowerCase()));
+  }, [allClientNames, clientSearch]);
+
+  // Multi-select filter function for client names
+  const clientNameMultiFilterFn = (row, columnId, filterValue) => {
+    if (!filterValue || filterValue.length === 0) return true;
+    const clientName = (row.getValue(columnId) || '').toString().toLowerCase();
+    return filterValue.some(val => clientName === val.toLowerCase());
+  };
+
+  const columns = useMemo(() => [
     {
       accessorKey: 'dateTime',
       header: 'Date',
-      cell: ({ row }) => formatDate(row.original.dateTime || row.original.ata || row.original.entryTime)
+      cell: ({ row }) => formatDate(row.original.dateTime)
     },
     {
       accessorKey: 'amount',
@@ -99,28 +118,61 @@ const RevenueTable = () => {
       cell: ({ row }) => getAmount(row.original).toLocaleString()
     },
     {
-      accessorKey: 'client',
-      header: 'Client',
-      cell: ({ row }) => getClient(row.original)
+      accessorKey: 'clientName',
+      header: 'Client Name',
+      cell: ({ row }) => row.original.clientName || 'N/A',
+      filterFn: clientNameMultiFilterFn,
     },
     {
       accessorKey: 'source',
       header: 'Source',
       cell: ({ row }) => getSource(row.original)
     }
-  ];
+  ], []);
+
+  // Update column filter when selectedClients changes
+  useEffect(() => {
+    setColumnFilters((prev) => {
+      const otherFilters = prev.filter(f => f.id !== 'clientName');
+      return selectedClients.length > 0 ? [...otherFilters, { id: 'clientName', value: selectedClients }] : otherFilters;
+    });
+  }, [selectedClients]);
 
   const table = useReactTable({
     data: invoices,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      columnFilters: columnFilters
+    },
+    onColumnFiltersChange: setColumnFilters,
   });
 
+  // For the filter input
+  // const clientNameFilterValue = columnFilters.find(f => f.id === 'clientName')?.value || '';
+
+  // Dynamically update summary statistics based on filtered rows
+  const filteredRows = table.getFilteredRowModel().rows;
+  const filteredSourceTotals = useMemo(() => {
+    const totals = {
+      'Berthing': 0,
+      'Truck': 0,
+      'Ops': 0
+    };
+    filteredRows.forEach(row => {
+      const invoice = row.original;
+      const source = getSource(invoice);
+      totals[source] += getAmount(invoice);
+    });
+    return totals;
+  }, [filteredRows]);
+
   const csvData = invoices.map(invoice => ({
-    'Date': formatDate(invoice.dateTime || invoice.ata || invoice.entryTime),
+    'Date': formatDate(invoice.dateTime),
     'Amount (RWF)': getAmount(invoice).toLocaleString(),
-    'Client': getClient(invoice),
+    'Client Name': invoice.clientName || 'N/A',
     'Source': getSource(invoice)
   }));
 
@@ -131,7 +183,7 @@ const RevenueTable = () => {
   return (
     <div className="revenue-table">
       <Row className="mb-3">
-        <Col md={4}>
+        <Col md={3}>
           <DatePicker
             selected={startDate}
             onChange={date => setStartDate(date)}
@@ -140,7 +192,7 @@ const RevenueTable = () => {
             dateFormat="yyyy-MM-dd"
           />
         </Col>
-        <Col md={4}>
+        <Col md={3}>
           <DatePicker
             selected={endDate}
             onChange={date => setEndDate(date)}
@@ -149,7 +201,29 @@ const RevenueTable = () => {
             dateFormat="yyyy-MM-dd"
           />
         </Col>
-        <Col md={4} className="text-end">
+        <Col md={3}>
+          <Form.Control
+            type="text"
+            placeholder="Search client names..."
+            value={clientSearch}
+            onChange={e => setClientSearch(e.target.value)}
+            className="mb-2"
+          />
+          <Form.Select
+            multiple
+            value={selectedClients}
+            onChange={e => {
+              const options = Array.from(e.target.selectedOptions).map(opt => opt.value);
+              setSelectedClients(options);
+            }}
+            size={Math.min(6, filteredClientNames.length)}
+          >
+            {filteredClientNames.map(name => (
+              <option key={name} value={name}>{name}</option>
+            ))}
+          </Form.Select>
+        </Col>
+        <Col md={3} className="text-end">
           <CSVLink
             data={csvData}
             filename="combined-invoices.csv"
@@ -159,6 +233,21 @@ const RevenueTable = () => {
           </CSVLink>
         </Col>
       </Row>
+
+      {/* Source Totals */}
+      <Row className="mb-3">
+        <Col md={12}>
+          <div className="d-flex justify-content-end gap-4">
+            {Object.entries(filteredSourceTotals).map(([source, total]) => (
+              <div key={source} className="text-end">
+                <h5>{source}</h5>
+                <h4>RWF {total.toLocaleString()}</h4>
+              </div>
+            ))}
+          </div>
+        </Col>
+      </Row>
+
       <div className="table-responsive">
         <table className="table table-striped table-bordered">
           <thead>

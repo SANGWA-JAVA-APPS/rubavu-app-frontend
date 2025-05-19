@@ -325,7 +325,7 @@ let totBerthing=0.0, totWharfage=0.0
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='Payment Advices' height={height} entity='Payment Advice' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='Payment Advice' height={height} entity='Payment Advice' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -364,7 +364,6 @@ let totBerthing=0.0, totWharfage=0.0
                   <td className="text-center">{invoice.loa}   </td>
                   <td className="text-center">{invoice.quay_amount && (Number(invoice.quay_amount)).toLocaleString()}   </td>
                   <td className="text-center">{invoice.vessel_handling_charges && (invoice.vessel_handling_charges).toLocaleString()}   </td>
-
                   {userType == 'admin' && <ListOptioncol print={true} printData={() => printData(invoice)} getEntityById={() => getInvoiceById(invoice.id)} delEntityById={() => delInvoiceById(invoice.id)} />}
                 </tr>
               )})}

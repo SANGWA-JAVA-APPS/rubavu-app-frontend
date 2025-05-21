@@ -45,6 +45,9 @@ import { user as client } from 'react-icons-kit/icomoon/user'
 import CurrentDate from '../../Global/CurrentDate'
 import { ArrivalMovementsSummary } from './ArrivalMovementsSummary'
 import { useCollectTypeContext } from '../../Global/CollectTypeContext';
+import SeaarchBytyping, { SearchTableResult } from '../../globalcomponents/SeaarchBytyping';
+import { ClientTableRows } from '../Invoice/Invoice';
+import { OtherToolBarItems } from './OtherToolBarItems';
 
 
 function Arrival_note({ DynamicMenu }) {
@@ -78,8 +81,9 @@ function Arrival_note({ DynamicMenu }) {
   const { step, setStep, arrivalNote, setArrivalNote, updateArrivalNote, inputs, serviceName, setInputs, setServiceName } = useContext(ButtonContext)
 
   const { chosenProcess, chosenProcessId, chosenProcessCategory, sourceId, setSourceId, destId, setdestId, arrival_id, setArrival_id, obj, setObj,
-    arrivalInvModal, setArrivalInvModal
+    arrivalInvModal, setArrivalInvModal, checkAll, setcheckAll, myRecords, setMyRecords, process, setProcess
   } = useContext(ColItemContext)
+
 
   const { showToast } = useContext(ToastContext)
   /* #region -----------------sOURCE AND DESTINATION ID -------------------------------- */
@@ -102,6 +106,8 @@ function Arrival_note({ DynamicMenu }) {
   const [startDate, setStartDate] = useState(CurrentDate.todaydate())
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
 
+  const [searchedclientId, setSearchedclientId] = useState(0)
+
   const { collect_type, setCollect_type } = useCollectTypeContext()
 
   const authHeader = useAuthHeader()();
@@ -110,6 +116,9 @@ function Arrival_note({ DynamicMenu }) {
       setVessels(res.data);
       setDataLoad(true)
     });
+  }
+  const localColStyles = {
+    fontWeight: 'bold', fontSize: '20px'
   }
   const getOnlyTrucks = () => {
     StockRepository.getUniqueTrucksWithEntries(authHeader).then((res) => {
@@ -244,8 +253,8 @@ function Arrival_note({ DynamicMenu }) {
   }
   useEffect(() => {
     setArrival_id(0)
-    getAllArrival_notes(startDate, endDate)
-    getAllArrival_notesNoDestination(startDate, endDate)
+    // getAllArrival_notes(startDate, endDate)
+    // getAllArrival_notesNoDestination(startDate, endDate)
     getAllClients()
     getNextArrival()
     //Get Token and catname
@@ -534,14 +543,50 @@ function Arrival_note({ DynamicMenu }) {
       setMovementsSummary(res.data.movementsSummary)
     })
   }
-  const getCommonSearchByDate = (startDate, endDate, name, type) => {
-    if ('client_tin' === type) {
 
-    } else {
+
+
+  const searchOptions = (startDate, endDate, clientId) => {
+    if ('client_name' === type) {
+      if (searchedclientId || clientId) {
+
+        if (checkAll) {
+          StockRepository.findArrival_noteFilterByclient(startDate, endDate, user?.userid, searchedclientId, authHeader).then((res) => {
+            setArrival_notes(res.data)
+            // setDataLoad(true)
+
+          })
+        } else if (myRecords && process) {//both
+          StockRepository.findArrival_noteByProcessAndUserAndClient(startDate, endDate, user?.userid, chosenProcessId, clientId, authHeader).then((res) => {
+            setArrival_notes(res.data);
+            // setDataLoad(true)
+          });
+        } else if (process && !myRecords) {
+          StockRepository.findArrival_noteByProcessAndClient(startDate, endDate, user?.userid, chosenProcessId, clientId, authHeader).then((res) => {
+            setArrival_notes(res.data);
+            // setDataLoad(true)
+          });
+        } else if (!process && myRecords) {
+          StockRepository.findArrival_noteFilterByUserAndCliebt(startDate, endDate, user?.userid, clientId, authHeader).then((res) => {
+            setArrival_notes(res.data);
+            // setDataLoad(true)
+          });
+        }
+
+      } else {
+        // alert('Please select the client')
+      }
+    } else if (startDate && endDate) {
       setStartDate(startDate)
       setEndDate(endDate)
       setRefresh(!refresh)
+    } else {
+      alert('Put some values to search by')
     }
+  }
+
+  const getCommonSearchByDate = (startDate, endDate, name) => {
+    searchOptions(startDate, endDate, searchedclientId)
   }
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const getSortSymbol = (key) => {
@@ -563,7 +608,115 @@ function Arrival_note({ DynamicMenu }) {
     setVessels(sortedData);
     setSortConfig({ key, direction });
   };
-  let totalRows = 0
+  let totalRows = 0, totalAmount = 0
+
+  /* #region ------------------SEARCH CLIENT BY TYPING ------------------------------------------------- */
+  const { searchTableVisible, setSearchTableVisible } = useContext(ColItemContext)
+  const { showSelected, setShowSelected } = useContext(ColItemContext)
+  const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
+  const inputRef = useRef(null);
+  const [itemssbyname, setItemssbyname] = useState([]) //Data List searched by name
+  const tableHead = ['id', 'Client name', 'tin number']
+
+  const hideSelectorLink = () => {
+    setShowSelected(false)
+    setSearchItemValue('')
+  }
+  const findClientByNameLike = (searchItemValue) => {
+
+    StockRepository.findClientByNameLike(searchItemValue, authHeader).then((res) => {
+      setItemssbyname(res.data.content);
+
+      setDataLoad(true)
+    });
+
+  }
+  const [numCaharacters, setNumCaharacters] = useState(0)
+ 
+ 
+  const searchDone = (id, name, platenumber, status) => {
+    setSearchTableVisible(false)
+    setSearchItemValue(name)
+    setShowSelected()
+
+    setSearchedclientId(id)
+    if (searchedclientId) {
+
+      searchOptions(startDate, endDate, searchedclientId)
+    }
+
+
+  }
+  useEffect(() => {
+    searchOptions(startDate, endDate, searchedclientId)
+  }, [searchedclientId])
+  /* #endregion */
+  const [searchCriteria, setSearchCriteria] = useState('')//this is to be used globally in this component
+  const realTimeValueEvent = (e) => {
+    let word = e.target.value
+    setSearchItemValue(word)
+    setSearchCriteria(word)
+    if (word.length > 3) {
+      if ('client_name' === type) {
+        setSearchTableVisible(true)
+        findClientByNameLike(searchItemValue)
+      }
+    } else {
+      setSearchedclientId(0)
+
+      setSearchTableVisible(false)
+    }
+
+  }
+  const [noSelection, setNoSelection] = useState(false)
+
+  const searchOptionTwo = () => {
+    setDataLoad(false)
+    if (checkAll) {
+      StockRepository.findArrival_note(startDate, endDate, user?.userid, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        setDataLoad(true)
+      });
+    } else if (myRecords && process) {//both
+      StockRepository.findArrival_noteByProcessAndUser(startDate, endDate, user?.userid, chosenProcessId, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        setDataLoad(true)
+      });
+    } else if (myRecords && !process) {
+      StockRepository.findArrival_noteFilterByUser(startDate, endDate, user?.userid, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        setDataLoad(true)
+      });
+    } else if (process && !myRecords) {
+      StockRepository.findArrival_noteByProcess(startDate, endDate, user?.userid, chosenProcessId, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        setDataLoad(true)
+      });
+    } else if (!process && !myRecords) {
+      StockRepository.findArrival_note(startDate, endDate, user?.userid, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        setDataLoad(true)
+        setNoSelection(true)
+      });
+    }
+  }
+  useEffect(() => {
+    if (!noSelection) {
+      if (searchedclientId > 0) {//the client exists
+        searchOptions(startDate, endDate, searchedclientId)
+      } else {
+        searchOptionTwo()
+      }
+    }
+  }, [checkAll, setcheckAll, myRecords, setMyRecords, process, setProcess, searchedclientId, refresh])
+
+  useEffect(() => {
+    if (noSelection) {
+      setcheckAll(true)
+      setNoSelection(false)
+      console.log('-----------------Checked the first------------------------------')
+    }
+  }, [dataLoad])
   return (
     <>
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
@@ -665,15 +818,18 @@ function Arrival_note({ DynamicMenu }) {
           <FormInnerRightPaneFull onSubmitHandler={onSubmitHandler}>
 
             {chosenProcess &&
-              chosenProcess.split(' ')[0] === 'Warehouse' &&
-              <> {step === 1 &&
+              chosenProcess.split(' ')[0] === 'nWarehouse' &&
+              <> {step === 1 && <>
+
                 <DropDownInput handle={(e) => handleArrivalDetails(e)} name='Select Arrival Note' label='arrivalnote' >
                   {arrival_notesNoDestination.map((an) => (
                     <option value={an.id} key={an.id}>   {zeroBeforethousand(an.id)} - {an?.mdl_client?.mdl_client?.name} - {an?.date_time} -{an?.mdl_destination?.name}</option>
                   ))}
-                </DropDownInput>}
+                </DropDownInput>
+              </>
+              }
               </>}
-            <>  {step === 1 &&
+            <>  {step === 1 && chosenProcess && chosenProcess.split(' ')[0] !== 'Warehouse' &&
               <>
                 <Row>
                   <Col md={12}>
@@ -794,16 +950,17 @@ function Arrival_note({ DynamicMenu }) {
               </>
               }
             </>
-
           </FormInnerRightPaneFull>
           {/* <FormSidePane /> */}
         </ContainerRowBtwn >
       </AnimateHeight >
       <ContainerRow mt='3'>
-        <ListToolBar height={height} entity='Arrival note' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar height={height} entity='Arrival note' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} >
+          <OtherToolBarItems />
+        </ListToolBar>
         <SearchformAnimation searchHeight={searchHeight}>
-          <SearchBox getCommonSearchByDate={getCommonSearchByDate}
-            options={[{ name: 'client_tin', value: 'client_tin', label: 'Client TIN' }]} setType={setType} />
+          <SearchBox getCommonSearchByDate={getCommonSearchByDate} setType={setType} noValueField={true} realTimeValueEvent={realTimeValueEvent} realTimeValueCatch={true}
+            options={[{ name: 'client_name', value: 'client_name', label: 'Client Name' }]} />
         </SearchformAnimation>
 
         <Row className='d-flex justify-content-start d-none'>
@@ -833,6 +990,12 @@ function Arrival_note({ DynamicMenu }) {
           <>
             <div ref={componentRef} className="dataTableBox">
               <PrintCompanyInfo />
+
+              <SeaarchBytyping placeholder="Enter a Client Name" hideField={true}
+                labelName='Search Client By Name ' searchTableVisible={searchTableVisible} showSelected={showSelected} hideSelectorLink={hideSelectorLink}
+                currentTypingVal={searchItemValue} ref={inputRef} sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)} />
+              {searchTableVisible && <SearchTableResult tableHead={tableHead} TableRows={() => <ClientTableRows clients={itemssbyname} searchDone={searchDone} />} />}
+
               <TableOpen>
                 <TableHead>
                   <th onClick={() => sortData('id')}>ID {getSortSymbol('id')}</th>
@@ -851,21 +1014,32 @@ function Arrival_note({ DynamicMenu }) {
                 </TableHead>
                 <tbody>
 
-                  {chosenProcess.split(' ')[0] === 'Warehouse' ? arrival_notesNoDestination.map((arrival_note) => {
+
+                  {arrival_notes ? (arrival_notes.map((arrival_note) => {
                     totalRows += 1
-                    return (<ArrivalRows arrival_note={arrival_note} userType={userType} truckarrivalGrpByDestination={truckarrivalGrpByDestination} printArrivalnote={printArrivalnote} getArrival_noteById={getArrival_noteById} />)
-                  })
-                    :
-                    arrival_notesNoDestination ? arrival_notes.map((arrival_note) => {
-                      totalRows += 1
-                      return (
-                        <ArrivalRows arrival_note={arrival_note} userType={userType} truckarrivalGrpByDestination={truckarrivalGrpByDestination} printArrivalnote={printArrivalnote} getArrival_noteById={getArrival_noteById} />
-                      )
-                    })
-                      : <Row>
-                        <Col md={6}>No Records at {startDate} {"->"} {endDate}</Col>
-                      </Row>
-                  }</tbody>
+                    totalAmount += arrival_note.o_mdl_gen_invoices
+                      .reduce((sum, invoice) => sum + invoice.amount, 0)
+                    return (<>
+                      <ArrivalRows arrival_note={arrival_note} userType={userType} truckarrivalGrpByDestination={truckarrivalGrpByDestination} printArrivalnote={printArrivalnote} getArrival_noteById={getArrival_noteById} />
+
+                    </>
+
+                    )
+                  }))
+
+                    : <Row>
+                      <Col md={6}>No Records at {startDate} {"->"} {endDate}</Col>
+                    </Row>
+                  }
+                  <tr>
+                    <td colspan={5}>
+                      <p style={localColStyles}> {totalRows} Entries</p>
+                    </td>
+                    <td colspan={3} className="text-end">
+                      <p style={localColStyles}> Total   RWF {totalAmount.toLocaleString()}   </p>
+                    </td>
+                  </tr>
+                </tbody>
               </TableOpen>
             </div>
           </> : <Row className="d-flex justify-content-center">
@@ -1064,3 +1238,4 @@ export const TruckEntryDetails = ({ truckItem }) => {
     <td>{truckItem.get_in_time}</td>
   </tr>
 }
+

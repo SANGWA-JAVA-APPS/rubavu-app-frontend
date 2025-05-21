@@ -28,7 +28,7 @@ function ListToolBar(props) {
             <div className='col-12 '><h3 className='boldTitle'> {props.listTitle}  </h3></div>
             <div className='col-12'>
                 <div className='row'>
-                    <div className='col-8'>
+                    <div className='col-11 d-flex  '>
                         {(localStorage.getItem('catname') == 'admin' || localStorage.getItem('catname') == 'store keeper') && !props.hideSaveBtn &&
                             <button id='addREc' className='btn'
                                 aria-expanded={props.height !== 0} aria-controls="animForm" onClick={props.changeFormHeightClick}

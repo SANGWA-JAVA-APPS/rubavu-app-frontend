@@ -22,12 +22,15 @@ export const CargoGrpByByItem = ({ clientsItems }) => {
             <tr className="fw-bold" style={{ backgroundColor: '#1d6d7b', padding: '9px' }}>
                 <td className="text-center" style={localHead}>Entries </td>
                 <td className="text-center" style={localHead}>Cargo </td>
+                <td className="text-center" style={localHead}>Quantity </td>
                 <td className="text-center" style={localHead}>Weight </td>
             </tr>
             <tbody> {clientsItems.map((client, index) => (
                 <tr>
                     <td className="text-center">{client.id}</td>
                     <td className="text-center">{client.arrivalNote}</td>
+                    <td className="text-center" style={{ fontWeight: 'bold', color: '#000' }}>
+                         {((client.quantity ?? 1)  ).toLocaleString()}  </td>
                     <td className="text-center" style={{ fontWeight: 'bold', color: '#000' }}> {((client.quantity ?? 1) * (client.weight ?? 1)).toLocaleString()}  KG</td>
 
                 </tr>

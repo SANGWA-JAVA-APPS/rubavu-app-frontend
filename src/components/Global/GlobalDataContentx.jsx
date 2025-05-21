@@ -86,6 +86,12 @@ export const AppDataContextProvider = ({ children }) => {
   const [obj, setObj] = useState({})
   const [HandlingObj, setHandlingObj] = useState({})
 
+  /* #region --------used in the arrival_note and OtherToolBarItems components to help filtering */
+  const [checkAll, setcheckAll] = useState(true)
+
+  const [myRecords, setMyRecords] = useState(false)
+  const [process, setProcess] = useState(false)
+  /* #endregion */
 
   /* #region ----tracking the pressed key in the textbox ---- */
   const [pressedKey, setPressedKey] = useState('');
@@ -191,7 +197,8 @@ export const AppDataContextProvider = ({ children }) => {
       setupBycolor, //currently used on manin menu pages only
       disableBodyScroll, arrivalInvModal, setArrivalInvModal,
       dataTodisplayInModal, setDataTodisplayInModal, // this holds the data type to be displayed in the modal, so is for now the report and dashboard data
-      HandlingObj, setHandlingObj
+      HandlingObj, setHandlingObj,
+      checkAll, setcheckAll, myRecords, setMyRecords,process, setProcess
     }}>
       {children}
     </ColItemContext.Provider>

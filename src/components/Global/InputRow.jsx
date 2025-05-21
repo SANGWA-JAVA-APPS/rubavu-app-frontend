@@ -76,7 +76,7 @@ export const GenFullInput = (props) => {
 export const GenIputRow = (props) => {
     return (
         <div style={{ zIndex: '1' }} className={`form-group row m-1 ${props.moreclass}`}>
-            <label for={props.label} class="col-sm-3 col-form-label">{props.name}</label>
+            <label for={props.label} class="col-sm-3 col-form-label">{!props.hideField?props.name:''}</label>
             <div className={` col-sm-9 ms-0 ps-0 ${props.textboxSize}`}>
                 {props.children}
 
@@ -87,20 +87,21 @@ export const GenIputRow = (props) => {
 export const InputAndSearch = (props) => {
     return (
         <>
-            <GenIputRow name={props.name} label={props.label} >
-                <div className="input-group flex-nowrap">
-                    <input type="text" value={props.val} className={`form-control ${!props.showSelected ? '' : 'd-none'}  `}
-                        required onChange={props.changedContent}
-                        placeholder={props.placeholder}
-                        aria-label="Username" aria-describedby="addon-wrapping" ref={props.ref} />
+            <GenIputRow name={props.name} label={props.label} hideField={props.hideField} >
+                {!props.hideField &&
+                    <div className="input-group flex-nowrap">
+                        <input type="text" value={props.val} className={`form-control ${!props.showSelected ? '' : 'd-none'}  `}
+                            required onChange={props.changedContent}
+                            placeholder={props.placeholder}
+                            aria-label="Username" aria-describedby="addon-wrapping" ref={props.ref} />
 
-                    <Link title='Change The Value' className={`col p-2 border ${props.showSelected ? '' : 'd-none'}`} onClick={props.hideSelectorLink}>{props.val}</Link>
-                    <span className=" input-group-text" id="addon-wrapping" onClick={props.handle}>
-                        <Icon style={{ color: '#230d02', marginRight: "10px" }} icon={search} />
+                        <Link title='Change The Value' className={`col p-2 border ${props.showSelected ? '' : 'd-none'}`} onClick={props.hideSelectorLink}>{props.val}</Link>
+                        <span className=" input-group-text" id="addon-wrapping" onClick={props.handle}>
+                            <Icon style={{ color: '#230d02', marginRight: "10px" }} icon={search} />
 
-                    </span>
-                </div>
-
+                        </span>
+                    </div>
+                }
             </GenIputRow>
             <div className='row'>
                 {props.children}

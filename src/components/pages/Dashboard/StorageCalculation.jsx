@@ -7,7 +7,9 @@ import { ClientTableRows } from '../Invoice/Invoice';
 import ClientCargo from '../../Client/ClientCargo';
 import { TableOpen } from '../../Global/ListTable';
 import { TableHead } from '@mui/material';
-import { InputOnly } from '../../Global/Forms/InputRow';
+import { InputOnly, InputOnlyEditable } from '../../Global/Forms/InputRow';
+import { Button, Card, Col, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
+import { Splitter } from '../../globalcomponents/Splitter';
 
 export const StorageCalculation = ({ refresh, setRefresh }) => {
     const [clients, setClients] = useState([])
@@ -26,8 +28,9 @@ export const StorageCalculation = ({ refresh, setRefresh }) => {
                 name: note.name, surname: note.surname, category: note.category,
                 dateTime: note.date_time, lastDate: note.lastDate, prevQty: note.prevQty,
                 weight: note.weight, itemId: note.itemId, userId: user, period: "", InvoicableCost: 0,
+                assortedOrNot: note.assortedOrNot
             }));
-            
+
             setClients(arrivalNotes)
         })
     }, [])
@@ -48,7 +51,6 @@ export const StorageCalculation = ({ refresh, setRefresh }) => {
 
         StockRepository.findClientByNameLike(searchItemValue, authHeader).then((res) => {
             setItemssbyname(res.data.content);
-
             setDataLoad(true)
         });
 
@@ -226,4 +228,155 @@ export const WarehouseCargo = ({ cargoINWh }) => {
             </table>
         </div>
     )
+}
+
+
+export const StorageWithAsosrtedOrNot = ({ setMainTableorNextStep, cargoDetails, setCargoDetails,
+    handleUpdateClick, handleEditableChange,handleChangePeriod }) => {// with assorted or not
+    const gobackToWarehouse = () => {
+        setMainTableorNextStep(1)
+    }
+    const [newQuantity, setnewQuantity] = useState()
+    const [totalWeights, setTotalWeights] = useState()
+    const [totalAmount, setTotalAmount] = useState()
+
+    const [data, setData] = useState({})
+    const [period,setPeriod]=useState()
+    useEffect(() => {
+        setData(cargoDetails)
+        // setCargoDetails({})
+    }, [])
+
+
+    useEffect(() => {
+        if (newQuantity && totalWeights) {
+            const newTotalAmount = (totalWeights / newQuantity) * 1000; // Assuming 1000 is the conversion factor
+            setTotalAmount(newTotalAmount);
+        }
+
+    }, [totalWeights, newQuantity])
+
+    return <>
+
+        <Row className=''>
+            <Col md={12}>
+                {data &&
+
+                    <Card style={{ width: '100%', maxWidth: '100%', margin: '20px auto' }}>
+                        <Card.Header>
+                            <Card.Title> {data?.name} (Arrival No.: {data?.id})</Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <ListGroup variant="flush">
+                                <ListGroupItem>
+                                    <Row className="d-flex justify-content-between">
+                                        <Col md={5}> <strong>  {data?.arrivalNote}</strong></Col>
+                                        <Col md={5}><strong>Colelct Type :</strong>{data?.assortedOrNot}</Col>
+                                    </Row>
+
+                                </ListGroupItem>
+
+                                <ListGroupItem>
+
+                                    <Row>
+                                        <Col md={3}>
+                                            {data?.quantity}
+                                            <InputOnly
+                                                num={true} name={`${data.collect_type === 'Assorted' ? 'Total Exit Quantity' : ' Exit Quantity'} `}
+                                                val={newQuantity} handle={(e) => setnewQuantity(e.target.value)}
+                                                placeholder="qty" label="qty" />
+                                            <br />
+
+                                        </Col>
+                                        <Col md={3}>
+                                            {data?.weight}
+                                            <InputOnly
+                                                num={true} name={'Exit Weight'}
+                                                val={totalWeights} handle={(e) => setTotalWeights(e.target.value)}
+                                                placeholder="qty" label="qty" />
+                                        </Col>
+                                        <Col md={3}>
+                                            {data?.weight}
+                                            <select style={{ height: '60px', width: '150px' }} className="form-select  p-3"
+                                                value={client.period} name="period"
+                                                onChange={(e) => handleChangePeriod(  e.target.value)} label='period' >
+                                                <option></option>
+                                                <option value="single period">single period</option>
+                                                <option value="double period">doulbe period</option>
+                                            </select>
+                                        </Col>
+                                        <Col md={3} className="pt-4">
+                                            <Button onClick={() => handleUpdateClick(data.id, data.quantity, newQuantity,
+                                                data.itemId, 0, 0, totalAmount, totalWeights, data.period, data.assortedOrNot)}>Save</Button>
+                                        </Col>
+                                    </Row>
+
+                                </ListGroupItem>
+
+
+
+                                <ListGroupItem>
+                                    <Row >
+                                        <Col md={3}><strong>Arrival Note:</strong> {data?.arrivalNote}</Col>
+                                        <Col md={3}><strong>Quantity:</strong> {data?.quantity}</Col>
+                                        <Col md={3}><strong>New Quantity:</strong> {data?.newQuantity}</Col>
+                                        <Col md={3}><strong>TIN Number:</strong> {data?.tinNumber}</Col>
+
+                                    </Row>
+                                </ListGroupItem>
+                                <ListGroupItem>
+                                    <Row >
+                                        <Col md={3}> <strong>Name:</strong> {data?.name}</Col>
+                                        <Col md={3}><strong>Surname:</strong> {data?.surname || 'N/A'}</Col>
+                                        <Col md={3}><strong>Category:</strong> {data?.category || 'N/A'}</Col>
+                                        <Col md={3}>
+                                            <strong>Date Time:</strong> {data?.dateTime}
+                                        </Col>
+                                    </Row>
+
+                                </ListGroupItem>
+
+                                <Splitter />
+                                <ListGroupItem>
+                                    <Row>
+                                        <Col md={4}>
+                                            <strong>Last Date:</strong> {data?.lastDate}
+                                        </Col>
+                                        <Col md={4}>
+                                            <strong>Previous Quantity:</strong> {data?.prevQty}
+                                        </Col>
+                                    </Row>
+                                </ListGroupItem>
+                                <ListGroupItem>
+                                    <Row>
+                                        <Col md={4}>
+                                            <strong>Weight:</strong> {data?.weight} kg
+                                        </Col>
+                                        <Col md={4}>
+                                            <strong>Item ID:</strong> {data?.itemId}
+                                        </Col>
+                                        <Col md={4}>
+                                            <strong>Period:</strong> {data?.period || 'N/A'}
+                                        </Col>
+                                    </Row>
+                                </ListGroupItem>
+                                <ListGroupItem>
+                                    <Row>
+                                        <Col md={4}>
+                                            <strong>Invoicable Cost:</strong> {data?.InvoicableCost}
+                                        </Col>
+
+                                        <Col md={4}></Col> {/* Empty column for alignment */}
+                                    </Row>
+                                </ListGroupItem>
+                            </ListGroup>
+                        </Card.Body>
+                    </Card>
+                }
+                <br />
+                <a href='#' onClick={gobackToWarehouse} className='btn btn-dark '> {"<== "}Return</a>
+            </Col>
+        </Row>
+
+    </>
 }

@@ -6,7 +6,7 @@ import TableHead from '../Global/TableHead'
 import { LocalTableHead, LocalTableHeadCommon, TableRows } from '../../components/Global/commonForPages/TableCommons'
 import { ColItemContext } from '../Global/GlobalDataContentx'
 
-function SeaarchBytyping({  searchOnThirdSecond, labelName,placeholder ,hideSelectorLink ,showSelected, currentTypingVal,ref,sendRequestOnThirdChar}) {
+function SeaarchBytyping({  searchOnThirdSecond,hideField, labelName,placeholder ,hideSelectorLink ,showSelected, currentTypingVal,ref,sendRequestOnThirdChar}) {
     const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
     const [completeitemName, setCompleteitemName] = useState() //This is the chosen name of item selected from the list from the backend on the result table
     const [searchedNameLabel, setSearchedNameLabel] = useState('') // this is used on search on the beginning of the form registration
@@ -35,7 +35,7 @@ function SeaarchBytyping({  searchOnThirdSecond, labelName,placeholder ,hideSele
 
 
     return (
-        <InputAndSearch val={currentTypingVal}   placeholder={placeholder} showSelected={showSelected} hideSelectorLink={hideSelectorLink}  
+        <InputAndSearch val={currentTypingVal} hideField={hideField}   placeholder={placeholder} showSelected={showSelected} hideSelectorLink={hideSelectorLink}  
                 ref={ref} 
             changedContent={ sendRequestOnThirdChar }
             handle={() => searchForItemByName()}
@@ -70,7 +70,7 @@ export default SeaarchBytyping
 
 export const SearchTableResult = ({tableHead,TableRows}) => {
     return <>
-            <h4>Vessels    </h4>
+            <h4> Search Results    </h4>
             <TableOpen changedbgColor={1} >
                 <TableHead changedbgColor={1}>
                     {tableHead.map((item, index) => (

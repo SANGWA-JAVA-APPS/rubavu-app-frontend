@@ -8,7 +8,7 @@ import { ic_refresh as refreshBtn } from 'react-icons-kit/md/ic_refresh'
 import { Col } from 'react-bootstrap';
 
 
-function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], setType, noDates }) {
+function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], setType, noDates, noValueField ,realTimeValueCatch,realTimeValueEvent}) {
     const [startDate, setStartDate] = useState();
     const [endDate, setEndDate] = useState();
     const [name, setName] = useState()
@@ -38,10 +38,16 @@ function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], 
 
                                 </select>
                             </div>
-                            <div className='col-auto'>
+                            {!noValueField && <div className='col-auto'>
                                 <input type="text"
                                     title="Enter the value of the criteria" onChange={(e) => setName(e.target.value)} className="form-control" style={bg} id="staticEmail2" placeholder='Value' />
-                            </div>
+                            </div>}
+                            {realTimeValueCatch &&
+                                <div className='col-auto'>
+                                    <input type="text"
+                                        title="Start typing some words" onChange={(e) =>  realTimeValueEvent(e)} className="form-control" style={bg} id="staticEmail2" placeholder='Value' />
+                                </div>
+                            }
                         </>}
                         {!noDates &&
                             <><div className="col-auto ">
@@ -66,11 +72,11 @@ function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], 
                                     Enter
                                 </button>
                             </div>
-                            
-                                <button onClick={(e) => refreshClick(e)} className='col-auto btn btn-infso' style={{ backgroundColor: '#e0520be8' }}>
-                                    <Icon icon={refreshBtn} size={19} style={{ color: '#fff' }} />
-                                </button>
-                            
+
+                            <button onClick={(e) => refreshClick(e)} className='col-auto btn btn-infso' style={{ backgroundColor: '#e0520be8' }}>
+                                <Icon icon={refreshBtn} size={19} style={{ color: '#fff' }} />
+                            </button>
+
                         </>
                         }
                     </form>

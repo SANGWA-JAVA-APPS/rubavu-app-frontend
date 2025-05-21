@@ -17,9 +17,12 @@ import { useAuthHeader } from 'react-auth-kit'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { CargoGrpByArrivalByClient, CargoGrpByByItem } from './CargoComponents'
+import { StorageWithAsosrtedOrNot } from '../pages/Dashboard/StorageCalculation'
 function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems }) {
     const { searchItemValue } = useContext(ColItemContext)
     const authHeader = useAuthHeader()();
+
+    const [mainTableorNextStep, setMainTableorNextStep] = useState(1)// 1 is main table, 2 is next step
 
     const localHead = {
         padding: '12px', color: '#fff'
@@ -40,31 +43,46 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
     const [inputs, setInputs] = useState([]); // State for arrival notes
     const [error, setError] = useState(''); // State for validation errors
     const [dataLoad, setDataLoad] = useState(false)
-    const handleUpdateClick = (arrivalId, quantity, newQuantity, itemId, userId, index, totalAmount, totalWeights, period) => {//saving in the db
-        if (newQuantity > quantity) {
-            alert(`Error occured: Cannot update: New quantity (${newQuantity}) exceeds original quantity (${quantity}).`);
+    const handleUpdateClick = (arrivalId, quantity, newQuantity, itemId, userId, index, totalAmount, totalWeights, period, assortedOrNot) => {//saving in the db
+
+        console.log(
+            "Arrival ID: " + arrivalId +
+            ", Quantity: " + quantity +
+            ", New Quantity: " + newQuantity +
+            ", Item ID: " + itemId +
+            ", User ID: " + userId +
+            ", Index: " + index +
+            ", Total Amount: " + totalAmount +
+            ", Total Weights: " + totalWeights +
+            ", Period: " + period +
+            ", Assorted or Not: " + assortedOrNot
+        );
+        if (newQuantity > totalWeights) {
+            alert(`Error occured: Cannot update: New quantity (${newQuantity}) exceeds original quantity (${totalWeights}).`);
             setError(`Cannot update: New quantity (${newQuantity}) exceeds original quantity (${quantity}).`);
             return;
         }
         if (itemId === undefined || itemId === null || quantity === undefined || quantity === null || newQuantity === undefined || newQuantity === null || totalAmount === undefined || totalAmount === null || totalWeights === undefined || totalWeights === null) {
             setError('Error: either  itemId or quantity, totalAmount, total Weight and new Quantity may be  null');
             alert('Error: either  itemId or quantity or new Quantity may be undefined or null');
+            alert(itemId + ' ' + quantity + ' ' + newQuantity + ' ' + totalAmount + ' ' + totalWeights)
             return;
         }
-        totalWeights = totalWeights * newQuantity
+        totalWeights = totalWeights
 
-        StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, userId.userid, totalAmount, totalWeights, period).then(res => {
-            const updatedClients = [...clients];
-            updatedClients[index].quantity = updatedClients[index].quantity - newQuantity;
-            updatedClients[index].newQuantity = 0;
-            setClients(updatedClients);
-            alert(`Storage Invocie is generated and Cargo exit updated successfully  `);
-            setRefresh(!refresh)
-        }).catch(err => {
-            console.error('Error updating warehouse:', err);
-            setError('An error occurred while updating the warehouse.');
 
-        });
+        // StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, userId.userid, totalAmount, totalWeights, period).then(res => {
+        //     const updatedClients = [...clients];
+        //     updatedClients[index].quantity = updatedClients[index].quantity - newQuantity;
+        //     updatedClients[index].newQuantity = 0;
+        //     setClients(updatedClients);
+        //     alert(`Storage Invocie is generated and Cargo exit updated successfully  `);
+        //     setRefresh(!refresh)
+        // }).catch(err => {
+        //     console.error('Error updating warehouse:', err);
+        //     setError('An error occurred while updating the warehouse.');
+
+        // });
 
         console.log(`Updating Arrival ID: ${arrivalId}, Quantity: ${quantity}, New Quantity: ${newQuantity},the itemId: ${itemId}, the user: ${userId.userid} `);
 
@@ -109,15 +127,15 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
     const handleEditableChange = (index, value) => {
         const updatedClients = [...clients];
         const newQuantity = parseInt(value, 10) || 0;
-        const originalQuantity = updatedClients[index].quantity;
+        const originalWeight = updatedClients[index].weight;
 
         // Update newQuantity first
         updatedClients[index].newQuantity = newQuantity;
 
 
         // Validate after update
-        if (newQuantity > originalQuantity) {
-            setError(`New quantity (${newQuantity}) cannot exceed original quantity (${originalQuantity}) for arrival ID ${updatedClients[index].id}.`);
+        if (newQuantity > originalWeight) {
+            setError(`New quantity (${newQuantity}) cannot exceed original quantity (${originalWeight}) for arrival ID ${updatedClients[index].id}.`);
         } else {
             setError(''); // Clear error if validation passes
         }
@@ -140,6 +158,23 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
     }
     const { total: totalTonnage, count: totalIterations } = useMemo(() => CalCulateGrandTotal(clients), [clients]);
 
+    const [cargoDetails, setCargoDetails] = useState({})
+    const NewQtyFocusEvent = (e, index, client) => {
+        let i = index
+
+        setCargoDetails(client)
+        setIndexForLoader(i)
+        console.log('-------------------------------|||---CARGO DETAILS')
+        console.log(client)
+        console.log('---------------indexForLoader: ' + i + '------------')
+    }
+    useEffect(() => {
+        if (cargoDetails.id > 0) {
+
+            setMainTableorNextStep(2)
+            //     setIndexForLoader(-1)
+        }
+    }, [cargoDetails])
 
     return (
         <>
@@ -178,78 +213,85 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
                             {/* <CargoGrpByArrivalByClient clients={clients}
                                 handleChange={handleChange} handleChangePeriod={handleChangePeriod} handleUpdateClick={handleUpdateClick}
                                 dataLoad={dataLoad} indexForLoader={indexForLoader} /> */}
-                            <table className='  table-bordered w-100' style={{ width: '100%' }}>
 
-                                <tr className="fw-bold" style={{ backgroundColor: '#1d6d7b', padding: '9px' }}>
-                                    <td title="grouped by client and item" style={localHead}>Arrival id </td>
-                                    <td style={localHead}>Client name </td>
-                                    {showmore && <>
-                                        <td style={localHead}>TIN </td>
-                                        <td style={localHead}>Arrival Date </td></>
-                                    }
-                                    <td style={localHead}>Cargo </td>
-                                    {showmore &&
-                                        <td style={localHead}>Prev. Qty</td>
-                                    }
-                                    <td style={localHead}>Current Qty </td>
-                                    <td style={localHead}>Weight </td>
-                                    <td style={localHead}>Tot. Wgh  </td>
-                                    {showmore &&
-                                        <td style={localHead}>Last removal </td>
-                                    }
-                                    <td style={localHead}>   </td>
-                                    <td style={localHead}>Qty to remove  </td>
-                                    <td style={localHead}>Amount   </td>
-                                    <td style={localHead}>Period  </td>
+                            {mainTableorNextStep === 2 && cargoDetails.id > 0
+                                ? <StorageWithAsosrtedOrNot setMainTableorNextStep={setMainTableorNextStep} cargoDetails={cargoDetails}
+                                    setCargoDetails={setCargoDetails} handleUpdateClick={handleUpdateClick} handleChangePeriod={handleChangePeriod}
+                                    handleEditableChange={handleEditableChange} />
+                                : (mainTableorNextStep === 1 ?
+                                    <table className='  table-bordered w-100' style={{ width: '100%' }}>
 
-                                    <td style={localHead}> Option </td>
-                                </tr>
-                                {/* {userType == 'admin' && <td className='delButton d-none'>Option</td>} */}
-                                <tbody> {clients.map((client, index) => (
-                                    <tr>
-                                        <td>{client.id} </td>
-                                        <td>{client.name}</td>
-                                        {showmore && <>
-                                            <td>{client.tin_number}</td>
-                                            <td>{client.date_time}</td>
-                                        </>
-                                        } 
-                                        <td >{client.arrivalNote || client.itemName}  </td>
-
-                                        {showmore && <td>{client.prevQty} </td>}
-                                        <td style={focuscols}> <InputOnly name="Quantity" moreclass="w-100" val={(client.quantity)} onChange={(e) => handleChange(index, "quantity", e.target.value)} label='Quantity' />
-                                        </td>
-                                        <td >
-                                            {((client.weight ? client.weight : 0).toLocaleString())} KG</td>
-                                        <td style={{ fontWeight: 'bold', color: '#000' }}>{((((client.quantity ?? 0) * client.weight) > 1 ? ((client.quantity ?? 0) * client.weight) : (client.noGrpCargoBalance ?? 0) * client.weight).toLocaleString())} KG</td>
-
-                                        <td>{showmore && client.lastDate}</td>
-                                        <td style={focuscols}><InputOnly name="exit" moreclass="w-100" val={client.newQuantity} handle={(e) => handleEditableChange(index, e.target.value)} label='exit' />
-                                        </td>
-                                        <td style={focuscols}>
-                                            {(dataLoad && indexForLoader === index) ? <div className="loader"></div>
-                                                :
-                                                <InputOnly name="InvoicableCost" moreclass="w-100" val={client.InvoicableCost} handle={(e) => handleChange(index, e.target.value)} label='InvoicableCost' />
+                                        <tr className="fw-bold" style={{ backgroundColor: '#1d6d7b', padding: '9px' }}>
+                                            <td title="grouped by client and item" style={localHead}>Arrival id </td>
+                                            <td style={localHead}>Client name </td>
+                                            {showmore && <>
+                                                <td style={localHead}>TIN </td>
+                                                <td style={localHead}>Arrival Date </td></>
                                             }
-                                        </td>
+                                            <td style={localHead}>Cargo </td>
+                                            {showmore &&
+                                                <td style={localHead}>Prev. Qty</td>
+                                            }
+                                            <td style={localHead}>Current Qty </td>
+                                            <td style={localHead}>Weight </td>
+                                            <td style={localHead}>Tot. Wgh  </td>
+                                            {showmore &&
+                                                <td style={localHead}>Last removal </td>
+                                            }
+                                            <td style={localHead}>   </td>
+                                            <td style={localHead}>Qty to remove  </td>
+                                            <td style={localHead}>Amount   </td>
+                                            <td style={localHead}>Period  </td>
 
-                                        <td>
-                                            <select style={{ height: '60px', width: '150px' }} className="form-select  p-3" value={client.period} name="period"
-                                                onChange={(e) => handleChangePeriod(index, "period", e.target.value)} label='period' >
-                                                <option></option>
-                                                <option value="single period">single period</option>
-                                                <option value="double period">doulbe period</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <Button variant="success" className="mt-2" style={{ fontSize: '12px', padding: '1px 10px' }}
-                                                onClick={() => handleUpdateClick(client.id, client.quantity, client.newQuantity, client.itemId, client.userId, index, client.InvoicableCost, client.weight, client.period)}>
-                                                Update & Invoice
-                                            </Button>
-                                        </td>
-                                    </tr>))}
-                                </tbody>
-                            </table>
+                                            <td style={localHead}> Option </td>
+                                        </tr>
+                                        {/* {userType == 'admin' && <td className='delButton d-none'>Option</td>} */}
+                                        <tbody> {clients.map((client, index) => (
+                                            <tr>
+                                                <td>{client.id} </td>
+                                                <td>{client.name}</td>
+                                                {showmore && <>
+                                                    <td>{client.tin_number}</td>
+                                                    <td>{client.date_time}</td>
+                                                </>
+                                                }
+                                                <td >{client.arrivalNote || client.itemName}  </td>
+
+                                                {showmore && <td>{client.prevQty} </td>}
+                                                <td style={focuscols}> <InputOnly name="Quantity" moreclass="w-100" val={(client.quantity)} onChange={(e) => handleChange(index, "quantity", e.target.value)} label='Quantity' />
+                                                </td>
+                                                <td >
+                                                    {((client.weight ? client.weight : 0).toLocaleString())} KG</td>
+                                                <td style={{ fontWeight: 'bold', color: '#000' }}>{((((client.quantity ?? 0) * client.weight) > 1 ? ((client.quantity ?? 0) * client.weight) : (client.noGrpCargoBalance ?? 0) * client.weight).toLocaleString())} KG</td>
+
+                                                <td>{showmore && client.lastDate}</td>
+                                                <td style={focuscols}><InputOnly handleFocus={(e) => NewQtyFocusEvent(e, index, client)} name="exit" moreclass="w-100" val={client.newQuantity} handle={(e) => handleEditableChange(index, e.target.value)} label='exit' />
+                                                </td>
+                                                <td style={focuscols}>
+                                                    {(dataLoad && indexForLoader === index) ? <div className="loader"></div>
+                                                        :
+                                                        <InputOnly name="InvoicableCost" moreclass="w-100" val={client.InvoicableCost} handle={(e) => handleChange(index, e.target.value)} label='InvoicableCost' />
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    <select style={{ height: '60px', width: '150px' }} className="form-select  p-3" value={client.period} name="period"
+                                                        onChange={(e) => handleChangePeriod(index, "period", e.target.value)} label='period' >
+                                                        <option></option>
+                                                        <option value="single period">single period</option>
+                                                        <option value="double period">doulbe period</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <Button variant="success" className="mt-2" style={{ fontSize: '12px', padding: '1px 10px' }}
+                                                        onClick={() => handleUpdateClick(client.id, client.quantity, client.newQuantity, client.itemId, client.userId, index, client.InvoicableCost, client.weight, client.period, client.assortedOrNot)}>
+                                                        Update & Invoice
+                                                    </Button>
+                                                </td>
+                                            </tr>))}
+                                        </tbody>
+                                    </table> : '')
+                            }
                         </Tab>
                         <Tab eventKey="profile" title="Cargo By item">
                             <CargoGrpByByItem clientsItems={clientsItems} />

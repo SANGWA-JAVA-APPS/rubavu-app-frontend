@@ -5,7 +5,6 @@ import { search } from 'react-icons-kit/icomoon/search'
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css'
 import { ic_refresh as refreshBtn } from 'react-icons-kit/md/ic_refresh'
-import { Col } from 'react-bootstrap';
 
 
 function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], setType, noDates, noValueField ,realTimeValueCatch,realTimeValueEvent}) {
@@ -27,7 +26,7 @@ function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], 
             <div className='row pb-2  '>
                 <div className='col-12 p-2 m-1 mt-2 d-flex justify-content-around2' style={{ borderRadius: "5px", border: "1px solid #fff", boxShadow: "0px 0px 3px #000", height: "auto", backgroundColor: "#e4e8eb" }}>
                     <form onSubmit={(e) => { e.preventDefault() }} className="row d-flex justify-content-end p-0 m-0">
-                        {!nobtns && <>
+                         {!nobtns && <>
                             <div className="col-auto ">
                                 <select onChange={(e) => setType(e.target.value)} class="form-select form-select-md" title="Criteria" aria-label=".form-select-lg example">
                                     <option>Select Option</option>

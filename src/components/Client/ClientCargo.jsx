@@ -2,9 +2,6 @@ import React, { useContext } from 'react'
 import ContainerRow from '../Global/ContainerRow'
 import { Alert, Button, Col, Tab, Tabs } from 'react-bootstrap'
 import { DropDownInput } from '../Global/InputRow'
-import TableHead from '../Global/TableHead'
-import { TableOpen } from '../Global/ListTable'
-import { TitleSmallDesc } from '../globalcomponents/TitleSmallDesc'
 import { useState } from 'react'
 import { Icon } from 'react-icons-kit'
 import { newspaper as client } from 'react-icons-kit/icomoon/newspaper'
@@ -14,7 +11,6 @@ import { InputOnly } from '../Global/Forms/InputRow'
 import StockCommons from '../services/StockServices/StockCommons'
 import StockRepository from '../services/StockServices/StockRepository'
 import { useAuthHeader } from 'react-auth-kit'
-import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { CargoGrpByArrivalByClient, CargoGrpByByItem } from './CargoComponents'
 import { StorageWithAsosrtedOrNot } from '../pages/Dashboard/StorageCalculation'
@@ -40,7 +36,6 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
     const [indexForLoader, setIndexForLoader] = useState(0)
 
     /* #region -----------------EDITING THE NEW QUANTITY ---------------------------- */
-    const [inputs, setInputs] = useState([]); // State for arrival notes
     const [error, setError] = useState(''); // State for validation errors
     const [dataLoad, setDataLoad] = useState(false)
     const handleUpdateClick = (arrivalId, quantity, newQuantity, itemId, userId, index, totalAmount, totalWeights, period, assortedOrNot) => {//saving in the db
@@ -70,7 +65,17 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
         }
         totalWeights = totalWeights
 
-
+        StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, userId.userid, totalAmount, totalWeights, period).then(res => {
+            const updatedClients = [...clients];
+            updatedClients[index].quantity = updatedClients[index].quantity - newQuantity;
+            updatedClients[index].newQuantity = 0;
+            setClients(updatedClients);
+            alert(`Storage Invoice is generated and Cargo exit updated successfully  `);
+            setRefresh(!refresh)
+        }).catch(err => {
+            console.error('Error updating warehouse:', err);
+            setError('An error occurred while updating the warehouse.');
+        })
         // StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, userId.userid, totalAmount, totalWeights, period).then(res => {
         //     const updatedClients = [...clients];
         //     updatedClients[index].quantity = updatedClients[index].quantity - newQuantity;
@@ -142,7 +147,6 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
         setClients(updatedClients);
     };
     /* #endregion */
-    let GTonnage = 0
 
     const CalCulateGrandTotal = (data) => {
         if (!Array.isArray(data)) return 0;

@@ -39,18 +39,14 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, } from 'chart.js';
 import DoughnutChart from '../reporting/DoughnutChart';
 import { SingleNumberTop } from './SingleNumberTop';
-import { ThreeCharts } from './ThreeCharts';
 import PagesWapper from '../../Global/PagesWapper';
 import { useAuthHeader } from 'react-auth-kit';
-import { ListByTitle } from '../reporting/revenueReports';
-import BerthingRevenue, { AllRevenue, CargoRevenue, TrucksRevenue } from './DetailedReport';
-import { SettingsEthernet } from '@mui/icons-material';
 import { DateRangeContext } from '../../globalcomponents/ButtonContext';
-import BookingReport from './BookingReport';
-import { BerthingReport } from '../reporting/BerthingReport';
 import { IncomingOutgoing } from './IncomingOutgoing';
 import { BerthedList } from './BerthedList';
 import { DetailedReportLoaderModal } from './DetailedReportLoaderModal';
+import VesselStatsModal from './VesselStatsModal';
+import TruckStatsModal from './TruckStatsModal';
 
 function Dashboard() {
 
@@ -532,10 +528,15 @@ function Dashboard() {
 
   let berthingCount = 0, totalTruckAtPort = 0
   
+  const [showVesselStats, setShowVesselStats] = useState(false);
+  const [showTruckStats, setShowTruckStats] = useState(false);
+
   return (
     <>
      
       <DetailedReportLoaderModal show={showModal} onHide={ ()=>setShowModal(false)} />
+      <VesselStatsModal show={showVesselStats} onHide={() => setShowVesselStats(false)} />
+      <TruckStatsModal show={showTruckStats} onHide={() => setShowTruckStats(false)} />
     
       
       {allTrucksAtTheport.map((truck) => { totalTruckAtPort += 1 })}
@@ -565,10 +566,42 @@ function Dashboard() {
           {/* <DashboardReportsFilters /> */}
 
           {dataLoad ? <>
-            <SingleNumberTop topRightTxt1={(totalBerthing).toLocaleString()} topRightTxt2={(truckAmount ?truckAmount:0).toLocaleString()}
-              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()} clickHandler={()=>setShowModal(true)}
+            <SingleNumberTop 
+              topRightTxt1={(totalBerthing).toLocaleString()} 
+              topRightTxt2={(truckAmount ? truckAmount : 0).toLocaleString()}
+              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()} 
+              clickHandler={() => setShowModal(true)}
               topRightTxt4={(totalBerthing + totalTruck + toCargotAmount).toLocaleString()}
-              bottomLeftTxt1={`${berthingCount} Vessel(s) charged `} bottomLeftTxt2={`${totalTruckNumber} Trucks (Gate)`} bottomLeftTxt3={`${toCargotNumber} invoices`} />
+              bottomLeftTxt1={
+                <div className="d-flex align-items-center justify-content-between">
+                  <span>{berthingCount} Vessel(s) charged</span>
+                  <button 
+                    className="btn btn-primary btn-sm ms-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowVesselStats(true);
+                    }}
+                  >
+                    View Statistics
+                  </button>
+                </div>
+              } 
+              bottomLeftTxt2={
+                <div className="d-flex align-items-center justify-content-between">
+                  <span>{totalTruckNumber} Trucks (Gate)</span>
+                  <button 
+                    className="btn btn-primary btn-sm ms-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowTruckStats(true);
+                    }}
+                  >
+                    View Statistics
+                  </button>
+                </div>
+              } 
+              bottomLeftTxt3={`${toCargotNumber} invoices`} 
+            />
 
             <IncomingOutgoing
               allBerthings={allBerthings}
@@ -632,19 +665,3 @@ function Dashboard() {
 }
 
 export default Dashboard
-
-export const LocalReportLayouts = ({ modalTitle, berthingReport, truckReport, cargoAmountReport, berthingAmount, trucksamount, cargoAmount, grandTotal }) => {
-  if ('Vessels' === modalTitle) {
-    return <BerthingRevenue invoiceReport={berthingReport} />
-  } else if ('Trucks' === modalTitle) {
-    return <TrucksRevenue truckReport={truckReport} />
-  } else if ('Cargo' === modalTitle) {
-    return <CargoRevenue cargoAmountReport={cargoAmountReport} />
-  } else if ('All Revenue' === modalTitle) {
-    return <AllRevenue berthingAmount={berthingAmount} trucksamount={trucksamount} cargoAmount={cargoAmount}
-      grandTotal={grandTotal} />
-  } else if ('allTrucksAtTheport' == modalTitle) {
-
-
-  }
-}

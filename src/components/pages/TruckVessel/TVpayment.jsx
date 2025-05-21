@@ -21,6 +21,9 @@ import Repository from '../../services/Repository'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 import TruckVhNavBar from '../../Navbar/TruckVhNavBar'
 import TruckVesselNavBar from '../../Navbar/TruckVesselNavBar'
+import StockCommons from '../../services/StockServices/StockCommons'
+import StockRepository from '../../services/StockServices/StockRepository'
+import StockDelete from '../../services/StockServices/StockDelete'
 
 
 function TVpayment() {
@@ -72,9 +75,9 @@ function TVpayment() {
   /*#region ------------All Records, Deleting and By Id------------------------*/
   const getAllPayments = (page, size) => {
     Repository.findPayment(page, size, authHeader).then((res) => {
-      setPayments(res.data.data);
+      // Filter out deleted records
+      setPayments(res.data.data.filter(payment => !payment.isDeleted));
       setDataLoad(true)
-
     });
   }
 
@@ -99,6 +102,8 @@ function TVpayment() {
   const delPaymentById = (id) => {
     Utils.Submit(() => {
       StockDelete.deletePaymentById(id).then(() => {
+        // Update local state to remove the deleted item
+        setPayments(prevPayments => prevPayments.filter(payment => payment.id !== id));
         setRefresh(!refresh)
       })
     }, () => { })

@@ -20,6 +20,9 @@ import Commons from '../../services/Commons'
 import Repository from '../../services/Repository'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 import TruckVhNavBar from '../../Navbar/TruckVhNavBar'
+import StockCommons from '../../services/StockServices/StockCommons'
+import StockRepository from '../../services/StockServices/StockRepository'
+import StockDelete from '../../services/StockServices/StockDelete'
 
 
 function Payment() {

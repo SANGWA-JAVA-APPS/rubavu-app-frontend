@@ -29,6 +29,8 @@ import { GenFullInput, GenIputRow } from '../../Global/InputRow'
 import StockConn from '../../services/StockServices/StockConn'
 import axios from 'axios'
 import OtherStyles from '../../Styles/OtherStyles'
+import StockDelete from '../../services/StockServices/StockDelete'
+
 
 
 function Vessel() {
@@ -178,9 +180,9 @@ function Vessel() {
   /*#region ------------All Records, Deleting and By Id------------------------*/
   const getAllVessels = (page, size) => {
     StockRepository.findVessel(authHeader).then((res) => {
-      setVessels(res.data);
+      // Filter out deleted records
+      setVessels(res.data.filter(vessel => !vessel.isDeleted));
       setDataLoad(true)
-
     });
   }
   useEffect(() => {
@@ -226,6 +228,8 @@ function Vessel() {
   const delVesselById = (id) => {
     Utils.Submit(() => {
       StockDelete.deleteVesselById(id).then(() => {
+        // Update local state to remove the deleted item
+        setVessels(prevVessels => prevVessels.filter(vessel => vessel.id !== id));
         setRefresh(!refresh)
       })
     }, () => { })

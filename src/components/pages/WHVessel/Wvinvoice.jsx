@@ -22,6 +22,9 @@ import { ColItemContext } from '../../Global/GlobalDataContentx'
 import TruckVhNavBar from '../../Navbar/TruckVhNavBar'
 import TruckVesselNavBar from '../../Navbar/TruckVesselNavBar'
 import WHVesselnavBar from '../../Navbar/WHVesselnavBar'
+import StockCommons from '../../services/StockServices/StockCommons'
+import StockRepository from '../../services/StockServices/StockRepository'
+import StockDelete from '../../services/StockServices/StockDelete'
 
 
 function Wvinvoice() {
@@ -74,9 +77,9 @@ const [arrival_id, setArrival_id] = useState()
   /*#region ------------All Records, Deleting and By Id------------------------*/
   const getAllInvoices = (page, size) => {
     Repository.findInvoice(page, size, authHeader).then((res) => {
-      setInvoices(res.data.data);
+      // Filter out deleted records
+      setInvoices(res.data.data.filter(invoice => !invoice.isDeleted));
       setDataLoad(true)
-
     });
   }
 
@@ -102,6 +105,8 @@ const [arrival_id, setArrival_id] = useState()
   const delInvoiceById = (id) => {
     Utils.Submit(() => {
       StockDelete.deleteInvoiceById(id).then(() => {
+        // Update local state to remove the deleted item
+        setInvoices(prevInvoices => prevInvoices.filter(invoice => invoice.id !== id));
         setRefresh(!refresh)
       })
     }, () => { })

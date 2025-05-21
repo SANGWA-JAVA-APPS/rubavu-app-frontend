@@ -509,6 +509,14 @@ class StockCommons {
         );
     }
 
+    updateTruck_payment(truck_payment, id, authHeader) {
+        return axios.put(
+            StockConn.wholePath.name + "/truck_payment/" + id,
+            truck_payment,
+            { headers: this.getHeaders(authHeader) }
+        );
+    }
+
     saveTruck_exit(truck_exit, truck_id, authHeader) {
         return axios.post(
             StockConn.wholePath.name + "/truck_exit/" + truck_id,

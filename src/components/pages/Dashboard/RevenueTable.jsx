@@ -118,6 +118,11 @@ const RevenueTable = () => {
       cell: ({ row }) => getAmount(row.original).toLocaleString()
     },
     {
+      accessorKey: 'description',
+      header: 'Description',
+      cell: ({ row }) => row.original.description || 'N/A'
+    },
+    {
       accessorKey: 'clientName',
       header: 'Client Name',
       cell: ({ row }) => row.original.clientName || 'N/A',
@@ -172,6 +177,7 @@ const RevenueTable = () => {
   const csvData = invoices.map(invoice => ({
     'Date': formatDate(invoice.dateTime),
     'Amount (RWF)': getAmount(invoice).toLocaleString(),
+    'Description': invoice.description || 'N/A',
     'Client Name': invoice.clientName || 'N/A',
     'Source': getSource(invoice)
   }));

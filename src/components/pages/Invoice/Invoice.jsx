@@ -24,11 +24,13 @@ import PagesWapper from '../../Global/PagesWapper';
 import ListOptioncol, { TableOpen } from '../../Global/ListTable';
 import SeaarchBytyping, { SearchTableResult } from '../../globalcomponents/SeaarchBytyping';
 import { Event } from '../../Global/commonForPages/TableCommons';
-
-
+import StockDelete from '../../services/StockServices/StockDelete'
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import CurrentDate from '../../Global/CurrentDate';
+
+import { FaPencilAlt, FaTrash } from 'react-icons/fa';
+import TruckVhNavBar from '../../Navbar/TruckVhNavBar'
 
 
 
@@ -116,11 +118,11 @@ function Invoice() {
   /*#endregion Listing data*/
 
   /*#region ------------All Records, Deleting and By Id------------------------*/
-  const getAllInvoices = ( ) => {
+  const getAllInvoices = () => {
     StockRepository.findInvoice(startDate, endDate, authHeader).then((res) => {
-      setInvoices(res.data);
+      // Filter out deleted records
+      setInvoices(res.data.filter(invoice => !invoice.isDeleted));
       setDataLoad(true)
-
     });
   }
   const getAlltarrifs = (page, size) => {
@@ -276,6 +278,48 @@ function Invoice() {
   }
 
 let totBerthing=0.0, totWharfage=0.0
+
+  const [editingRowId, setEditingRowId] = useState(null);
+  const [editFields, setEditFields] = useState({ quay_amount: '', vessel_handling_charges: '' });
+
+  const startEditRow = (invoice) => {
+    setEditingRowId(invoice.id);
+    setEditFields({
+      quay_amount: invoice.quay_amount || '',
+      vessel_handling_charges: invoice.vessel_handling_charges || ''
+    });
+  };
+
+  const cancelEditRow = () => {
+    setEditingRowId(null);
+    setEditFields({ quay_amount: '', vessel_handling_charges: '' });
+  };
+
+  const saveEditRow = async (invoiceId) => {
+    try {
+      await StockRepository.updateInvoiceField(invoiceId, 'quay_amount', Number(editFields.quay_amount), authHeader);
+      await StockRepository.updateInvoiceField(invoiceId, 'vessel_handling_charges', Number(editFields.vessel_handling_charges), authHeader);
+      setInvoices(prev =>
+        prev.map(inv =>
+          inv.id === invoiceId ? { ...inv, quay_amount: Number(editFields.quay_amount), vessel_handling_charges: Number(editFields.vessel_handling_charges) } : inv
+        )
+      );
+      cancelEditRow();
+    } catch (err) {
+      alert('Failed to update. Please try again.');
+    }
+  };
+
+  const delPaymentAdviceById = (id) => {
+    Utils.Submit(() => {
+      StockDelete.deletePaymentAdviceById(id).then(() => {
+        // Update local state to remove the deleted item
+        setInvoices(prevInvoices => prevInvoices.filter(invoice => invoice.id !== id));
+        setRefresh(!refresh)
+      })
+    }, () => { })
+  }
+
   return (
     <PagesWapper>
 
@@ -365,6 +409,49 @@ let totBerthing=0.0, totWharfage=0.0
                   <td className="text-center">{invoice.quay_amount && (Number(invoice.quay_amount)).toLocaleString()}   </td>
                   <td className="text-center">{invoice.vessel_handling_charges && (invoice.vessel_handling_charges).toLocaleString()}   </td>
                   {userType == 'admin' && <ListOptioncol print={true} printData={() => printData(invoice)} getEntityById={() => getInvoiceById(invoice.id)} delEntityById={() => delInvoiceById(invoice.id)} />}
+                  <td className="text-center">
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        value={editFields.quay_amount}
+                        onChange={e => setEditFields(f => ({ ...f, quay_amount: e.target.value }))}
+                        style={{ width: '100px' }}
+                      />
+                    ) : (
+                      invoice.quay_amount && Number(invoice.quay_amount).toLocaleString()
+                    )}
+                  </td>
+                  <td className="text-center">
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        value={editFields.vessel_handling_charges}
+                        onChange={e => setEditFields(f => ({ ...f, vessel_handling_charges: e.target.value }))}
+                        style={{ width: '100px' }}
+                      />
+                    ) : (
+                      invoice.vessel_handling_charges && Number(invoice.vessel_handling_charges).toLocaleString()
+                    )}
+                  </td>
+                  {userType == 'admin' && (
+                    <td className='delButton'>
+                      {isEditing ? (
+                        <>
+                          <button className="btn btn-success btn-sm me-2" onClick={() => saveEditRow(invoice.id)}>Save</button>
+                          <button className="btn btn-secondary btn-sm" onClick={cancelEditRow}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="btn btn-success btn-sm me-2" onClick={() => startEditRow(invoice)} title="Edit Charges">
+                            <FaPencilAlt />
+                          </button>
+                          <button className="btn btn-danger btn-sm" onClick={() => delPaymentAdviceById(invoice.id)} title="Delete Payment Advice">
+                            <FaTrash />
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  )}
                 </tr>
               )})}
               <tr>

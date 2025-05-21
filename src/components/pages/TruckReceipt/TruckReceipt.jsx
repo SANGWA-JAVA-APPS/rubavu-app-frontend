@@ -16,17 +16,18 @@ import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
 import Utils from '../../Global/Utils'
-
-
-import { ColItemContext } from '../../Global/GlobalDataContentx'
-import StockRepository from '../../services/StockServices/StockRepository'
 import StockCommons from '../../services/StockServices/StockCommons'
+import StockRepository from '../../services/StockServices/StockRepository'
+import StockDelete from '../../services/StockServices/StockDelete'
+import { ColItemContext } from '../../Global/GlobalDataContentx'
+import TruckVhNavBar from '../../Navbar/TruckVhNavBar'
 import { Button, Col, Row } from 'react-bootstrap'
 import { InputAndSearch, LoadSub } from '../../Global/InputRow'
 import SeaarchBytyping, { SearchTableResult } from '../../globalcomponents/SeaarchBytyping'
 import { TableRows, TruckTableRows } from '../Invoice/Invoice'
 import { useNavigate } from 'react-router-dom';
 import CurrentDate from '../../Global/CurrentDate';
+import { FaPencilAlt, FaTrash } from 'react-icons/fa';
 
 
 
@@ -80,6 +81,10 @@ function TruckReceipt() {
   const [startDate, setStartDate] = useState(CurrentDate.todaydate())
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
 
+  const [editingRowId, setEditingRowId] = useState(null);
+  const [editFields, setEditFields] = useState({
+    payment_amount: ''
+  });
 
   /*#region ---------- SAVING DATA TO DB--------------------------------------*/
   const convertToInt = (value) => {
@@ -112,11 +117,11 @@ function TruckReceipt() {
   /*#endregion Listing data*/
 
   /*#region ------------All Records, Deleting and By Id------------------------*/
-  const getAllTruck_payments = () => {
-    StockRepository.findTruckPayment(startDate, endDate,authHeader).then((res) => {
-      setTruck_payments(res.data);
+  const getAllTruck_payments = (page, size) => {
+    StockRepository.findTruckPayment(startDate, endDate, authHeader).then((res) => {
+      // Filter out deleted records
+      setTruck_payments(res.data.filter(payment => !payment.isDeleted));
       setDataLoad(true)
-
     });
   }
   const findTruck_parking_invoice = () => {
@@ -259,6 +264,39 @@ function TruckReceipt() {
     setEndDate(date2)
     setRefresh(!refresh)
   }
+
+  const startEditRow = (truck_payment) => {
+    setEditingRowId(truck_payment.id);
+    setEditFields({
+      payment_amount: truck_payment.payment_amount
+    });
+  };
+
+  const saveEditRow = (id) => {
+    const updatedPayment = {
+      payment_amount: editFields.payment_amount
+    };
+    
+    StockCommons.updateTruck_payment(updatedPayment, id, authHeader).then(() => {
+      setEditingRowId(null);
+      setRefresh(!refresh);
+    });
+  };
+
+  const cancelEditRow = () => {
+    setEditingRowId(null);
+  };
+
+  const delTruckPaymentById = (id) => {
+    Utils.Submit(() => {
+      StockDelete.deleteTruckPaymentById(id).then(() => {
+        // Update local state to remove the deleted item
+        setTruck_payments(prevPayments => prevPayments.filter(payment => payment.id !== id));
+        setRefresh(!refresh)
+      })
+    }, () => { })
+  }
+
   return (
     <PagesWapper>
 
@@ -302,14 +340,42 @@ function TruckReceipt() {
               {userType == 'admin' && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
-              {truck_payments.map((truck_payments) => (
-                <tr key={truck_payments.id}>
-                  <td>{truck_payments.id}   </td>
-                  <td>{(truck_payments.payment_amount)}   </td>
-                  <td>{truck_payments.date_time}   </td>
-                  <td>{truck_payments.description}   </td>
-                  {userType == 'admin' && <ListOptioncol print={true} printData={() => printData(truck_payments)}
-                    getEntityById={() => getTruck_parking_invoiceById(truck_payments.id)} delEntityById={() => delTruck_parking_invoiceById(truck_payments.id)} />}
+              {truck_payments.map((truck_payment) => (
+                <tr key={truck_payment.id}>
+                  <td>{truck_payment.id}   </td>
+                  <td>
+                    {editingRowId === truck_payment.id ? (
+                      <input
+                        type="number"
+                        value={editFields.payment_amount}
+                        onChange={e => setEditFields(f => ({ ...f, payment_amount: e.target.value }))}
+                        style={{ width: '100px' }}
+                      />
+                    ) : (
+                      Number(truck_payment.payment_amount).toLocaleString()
+                    )}
+                  </td>
+                  <td>{truck_payment.date_time}   </td>
+                  <td>{truck_payment.description}</td>
+                  {userType == 'admin' && (
+                    <td className='delButton'>
+                      {editingRowId === truck_payment.id ? (
+                        <>
+                          <button className="btn btn-success btn-sm me-2" onClick={() => saveEditRow(truck_payment.id)}>Save</button>
+                          <button className="btn btn-secondary btn-sm" onClick={cancelEditRow}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="btn btn-success btn-sm me-2" onClick={() => startEditRow(truck_payment)} title="Edit Payment">
+                            <FaPencilAlt />
+                          </button>
+                          <button className="btn btn-danger btn-sm" onClick={() => delTruckPaymentById(truck_payment.id)} title="Delete Payment">
+                            <FaTrash />
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}</tbody>
           </TableOpen>

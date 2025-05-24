@@ -313,8 +313,8 @@ class StockRepository {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
-    findArrival_noteFilterByclient(startDate, endDate, userid,clientId, authHeader) {
-        return axios.get(StockRepository.server + "/arrival_note/filterbyclient/" + userid+'/'+clientId, {
+    findArrival_noteFilterByclient(startDate, endDate, userid, clientId, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/filterbyclient/" + userid + '/' + clientId, {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
@@ -322,9 +322,9 @@ class StockRepository {
         return axios.get(StockRepository.server + "/arrival_note/filterByUser/" + userid, {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
-    }   
-    findArrival_noteFilterByUserAndCliebt(startDate, endDate, userid,clientId, authHeader) {
-        return axios.get(StockRepository.server + "/arrival_note/filterByUserAndClient/" + userid+'/'+clientId, {
+    }
+    findArrival_noteFilterByUserAndCliebt(startDate, endDate, userid, clientId, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/filterByUserAndClient/" + userid + '/' + clientId, {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
@@ -332,25 +332,25 @@ class StockRepository {
     findArrival_noteByProcessAndUser(startDate, endDate, userid, chosenProcessId, authHeader) {
         return axios.get(StockRepository.server + "/arrival_note/filterByBoth/" + userid + '/' + chosenProcessId, {
             headers: this.getHeaders(authHeader),
-            params: {                startDate: startDate,                endDate: endDate            }
+            params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
-    findArrival_noteByProcessAndUserAndClient(startDate, endDate, userid, chosenProcessId,clientId, authHeader) {
-        return axios.get(StockRepository.server + "/arrival_note/filterByuserProcClient/" + userid + '/' + chosenProcessId+'/'+clientId, {
+    findArrival_noteByProcessAndUserAndClient(startDate, endDate, userid, chosenProcessId, clientId, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/filterByuserProcClient/" + userid + '/' + chosenProcessId + '/' + clientId, {
             headers: this.getHeaders(authHeader),
-            params: {                startDate: startDate,                endDate: endDate            }
+            params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
     findArrival_noteByProcess(startDate, endDate, userid, chosenProcessId, authHeader) {
         return axios.get(StockRepository.server + "/arrival_note/" + userid + '/' + chosenProcessId, {
             headers: this.getHeaders(authHeader),
-            params: {                startDate: startDate,                endDate: endDate            }
+            params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
-    findArrival_noteByProcessAndClient(startDate, endDate, userid, chosenProcessId,clientId, authHeader) {
-        return axios.get(StockRepository.server + "/arrival_note/filterByProcClient/" + userid + '/' + chosenProcessId+'/'+clientId, {
+    findArrival_noteByProcessAndClient(startDate, endDate, userid, chosenProcessId, clientId, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/filterByProcClient/" + userid + '/' + chosenProcessId + '/' + clientId, {
             headers: this.getHeaders(authHeader),
-            params: {                startDate: startDate,                endDate: endDate            }
+            params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
 
@@ -787,6 +787,19 @@ class StockRepository {
     findClientByNameLike(clientName, authHeader) {
         return axios.get(StockRepository.server + "/client/clientByNameLike/" + clientName, { headers: this.getHeaders(authHeader) })
             .catch(() => StockCommons.RedirectToLogin());
+    }
+
+
+
+    findAuditingBerthingInvoice(username, authHeader) {
+        return axios.get(StockRepository.server + "/auditing/berthInvoices",
+            {
+                headers: this.getHeaders(authHeader),
+                params: {
+                    username: username 
+                }
+            })
+        // .catch(() => StockCommons.RedirectToLogin());
     }
 
 }

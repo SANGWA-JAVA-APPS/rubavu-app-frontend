@@ -27,7 +27,11 @@ export default function CommonReporting() {
       <ItemsContainer>
         {/* <DashboardReportsFilters /> */}
         <Row>
-          <Col >  <Link href="#" to="/rrarec" className='btn btn-primary-outline'>Import from Other sources</Link>
+          <Col >
+           <Link href="#" to="/rrarec" className='btn btn-primary-outline'>Import from Other sources</Link>
+          </Col>
+          <Col >
+           <Link href="#" to="/appauditing" className='btn btn-primary-outline'>Auditing</Link>
           </Col>
         </Row>
         <SmallSplitter />

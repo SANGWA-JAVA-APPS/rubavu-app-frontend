@@ -10,13 +10,16 @@ import { SmallSplitter, Splitter } from '../globalcomponents/Splitter'
 import { InputOnly } from '../Global/Forms/InputRow'
 import StockCommons from '../services/StockServices/StockCommons'
 import StockRepository from '../services/StockServices/StockRepository'
-import { useAuthHeader } from 'react-auth-kit'
+import { useAuthHeader, useAuthUser } from 'react-auth-kit'
 import { useMemo } from 'react'
 import { CargoGrpByArrivalByClient, CargoGrpByByItem } from './CargoComponents'
 import { StorageWithAsosrtedOrNot } from '../pages/Dashboard/StorageCalculation'
+import { useEffect } from 'react'
 function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems }) {
     const { searchItemValue } = useContext(ColItemContext)
     const authHeader = useAuthHeader()();
+const auth = useAuthUser()
+    const user = auth();
 
     const [mainTableorNextStep, setMainTableorNextStep] = useState(1)// 1 is main table, 2 is next step
 
@@ -30,33 +33,25 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
 
     const showmoreHandler = () => {
         setShowmore(!showmore)
-
+        
     }
+    
+    const [selectedPeriod, setSelectedPeriod] = useState(0)
     // let totalTonnage = 0
     const [indexForLoader, setIndexForLoader] = useState(0)
 
     /* #region -----------------EDITING THE NEW QUANTITY ---------------------------- */
     const [error, setError] = useState(''); // State for validation errors
     const [dataLoad, setDataLoad] = useState(false)
-    const handleUpdateClick = (arrivalId, quantity, newQuantity, itemId, userId, index, totalAmount, totalWeights, period, assortedOrNot) => {//saving in the db
+    const handleUpdateClick = (arrivalId, quantity, newQuantity, itemId,  index, totalAmount, totalWeights, period, assortedOrNot) => {//saving in the db
 
-        console.log(
-            "Arrival ID: " + arrivalId +
-            ", Quantity: " + quantity +
-            ", New Quantity: " + newQuantity +
-            ", Item ID: " + itemId +
-            ", User ID: " + userId +
-            ", Index: " + index +
-            ", Total Amount: " + totalAmount +
-            ", Total Weights: " + totalWeights +
-            ", Period: " + period +
-            ", Assorted or Not: " + assortedOrNot
-        );
-        if (newQuantity > totalWeights) {
-            alert(`Error occured: Cannot update: New quantity (${newQuantity}) exceeds original quantity (${totalWeights}).`);
-            setError(`Cannot update: New quantity (${newQuantity}) exceeds original quantity (${quantity}).`);
-            return;
-        }
+       
+
+        // if ('Assorted'===assortedOrNot && newQuantity > totalWeights) {
+        //     alert(`Error occured: Cannot update: New quantity (${newQuantity}) exceeds original quantity (${totalWeights}).`);
+        //     setError(`Cannot update: New quantity (${newQuantity}) exceeds original quantity (${quantity}).`);
+        //     return;
+        // }
         if (itemId === undefined || itemId === null || quantity === undefined || quantity === null || newQuantity === undefined || newQuantity === null || totalAmount === undefined || totalAmount === null || totalWeights === undefined || totalWeights === null) {
             setError('Error: either  itemId or quantity, totalAmount, total Weight and new Quantity may be  null');
             alert('Error: either  itemId or quantity or new Quantity may be undefined or null');
@@ -65,7 +60,7 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
         }
         totalWeights = totalWeights
 
-        StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, userId.userid, totalAmount, totalWeights, period).then(res => {
+        StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, user.userid, totalAmount, totalWeights, selectedPeriod).then(res => {
             const updatedClients = [...clients];
             updatedClients[index].quantity = updatedClients[index].quantity - newQuantity;
             updatedClients[index].newQuantity = 0;
@@ -76,18 +71,7 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
             console.error('Error updating warehouse:', err);
             setError('An error occurred while updating the warehouse.');
         })
-        // StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, userId.userid, totalAmount, totalWeights, period).then(res => {
-        //     const updatedClients = [...clients];
-        //     updatedClients[index].quantity = updatedClients[index].quantity - newQuantity;
-        //     updatedClients[index].newQuantity = 0;
-        //     setClients(updatedClients);
-        //     alert(`Storage Invocie is generated and Cargo exit updated successfully  `);
-        //     setRefresh(!refresh)
-        // }).catch(err => {
-        //     console.error('Error updating warehouse:', err);
-        //     setError('An error occurred while updating the warehouse.');
-
-        // });
+       
 
         console.log(`Updating Arrival ID: ${arrivalId}, Quantity: ${quantity}, New Quantity: ${newQuantity},the itemId: ${itemId}, the user: ${userId.userid} `);
 
@@ -101,14 +85,18 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
         updatedClients[index] = { ...updatedClients[index], [field]: value };
         setClients(updatedClients);
     };
-    const handleChangePeriod = (index, field, value) => {// select option
-
+    const [charges, setCharges] = useState(0)
+    
+    const handleChangePeriod = (index, field,newQuantity,totalWeight, value) => {// select option
+        
         setIndexForLoader(index)
+        
         const updatedClients = [...clients];
         updatedClients[index] = { ...updatedClients[index], [field]: value };
-        const weights = (updatedClients[index].newQuantity ?? 1) * (updatedClients[index].weight ?? 1);
+        const weights =totalWeight;
         const storagePeriod = value
-        if (updatedClients[index].newQuantity < 1) {
+        setSelectedPeriod(storagePeriod)
+        if (newQuantity < 1) {
             alert('Please enter a valid quantity before calculating the storage cost.');
             return;
         }
@@ -123,6 +111,7 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
                 updatedClients[index].InvoicableCost = res.data;
                 setClients(updatedClients);
                 setDataLoad(false)
+                setCharges(res.data)
             }).catch(err => {
                 console.error('Error updating period:', err);
                 setError('An error occurred while updating the period.');
@@ -221,7 +210,7 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
                             {mainTableorNextStep === 2 && cargoDetails.id > 0
                                 ? <StorageWithAsosrtedOrNot setMainTableorNextStep={setMainTableorNextStep} cargoDetails={cargoDetails}
                                     setCargoDetails={setCargoDetails} handleUpdateClick={handleUpdateClick} handleChangePeriod={handleChangePeriod}
-                                    handleEditableChange={handleEditableChange} />
+                                    handleEditableChange={handleEditableChange} charges={charges}/>
                                 : (mainTableorNextStep === 1 ?
                                     <table className='  table-bordered w-100' style={{ width: '100%' }}>
 
@@ -266,7 +255,8 @@ function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems })
                                                 </td>
                                                 <td >
                                                     {((client.weight ? client.weight : 0).toLocaleString())} KG</td>
-                                                <td style={{ fontWeight: 'bold', color: '#000' }}>{((((client.quantity ?? 0) * client.weight) > 1 ? ((client.quantity ?? 0) * client.weight) : (client.noGrpCargoBalance ?? 0) * client.weight).toLocaleString())} KG</td>
+                                                <td style={{ fontWeight: 'bold', color: '#000' }}>
+                                                    {'Assorted'===client.assortedOrNot? client.weight.toLocaleString():  ((client.quantity ?? 1) * (client.weight?? 1)) .toLocaleString()} KG</td>
 
                                                 <td>{showmore && client.lastDate}</td>
                                                 <td style={focuscols}><InputOnly handleFocus={(e) => NewQtyFocusEvent(e, index, client)} name="exit" moreclass="w-100" val={client.newQuantity} handle={(e) => handleEditableChange(index, e.target.value)} label='exit' />

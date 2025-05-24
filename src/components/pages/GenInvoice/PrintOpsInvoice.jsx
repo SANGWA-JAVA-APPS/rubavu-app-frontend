@@ -22,7 +22,6 @@ export const PrintOpsInvoice = () => {
 
             {obj.Tallies ? (<TallyInvoice obj={obj} serviceName={serviceName} />)
                 : (<StorageInvoice obj={obj} serviceName={serviceName} />)
-
             }
 
         </PagesWapper>

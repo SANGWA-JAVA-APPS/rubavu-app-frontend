@@ -7,7 +7,7 @@ import { ClientTableRows } from '../Invoice/Invoice';
 import ClientCargo from '../../Client/ClientCargo';
 import { TableOpen } from '../../Global/ListTable';
 import { TableHead } from '@mui/material';
-import { InputOnly, InputOnlyEditable } from '../../Global/Forms/InputRow';
+import { InputOnly, InputOnlyDisabled, InputOnlyEditable } from '../../Global/Forms/InputRow';
 import { Button, Card, Col, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
 import { Splitter } from '../../globalcomponents/Splitter';
 
@@ -232,16 +232,18 @@ export const WarehouseCargo = ({ cargoINWh }) => {
 
 
 export const StorageWithAsosrtedOrNot = ({ setMainTableorNextStep, cargoDetails, setCargoDetails,
-    handleUpdateClick, handleEditableChange,handleChangePeriod }) => {// with assorted or not
+    handleUpdateClick, handleEditableChange, handleChangePeriod, charges }) => {// with assorted or not
     const gobackToWarehouse = () => {
         setMainTableorNextStep(1)
     }
     const [newQuantity, setnewQuantity] = useState()
     const [totalWeights, setTotalWeights] = useState()
     const [totalAmount, setTotalAmount] = useState()
+     const auth = useAuthUser()
+    const user = auth();
 
     const [data, setData] = useState({})
-    const [period,setPeriod]=useState()
+    const [period, setPeriod] = useState()
     useEffect(() => {
         setData(cargoDetails)
         // setCargoDetails({})
@@ -249,9 +251,14 @@ export const StorageWithAsosrtedOrNot = ({ setMainTableorNextStep, cargoDetails,
 
 
     useEffect(() => {
+        if ('Assorted' !== data.assortedOrNot) {
+            setTotalWeights(newQuantity * data.weight)
+
+        }
+       
+
         if (newQuantity && totalWeights) {
-            const newTotalAmount = (totalWeights / newQuantity) * 1000; // Assuming 1000 is the conversion factor
-            setTotalAmount(newTotalAmount);
+
         }
 
     }, [totalWeights, newQuantity])
@@ -289,17 +296,30 @@ export const StorageWithAsosrtedOrNot = ({ setMainTableorNextStep, cargoDetails,
 
                                         </Col>
                                         <Col md={3}>
-                                            {data?.weight}
+                                            <strong>  {data?.weight} KG</strong>
+                                            {data.assortedOrNot === 'Assorted' ?
+                                                <InputOnly
+                                                    num={true} name={'Exit Weight'}
+                                                    val={totalWeights} handle={(e) => setTotalWeights(e.target.value)}
+                                                    placeholder="qty" label="qty" />
+
+                                                : <InputOnlyDisabled num={true} name={'Exit Weight'}
+                                                    val={totalWeights}  
+                                                    placeholder="qty" label="qty" />}
+
+                                        </Col>
+                                        <Col md={3}>
+                                            <strong> RWF</strong>
                                             <InputOnly
-                                                num={true} name={'Exit Weight'}
-                                                val={totalWeights} handle={(e) => setTotalWeights(e.target.value)}
+                                                num={true} name={'Charges'}
+                                                val={charges}
                                                 placeholder="qty" label="qty" />
                                         </Col>
                                         <Col md={3}>
-                                            {data?.weight}
+                                            <strong>  storage duration</strong>
                                             <select style={{ height: '60px', width: '150px' }} className="form-select  p-3"
-                                                value={client.period} name="period"
-                                                onChange={(e) => handleChangePeriod(  e.target.value)} label='period' >
+                                                value={period} name="period"
+                                                onChange={(e) => handleChangePeriod(0, '', newQuantity, totalWeights, e.target.value)} label='period' >
                                                 <option></option>
                                                 <option value="single period">single period</option>
                                                 <option value="double period">doulbe period</option>
@@ -307,7 +327,7 @@ export const StorageWithAsosrtedOrNot = ({ setMainTableorNextStep, cargoDetails,
                                         </Col>
                                         <Col md={3} className="pt-4">
                                             <Button onClick={() => handleUpdateClick(data.id, data.quantity, newQuantity,
-                                                data.itemId, 0, 0, totalAmount, totalWeights, data.period, data.assortedOrNot)}>Save</Button>
+                                                data.itemId, 0,charges, totalWeights, period, data.assortedOrNot)}>Save</Button>
                                         </Col>
                                     </Row>
 

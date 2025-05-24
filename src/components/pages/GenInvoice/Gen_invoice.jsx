@@ -230,7 +230,7 @@ function Gen_invoice() {
   }
 
   useEffect(() => {
-    if (arrival_id) {
+    if (invoiceToBePrinted) {
 
       StockRepository.truckarrivalInvoice(destIName, source_id, dest_id, destCat, arrival_id, authHeader).then((res) => {
         if (res.data.Tallies.length > 0) {
@@ -245,16 +245,19 @@ function Gen_invoice() {
         setChargeCriteria(res.data.ChargeCriteria)
         setPayment(res.data.Payment)
         setTallyItems(res.data.Payment.res)
-        console.log('--------------obj value -----------------------')
-        console.log(obj)
-        console.log('--------------obj value -----------------------')
         if (invoiceType  === 'tally') {
           setObj(res.data)
           setServiceName(res.data.Payment.service)
         } else{
           setObj(invoiceTypedata)
           setServiceName('Storage')
+          console.log('-------------------THIS IS STORAGE----------')
+          console.log(invoiceTypedata)
+          console.log('------------------')
         }
+        console.log('--------------obj value -----------------------')
+        console.log(obj)
+        console.log('--------------obj value -----------------------')
 
         setInvoiceToBePrinted(false)
         setArrival_id(arrival_id)
@@ -269,7 +272,7 @@ function Gen_invoice() {
 
     }
 
-  }, [arrival_id, invoiceToBePrinted])
+  }, [ invoiceToBePrinted])
 
 
   const navigate = useNavigate()
@@ -286,6 +289,9 @@ function Gen_invoice() {
     setArrival_id(arrivalId)
     setDestCat(destCat)
     setInvoiceType(gen_invoice.invoiceType)
+    console.log('-------------INVOICE TYPE---------')
+    console.log(gen_invoice.invoiceType)
+    console.log('----------------------')
     setInvoiceTypeDAta(gen_invoice)
         
     setInvoiceToBePrinted(true)

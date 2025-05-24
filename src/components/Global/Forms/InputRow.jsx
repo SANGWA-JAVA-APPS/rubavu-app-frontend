@@ -32,6 +32,23 @@ export const InputOnly = (props) => {
         </>
     )
 }
+export const InputOnlyDisabled = (props) => {
+    return (
+        <>
+                <FloatingLabel   label={props.name}>
+                    <Form.Control type={props.num ? 'number' : 'text'} autoComplete='false' required
+                        value={props.val} 
+                        placeholder={props.placeholder}
+                        onChange={props.handle} onFocus={props.handleFocus} onBlur={props.handleBlur}
+                        className={`form-control  w-75 ${props.moreclass} `}
+                        min={props.num ? 1 : undefined} disabled />
+                    {props.additionalelement}
+                </FloatingLabel>
+
+
+        </>
+    )
+}
 export const InputOnlyReadOnly = (props) => {
     return (
         <>

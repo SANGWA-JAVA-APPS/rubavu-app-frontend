@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from 'react'
+import { printer } from 'react-icons-kit/icomoon/printer'
+import { Icon } from 'react-icons-kit'
 import PagesWapper from '../../Global/PagesWapper'
 import { useReactToPrint } from "react-to-print"
 // import VertNavBar from '../../Navbar/VertNavBar'
@@ -128,9 +130,9 @@ function TruckReceipt() {
     StockRepository.finNongroupedinvoicesbydate(authHeader, startDate, endDate).then((res) => {
       setTruckParkingInvoices(res.data)
     })
-  } 
+  }
   useEffect(() => {
-    getAllTruck_payments( )
+    getAllTruck_payments()
     findTruck_parking_invoice()
     //Get Token and catname
     setUserType(localStorage.getItem('catname'))
@@ -251,15 +253,17 @@ function TruckReceipt() {
 
   useEffect(() => {
     if (id) {
+      alert('id changed ....')
       navigate('/truckreceiptPrint')
     }
   }, [id])
   const printData = (obj) => {
+    alert('id changed on print: '+ obj.id)
     setObj(obj)
     setId(obj.id)
     console.log(obj)
   }
-  const getCommonSearchByDate=(date1,date2)=>{
+  const getCommonSearchByDate = (date1, date2) => {
     setStartDate(date1)
     setEndDate(date2)
     setRefresh(!refresh)
@@ -276,7 +280,7 @@ function TruckReceipt() {
     const updatedPayment = {
       payment_amount: editFields.payment_amount
     };
-    
+
     StockCommons.updateTruck_payment(updatedPayment, id, authHeader).then(() => {
       setEditingRowId(null);
       setRefresh(!refresh);
@@ -324,10 +328,11 @@ function TruckReceipt() {
       <ContainerRow mt='3'>
         <ListToolBar listTitle='truck parking payment List' height={height} entity='Truck parking payment' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
-          <SearchBox  getCommonSearchByDate={getCommonSearchByDate}/>
+          <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
 
         <div ref={componentRef} className="dataTableBox">
+          
           <PrintCompanyInfo />
           <TableOpen>
             <TableHead>
@@ -371,6 +376,9 @@ function TruckReceipt() {
                           </button>
                           <button className="btn btn-danger btn-sm" onClick={() => delTruckPaymentById(truck_payment.id)} title="Delete Payment">
                             <FaTrash />
+                          </button>
+                          <button onClick={() => printData(truck_payment)} style={{ width: "20px", marginLeft: "30px" }} title="Print" className=' ml-0 p-0 btn'>
+                            <Icon size={17} style={{ color: '#000', marginRight: "10px" }} icon={printer} />
                           </button>
                         </>
                       )}

@@ -32,14 +32,12 @@ function Berthinginvoice() {
     const [refresh, setRefresh] = useState(false);
     let totaInvoices = 0
     useEffect(() => {
-
         StockRepository.findAuditingBerthingInvoice("admin", authHeader).then((res) => {
             setBerthInvoices(res.data)
 
         }).catch((err) => {
             console.log(err)
         })
-
     })
     useEffect(() => {
         berthInvoices.map((berth) => {

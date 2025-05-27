@@ -12,9 +12,9 @@ import ListToolBar from '../../Global/ListToolBar';
 import PagesWapper from '../../Global/PagesWapper';
 import axios from 'axios';
 
-function VesselAudit() {
+function GenInvoiceAudit() {
     const authHeader = useAuthHeader()();
-    const [vesselAudits, setVesselAudits] = useState([]);
+    const [invoiceAudits, setInvoiceAudits] = useState([]);
     const [filteredAudits, setFilteredAudits] = useState([]);
     const [height, setHeight] = useState(0);
     const [searchHeight, setSearchHeight] = useState(0);
@@ -37,49 +37,49 @@ function VesselAudit() {
         }
     };
 
-    const fetchVesselAudits = async () => {
+    const fetchInvoiceAudits = async () => {
         try {
-            const url = `http://localhost:8101/api/audit/vessels/${username}`;
+            const url = `http://localhost:8101/api/audit/gen-invoices/${username}`;
 
             const response = await axios.get(url, {
                 headers: {
                     Authorization: authHeader
                 }
             });
-            setVesselAudits(response.data);
+            setInvoiceAudits(response.data);
             setFilteredAudits(response.data);
         } catch (error) {
-            console.error('Error fetching vessel audits:', error);
+            console.error('Error fetching invoice audits:', error);
         }
     };
 
     useEffect(() => {
         fetchUsernames();
-        fetchVesselAudits();
+        fetchInvoiceAudits();
     }, [authHeader]);
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
-        documentTitle: 'vessel-audit-data'
+        documentTitle: 'gen-invoice-audit-data'
     });
 
     const handleFilter = () => {
-        let filtered = [...vesselAudits];
+        let filtered = [...invoiceAudits];
 
         // Filter by username
         if (username) {
-            filtered = filtered.filter(audit => audit.username === username);
+            filtered = filtered.filter(audit => audit.revisionUsername === username);
         }
 
         // Filter by date range
         if (startDate) {
             const startTimestamp = new Date(startDate).getTime();
-            filtered = filtered.filter(audit => audit.timestamp >= startTimestamp);
+            filtered = filtered.filter(audit => audit.revisionTimestamp >= startTimestamp);
         }
 
         if (endDate) {
             const endTimestamp = new Date(endDate).getTime() + (24 * 60 * 60 * 1000); // Add one day to include the end date
-            filtered = filtered.filter(audit => audit.timestamp <= endTimestamp);
+            filtered = filtered.filter(audit => audit.revisionTimestamp <= endTimestamp);
         }
 
         setFilteredAudits(filtered);
@@ -89,18 +89,18 @@ function VesselAudit() {
         setStartDate('');
         setEndDate('');
         setUsername('admin');
-        setFilteredAudits(vesselAudits);
+        setFilteredAudits(invoiceAudits);
     };
 
     return (
         <PagesWapper>
             <Splitter />
             <ContainerRow>
-                <TitleSmallDesc title="Vessel Audit Logs" />
+                <TitleSmallDesc title="Gen Invoice Audit Logs" />
                 <ListToolBar 
                     hideSaveBtn={true} 
                     height={height} 
-                    entity='Vessel' 
+                    entity='Invoice' 
                     changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} 
                     changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} 
                     handlePrint={handlePrint} 
@@ -161,34 +161,34 @@ function VesselAudit() {
                                 <td>Entity ID</td>
                                 <td>Timestamp</td>
                                 <td>Revision Type</td>
-                                <td>Vessel Name</td>
-                                <td>Plate Number</td>
-                                <td>Dimension</td>
-                                <td>Capacity</td>
-                                <td>Owner/Operator</td>
-                                <td>RURA Certificate</td>
-                                <td>Contact Number</td>
-                                <td>LOA</td>
-                                <td>Status</td>
+                                <td>Date Time</td>
+                                <td>Amount</td>
+                                <td>Ref ID</td>
+                                <td>Total Weight</td>
+                                <td>Total Amount</td>
+                                <td>Description</td>
+                                <td>Type</td>
+                                <td>Storage Period</td>
+                                <td>Is Deleted</td>
                             </TableHead>
                             <tbody>
                                 {filteredAudits.length > 0 ? (
                                     filteredAudits.map((audit) => (
-                                        <tr key={`${audit.entityId}-${audit.revision}`}>
-                                            <td>{audit.revision}</td>
-                                            <td>{audit.username}</td>
+                                        <tr key={`${audit.entityId}-${audit.revisionId}`}>
+                                            <td>{audit.revisionId}</td>
+                                            <td>{audit.revisionUsername}</td>
                                             <td>{audit.entityId}</td>
-                                            <td>{audit.timestamp ? new Date(audit.timestamp).toLocaleString() : '-'}</td>
+                                            <td>{audit.revisionTimestamp ? new Date(audit.revisionTimestamp).toLocaleString() : '-'}</td>
                                             <td style={{ backgroundColor: 'beige' }}>{audit.revisionType}</td>
-                                            <td>{audit.name}</td>
-                                            <td>{audit.plateNumber}</td>
-                                            <td>{audit.dimension}</td>
-                                            <td>{audit.capacity}</td>
-                                            <td>{audit.ownerOperator}</td>
-                                            <td>{audit.ruraCertificate}</td>
-                                            <td>{audit.contactNumber}</td>
-                                            <td>{audit.loa}</td>
-                                            <td>{audit.status}</td>
+                                            <td>{audit.dateTime ? new Date(audit.dateTime).toLocaleString() : '-'}</td>
+                                            <td>{audit.amount}</td>
+                                            <td>{audit.refId}</td>
+                                            <td>{audit.totalWeight}</td>
+                                            <td>{audit.totalAmount}</td>
+                                            <td>{audit.description || '-'}</td>
+                                            <td>{audit.type || '-'}</td>
+                                            <td>{audit.storagePeriod || '-'}</td>
+                                            <td>{audit.isDeleted ? 'Yes' : 'No'}</td>
                                         </tr>
                                     ))
                                 ) : (
@@ -210,4 +210,4 @@ function VesselAudit() {
     );
 }
 
-export default VesselAudit; 
+export default GenInvoiceAudit; 

@@ -1,146 +1,210 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Form, Button, Row, Col } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAccountAuditLogs } from '../../../redux/actions/accountActions';
-import { format } from 'date-fns';
-import { PrinterFill } from 'react-bootstrap-icons';
+import React, { useRef, useState, useEffect } from 'react';
+import { useAuthHeader } from 'react-auth-kit';
+import { Col, Form, Button } from 'react-bootstrap';
+import { TableOpen } from '../../Global/ListTable';
+import TableHead from '../../Global/TableHead';
+import { Splitter } from '../../globalcomponents/Splitter';
+import { TitleSmallDesc } from '../../globalcomponents/TitleSmallDesc';
+import PrintCompanyInfo from '../../Global/PrintCompanyInfo';
 import { useReactToPrint } from 'react-to-print';
-import { useRef } from 'react';
+import ContainerRow from '../../Global/ContainerRow';
+import ListToolBar from '../../Global/ListToolBar';
+import PagesWapper from '../../Global/PagesWapper';
+import axios from 'axios';
 
 function AccountAudit() {
+    const authHeader = useAuthHeader()();
+    const [accountAudits, setAccountAudits] = useState([]);
+    const [filteredAudits, setFilteredAudits] = useState([]);
+    const [height, setHeight] = useState(0);
+    const [searchHeight, setSearchHeight] = useState(0);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [username, setUsername] = useState('');
+    const [username, setUsername] = useState('admin');
+    const [usernames, setUsernames] = useState(['admin']);
     const componentRef = useRef();
-    const dispatch = useDispatch();
-    const { auditLogs, loading } = useSelector((state) => state.account);
+
+    const fetchUsernames = async () => {
+        try {
+            const response = await axios.get('http://localhost:8101/api/audit/usernames', {
+                headers: {
+                    Authorization: authHeader
+                }
+            });
+            setUsernames(response.data);
+        } catch (error) {
+            console.error('Error fetching usernames:', error);
+        }
+    };
+
+    const fetchAccountAudits = async () => {
+        try {
+            const url = `http://localhost:8101/api/audit/accounts/${username}`;
+
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: authHeader
+                }
+            });
+            setAccountAudits(response.data);
+            setFilteredAudits(response.data);
+        } catch (error) {
+            console.error('Error fetching account audits:', error);
+        }
+    };
 
     useEffect(() => {
-        dispatch(getAccountAuditLogs());
-    }, [dispatch]);
+        fetchUsernames();
+        fetchAccountAudits();
+    }, [authHeader]);
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
+        documentTitle: 'account-audit-data'
     });
 
     const handleFilter = () => {
-        dispatch(getAccountAuditLogs({ startDate, endDate, username }));
+        let filtered = [...accountAudits];
+
+        // Filter by username
+        if (username) {
+            filtered = filtered.filter(audit => audit.username === username);
+        }
+
+        // Filter by date range
+        if (startDate) {
+            const startTimestamp = new Date(startDate).getTime();
+            filtered = filtered.filter(audit => audit.timestamp >= startTimestamp);
+        }
+
+        if (endDate) {
+            const endTimestamp = new Date(endDate).getTime() + (24 * 60 * 60 * 1000); // Add one day to include the end date
+            filtered = filtered.filter(audit => audit.timestamp <= endTimestamp);
+        }
+
+        setFilteredAudits(filtered);
     };
 
     const handleReset = () => {
         setStartDate('');
         setEndDate('');
-        setUsername('');
-        dispatch(getAccountAuditLogs());
+        setUsername('admin');
+        setFilteredAudits(accountAudits);
     };
 
     return (
-        <div className="container-fluid">
-            <div className="row mb-3">
-                <div className="col">
-                    <h4>Account Audit Logs</h4>
+        <PagesWapper>
+            <Splitter />
+            <ContainerRow>
+                <TitleSmallDesc title="Account Audit Logs" />
+                <ListToolBar 
+                    hideSaveBtn={true} 
+                    height={height} 
+                    entity='Account' 
+                    changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} 
+                    changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} 
+                    handlePrint={handlePrint} 
+                    searchHeight={searchHeight} 
+                />
+                <div className="row mb-3">
+                    <Col md={3}>
+                        <Form.Group>
+                            <Form.Label>Start Date</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                        <Form.Group>
+                            <Form.Label>End Date</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                        <Form.Group>
+                            <Form.Label>Username</Form.Label>
+                            <Form.Select
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            >
+                                {usernames.map((name) => (
+                                    <option key={name} value={name}>
+                                        {name}
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                    <Col md={3} className="d-flex align-items-end">
+                        <Button variant="primary" onClick={handleFilter} className="me-2">
+                            Filter
+                        </Button>
+                        <Button variant="secondary" onClick={handleReset}>
+                            Reset
+                        </Button>
+                    </Col>
                 </div>
-                <div className="col-auto">
-                    <Button variant="outline-primary" onClick={handlePrint}>
-                        <PrinterFill className="me-2" />
-                        Print
-                    </Button>
-                </div>
-            </div>
-
-            <div className="row mb-3">
-                <Col md={3}>
-                    <Form.Group>
-                        <Form.Label>Start Date</Form.Label>
-                        <Form.Control
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                        />
-                    </Form.Group>
-                </Col>
-                <Col md={3}>
-                    <Form.Group>
-                        <Form.Label>End Date</Form.Label>
-                        <Form.Control
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                        />
-                    </Form.Group>
-                </Col>
-                <Col md={3}>
-                    <Form.Group>
-                        <Form.Label>Username</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Enter username"
-                        />
-                    </Form.Group>
-                </Col>
-                <Col md={3} className="d-flex align-items-end">
-                    <Button variant="primary" onClick={handleFilter} className="me-2">
-                        Filter
-                    </Button>
-                    <Button variant="secondary" onClick={handleReset}>
-                        Reset
-                    </Button>
-                </Col>
-            </div>
-
-            <div ref={componentRef}>
-                <Table striped bordered hover responsive>
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                            <th>Date</th>
-                            <th>Changes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr>
-                                <td colSpan="6" className="text-center">
-                                    Loading...
-                                </td>
-                            </tr>
-                        ) : auditLogs && auditLogs.length > 0 ? (
-                            auditLogs.map((log) => (
-                                <tr key={log.id}>
-                                    <td>{log.username}</td>
-                                    <td>{log.email}</td>
-                                    <td>{log.status}</td>
-                                    <td>{log.action}</td>
-                                    <td>{format(new Date(log.timestamp), 'yyyy-MM-dd HH:mm:ss')}</td>
-                                    <td>
-                                        {log.changes && (
-                                            <ul className="list-unstyled mb-0">
-                                                {Object.entries(log.changes).map(([key, value]) => (
-                                                    <li key={key}>
-                                                        <strong>{key}:</strong> {value}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
+                <div ref={componentRef} className="dataTableBox">
+                    <Col md={12}>
+                        <PrintCompanyInfo />
+                        <TableOpen>
+                            <TableHead>
+                                <td>Revision</td>
+                                <td>Username</td>
+                                <td>Entity ID</td>
+                                <td>Timestamp</td>
+                                <td>Revision Type</td>
+                                <td>Account Username</td>
+                                <td>Email</td>
+                                <td>Status</td>
+                                <td>Account Category</td>
+                                <td>Profile Name</td>
+                                <td>Profile Surname</td>
+                                <td>Profile Gender</td>
+                                <td>Is Deleted</td>
+                            </TableHead>
+                            <tbody>
+                                {filteredAudits.length > 0 ? (
+                                    filteredAudits.map((audit) => (
+                                        <tr key={`${audit.entityId}-${audit.revision}`}>
+                                            <td>{audit.revision}</td>
+                                            <td>{audit.username}</td>
+                                            <td>{audit.entityId}</td>
+                                            <td>{audit.timestamp ? new Date(audit.timestamp).toLocaleString() : '-'}</td>
+                                            <td style={{ backgroundColor: 'beige' }}>{audit.revisionType}</td>
+                                            <td>{audit.accountUsername}</td>
+                                            <td>{audit.email}</td>
+                                            <td>{audit.status}</td>
+                                            <td>{audit.accountCategoryName || '-'}</td>
+                                            <td>{audit.profileName || '-'}</td>
+                                            <td>{audit.profileSurname || '-'}</td>
+                                            <td>{audit.profileGender || '-'}</td>
+                                            <td>{audit.isDeleted ? 'Yes' : 'No'}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="13" className="text-center">No audit logs found</td>
+                                    </tr>
+                                )}
+                                <tr>
+                                    <td colSpan="13" style={{ fontSize: '20px' }} className="fw-bold text-end">
+                                        Total Entries: {filteredAudits.length}
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center">
-                                    No audit logs found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </Table>
-            </div>
-        </div>
+                            </tbody>
+                        </TableOpen>
+                    </Col>
+                </div>
+            </ContainerRow>
+        </PagesWapper>
     );
 }
 

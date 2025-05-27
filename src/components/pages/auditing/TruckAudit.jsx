@@ -6,43 +6,34 @@ import { PrinterFill } from 'react-bootstrap-icons';
 import { useReactToPrint } from 'react-to-print';
 import axios from 'axios';
 
-function parseDateString(dateStr) {
-    // Expects 'dd/MM/yyyy'
-    if (!dateStr) return '';
-    const [day, month, year] = dateStr.split('/');
-    return new Date(`${year}-${month}-${day}T00:00:00`);
-}
-
 function TruckAudit() {
     const authHeader = useAuthHeader()();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [username, setUsername] = useState('admin');
     const [auditLogs, setAuditLogs] = useState([]);
+    const [filteredLogs, setFilteredLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [usernames, setUsernames] = useState(['admin']);
     const componentRef = useRef();
 
-    const fetchTruckAudits = async (filters = {}) => {
+    const fetchUsernames = async () => {
+        try {
+            const response = await axios.get('http://localhost:8101/api/audit/usernames', {
+                headers: {
+                    Authorization: authHeader
+                }
+            });
+            setUsernames(response.data);
+        } catch (error) {
+            console.error('Error fetching usernames:', error);
+        }
+    };
+
+    const fetchTruckAudits = async () => {
         try {
             setLoading(true);
-            const { startDate, endDate, username = 'admin' } = filters;
-            let url = 'http://localhost:8101/codeguru/api/auditing/trucks';
-            const params = new URLSearchParams();
-            
-            params.append('username', username);
-            
-            if (startDate) {
-                const formattedStartDate = parseDateString(startDate).toISOString();
-                params.append('startDate', formattedStartDate);
-            }
-            if (endDate) {
-                const formattedEndDate = parseDateString(endDate).toISOString();
-                params.append('endDate', formattedEndDate);
-            }
-            
-            const queryString = params.toString();
-            url += `?${queryString}`;
+            const url = `http://localhost:8101/api/audit/trucks/${username}`;
 
             const response = await axios.get(url, {
                 headers: {
@@ -50,10 +41,7 @@ function TruckAudit() {
                 }
             });
             setAuditLogs(response.data);
-            
-            // Extract unique usernames from the response
-            const uniqueUsernames = [...new Set(response.data.map(audit => audit.username))];
-            setUsernames(uniqueUsernames);
+            setFilteredLogs(response.data);
         } catch (error) {
             console.error('Error fetching truck audits:', error);
         } finally {
@@ -62,7 +50,8 @@ function TruckAudit() {
     };
 
     useEffect(() => {
-        fetchTruckAudits({ username: 'admin' });
+        fetchUsernames();
+        fetchTruckAudits();
     }, [authHeader]);
 
     const handlePrint = useReactToPrint({
@@ -71,14 +60,32 @@ function TruckAudit() {
     });
 
     const handleFilter = () => {
-        fetchTruckAudits({ startDate, endDate, username });
+        let filtered = [...auditLogs];
+
+        // Filter by username
+        if (username) {
+            filtered = filtered.filter(log => log.revisionUsername === username);
+        }
+
+        // Filter by date range
+        if (startDate) {
+            const startTimestamp = new Date(startDate).getTime();
+            filtered = filtered.filter(log => log.revisionTimestamp >= startTimestamp);
+        }
+
+        if (endDate) {
+            const endTimestamp = new Date(endDate).getTime() + (24 * 60 * 60 * 1000); // Add one day to include the end date
+            filtered = filtered.filter(log => log.revisionTimestamp <= endTimestamp);
+        }
+
+        setFilteredLogs(filtered);
     };
 
     const handleReset = () => {
         setStartDate('');
         setEndDate('');
         setUsername('admin');
-        fetchTruckAudits({ username: 'admin' });
+        setFilteredLogs(auditLogs);
     };
 
     return (
@@ -151,41 +158,37 @@ function TruckAudit() {
                             <th>Timestamp</th>
                             <th>Revision Type</th>
                             <th>Plate Number</th>
-                            <th>Truck Type</th>
                             <th>Status</th>
+                            <th>Company</th>
                             <th>Driver Name</th>
-                            <th>Driver Surname</th>
-                            <th>Driver Telephone</th>
                             <th>Is Deleted</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
                             <tr>
-                                <td colSpan="12" className="text-center">
+                                <td colSpan="10" className="text-center">
                                     Loading...
                                 </td>
                             </tr>
-                        ) : auditLogs && auditLogs.length > 0 ? (
-                            auditLogs.map((log) => (
-                                <tr key={`${log.entityId}-${log.revision}`}>
-                                    <td>{log.revision}</td>
-                                    <td>{log.username}</td>
+                        ) : filteredLogs && filteredLogs.length > 0 ? (
+                            filteredLogs.map((log) => (
+                                <tr key={`${log.entityId}-${log.revisionId}`}>
+                                    <td>{log.revisionId}</td>
+                                    <td>{log.revisionUsername}</td>
                                     <td>{log.entityId}</td>
-                                    <td>{format(new Date(log.timestamp), 'yyyy-MM-dd HH:mm:ss')}</td>
+                                    <td>{log.revisionTimestamp ? format(new Date(log.revisionTimestamp), 'yyyy-MM-dd HH:mm:ss') : '-'}</td>
                                     <td style={{ backgroundColor: 'beige' }}>{log.revisionType}</td>
                                     <td>{log.plateNumber}</td>
-                                    <td>{log.truckType}</td>
                                     <td>{log.status}</td>
+                                    <td>{log.company || '-'}</td>
                                     <td>{log.driverName || '-'}</td>
-                                    <td>{log.driverSurname || '-'}</td>
-                                    <td>{log.driverTelephone || '-'}</td>
                                     <td>{log.isDeleted ? 'Yes' : 'No'}</td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="12" className="text-center">
+                                <td colSpan="10" className="text-center">
                                     No audit logs found
                                 </td>
                             </tr>

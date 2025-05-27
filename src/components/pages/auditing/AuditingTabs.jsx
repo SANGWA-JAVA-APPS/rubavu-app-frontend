@@ -4,6 +4,7 @@ import Berthinginvoice from './Berthinginvoice';
 import AccountAudit from './AccountAudit';
 import TruckAudit from './TruckAudit';
 import VesselAudit from './VesselAudit';
+import GenInvoiceAudit from './GenInvoiceAudit';
 import PagesWapper from '../../Global/PagesWapper';
 import { Splitter } from '../../globalcomponents/Splitter';
 import { TitleSmallDesc } from '../../globalcomponents/TitleSmallDesc';
@@ -38,6 +39,9 @@ function AuditingTabs() {
                 </Tab>
                 <Tab eventKey="vessels" title="Vessels">
                     <VesselAudit />
+                </Tab>
+                <Tab eventKey="gen-invoices" title="Ops">
+                    <GenInvoiceAudit />
                 </Tab>
             </Tabs>
         </PagesWapper>

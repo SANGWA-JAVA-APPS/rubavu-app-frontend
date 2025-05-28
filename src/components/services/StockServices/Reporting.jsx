@@ -46,5 +46,32 @@ class Reporting {
     }).catch(() => { StockCommons.RedirectToLogin() })
   }
 
+  cargoExitReport(startDate, endDate, authHeader) {
+    return axios.get(Reporting.server + "/arrival_note/1/7", {
+      headers: this.getHeaders(authHeader),
+      params: {
+        startDate: startDate,
+        endDate: endDate
+      }
+    }).then(response => {
+      console.log('Cargo exit API response:', response);
+      return response;
+    }).catch((error) => { 
+      console.error('Cargo exit report error:', error);
+      StockCommons.RedirectToLogin();
+    });
+  }
+
+  inventoryReport(authHeader) {
+    return axios.get(Reporting.server + "/codeguru/api/client/allCargInWh", {
+      headers: this.getHeaders(authHeader)
+    }).then(response => {
+      console.log('Inventory API response:', response);
+      return response;
+    }).catch((error) => { 
+      console.error('Inventory report error:', error);
+      // StockCommons.RedirectToLogin();
+    })
+  }
 }
 export default new Reporting()

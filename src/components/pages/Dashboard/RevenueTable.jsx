@@ -12,6 +12,8 @@ import Repository from '../../services/Repository';
 import { useAuthHeader } from 'react-auth-kit';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { jsPDF } from "jspdf";
+import autoTable from 'jspdf-autotable';
 
 const RevenueTable = () => {
   const [invoices, setInvoices] = useState([]);
@@ -22,6 +24,7 @@ const RevenueTable = () => {
   const [clientSearch, setClientSearch] = useState('');
   const [selectedClients, setSelectedClients] = useState([]);
   const authHeader = useAuthHeader()();
+  const userType = localStorage.getItem('catname');
 
   const formatDateForAPI = (date) => {
     if (!date) return '';
@@ -182,6 +185,24 @@ const RevenueTable = () => {
     'Source': getSource(invoice)
   }));
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [['Date', 'Amount (RWF)', 'Description', 'Client Name', 'Source']],
+      body: table.getRowModel().rows.map(row => [
+        formatDate(row.original.dateTime),
+        getAmount(row.original).toLocaleString(),
+        row.original.description || 'N/A',
+        row.original.clientName || 'N/A',
+        getSource(row.original)
+      ]),
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185] }
+    });
+    doc.save('revenue-report.pdf');
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -230,13 +251,22 @@ const RevenueTable = () => {
           </Form.Select>
         </Col>
         <Col md={3} className="text-end">
-          <CSVLink
-            data={csvData}
-            filename="combined-invoices.csv"
-            className="btn btn-primary"
-          >
-            Export to CSV
-          </CSVLink>
+          {userType === 'admin' ? (
+            <CSVLink
+              data={csvData}
+              filename="combined-invoices.csv"
+              className="btn btn-primary"
+            >
+              Export to CSV
+            </CSVLink>
+          ) : (
+            <Button 
+              variant="primary" 
+              onClick={exportToPDF}
+            >
+              Export to PDF
+            </Button>
+          )}
         </Col>
       </Row>
 

@@ -17,6 +17,8 @@ import { Card } from 'react-bootstrap';
 import Reporting from '../../services/StockServices/Reporting';
 import { useAuthHeader } from 'react-auth-kit';
 import RevenueTable from './RevenueTable';
+import { Nav } from 'react-bootstrap';
+import StockRepository from '../../services/StockServices/StockRepository';
 
 function BerthingRevenue({ invoiceReport }) {
   const { selectedItem } = useColItemContext(); // Get the selected item from the context
@@ -360,11 +362,71 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   const [filteredTally, setFilteredTally] = useState([]);
   const [filteredTallyIn, setFilteredTallyIn] = useState([]);
   const [filteredTallyOut, setFilteredTallyOut] = useState([]);
+  const [activeTab, setActiveTab] = useState('cargo-report');
+  const [cargoExitData, setCargoExitData] = useState([]);
+  const [inventoryData, setInventoryData] = useState([]);
+  const getAuthHeader = useAuthHeader();
+  const authHeader = getAuthHeader();
 
   const getCommonSearchByDate = (date1, date2) => {
     setStartDate(date1)
     setendDate(date2)
+    if (activeTab === 'cargo-exit') {
+      fetchCargoExitData(date1, date2);
+    }
   }
+
+  const fetchInventoryData = async () => {
+    try {
+      console.log('Starting inventory data fetch...');
+      const response = await StockRepository.inventoryReport(authHeader);
+      console.log('Raw inventory response:', response);
+      
+      // Check if response exists and has data property
+      if (response && response.data) {
+        console.log('Response data structure:', response.data);
+        // If the data is directly the array, use it
+        if (Array.isArray(response.data)) {
+          console.log('Data is direct array, length:', response.data.length);
+          setInventoryData(response.data);
+        }
+        // If the data has allCargoByClient property, use that
+        else if (response.data.allCargoByClient) {
+          console.log('Data has allCargoByClient, length:', response.data.allCargoByClient.length);
+          setInventoryData(response.data.allCargoByClient);
+        }
+        // If neither, set empty array
+        else {
+          console.warn('Unexpected inventory data structure:', response.data);
+          setInventoryData([]);
+        }
+      } else {
+        console.warn('No data received from inventory report');
+        setInventoryData([]);
+      }
+    } catch (error) {
+      console.error('Error fetching inventory data:', error);
+      setInventoryData([]);
+    }
+  };
+
+  const fetchCargoExitData = async (start, end) => {
+    try {
+      console.log('Fetching cargo exit data...');
+      const response = await Reporting.cargoExitReport(start, end, authHeader);
+      console.log('Cargo exit response:', response);
+      
+      if (response && response.data) {
+        setCargoExitData(response.data);
+      } else {
+        console.warn('No data received from cargo exit report');
+        setCargoExitData([]);
+      }
+    } catch (error) {
+      console.error('Error fetching cargo exit data:', error);
+      setCargoExitData([]);
+    }
+  };
 
   const convertKgToTons = (kg) => kg / 1000;
 
@@ -477,22 +539,25 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
     setFilteredTallyOut(cargoAmountReport.tallyOut || []);
   }, [cargoAmountReport]);
 
-  return <>
-    <TitleSmallDesc title={`Cargo  Report on ${CurrentDate.todaydate()} `} moreclass="showOnPrint" />
-    <ListToolBar hideSaveBtn={true} height={height} entity='Arrival note'
-      changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)}
-      changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)}
-      handlePrint={handlePrint} searchHeight={searchHeight} />
-    <SearchformAnimation searchHeight={searchHeight}>
-      <CargoSearchBox 
-        getCommonSearchByDate={getCommonSearchByDate}
-        onGoodsFilter={handleGoodsFilter}
-        onTonnageFilter={handleTonnageFilter}
-      />
-    </SearchformAnimation>
-    <div ref={componentRef} className="DashboardPrintView"  >
-      <LocalReportAddress reportTitle={`Cargo Report from ${startDate} to ${endDate} `} leftAddress="MAGERWA" />
+  // Fetch inventory data when tab changes
+  useEffect(() => {
+    console.log('Tab changed to:', activeTab);
+    if (activeTab === 'inventory') {
+      console.log('Fetching inventory data...');
+      fetchInventoryData();
+    }
+  }, [activeTab]);
 
+  // Fetch cargo exit data when tab changes
+  useEffect(() => {
+    if (activeTab === 'cargo-exit') {
+      fetchCargoExitData(startDate, endDate);
+    }
+  }, [activeTab]);
+
+  const renderCargoReportTab = () => (
+    <div ref={componentRef} className="DashboardPrintView">
+      <LocalReportAddress reportTitle={`Cargo Report from ${startDate} to ${endDate} `} leftAddress="MAGERWA" />
       <TableOpen>
         <TableHead>
           <td>Ref. No.</td>
@@ -617,7 +682,177 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
         </tbody>
       </TableOpen>
     </div>
-  </>
+  );
+
+  const renderInventoryTab = () => {
+    let totalWeight = 0;
+    let totalQuantity = 0;
+
+    return (
+      <div className="DashboardPrintView">
+        <LocalReportAddress reportTitle={`Inventory Report as of ${CurrentDate.todaydate()}`} leftAddress="MAGERWA" />
+        <TableOpen>
+          <TableHead>
+            <td>Client Name</td>
+            <td>Item Name</td>
+            <td>Last Updated</td>
+            <td>Previous Quantity</td>
+            <td>Current Balance</td>
+            <td>Weight per Unit (KG)</td>
+            <td>Total Weight (KG)</td>
+          </TableHead>
+          <tbody>
+            {inventoryData.map((record) => {
+              const totalItemWeight = record.weight * record.noGrpCargoBalance;
+              totalWeight += totalItemWeight;
+              totalQuantity += record.noGrpCargoBalance;
+              
+              return (
+                <tr key={record.id}>
+                  <td>{record.name}</td>
+                  <td>{record.itemName}</td>
+                  <td>{record.lastDate && record.lastDate.split(' ')[0]}</td>
+                  <td>{record.prevQty.toLocaleString()}</td>
+                  <td>{record.noGrpCargoBalance.toLocaleString()}</td>
+                  <td>{record.weight.toLocaleString()}</td>
+                  <td>{totalItemWeight.toLocaleString()}</td>
+                </tr>
+              );
+            })}
+            <tr>
+              <td colSpan={4}>
+                <p style={styles}>Total Summary:</p>
+              </td>
+              <td>
+                <p style={styles}>{totalQuantity.toLocaleString()} units</p>
+              </td>
+              <td colSpan={2}>
+                <p style={styles}>{totalWeight.toLocaleString()} KG</p>
+              </td>
+            </tr>
+          </tbody>
+        </TableOpen>
+      </div>
+    );
+  };
+
+  const renderCargoExitTab = () => {
+    let totalAmount = 0;
+    let totalWeight = 0;
+
+    return (
+      <div className="DashboardPrintView">
+        <LocalReportAddress reportTitle={`Cargo Exit Report from ${startDate} to ${endDate} `} leftAddress="MAGERWA" />
+        <TableOpen>
+          <TableHead>
+            <td>Ref. No.</td>
+            <td>Client Name</td>
+            <td>Cargo Type</td>
+            <td>Entry Date</td>
+            <td>Total Weight (KG)</td>
+            <td>Amount (RWF)</td>
+            <td>Status</td>
+          </TableHead>
+          <tbody>
+            {cargoExitData.map((record) => {
+              const invoice = record.o_mdl_gen_invoices?.[0];
+              totalAmount += invoice?.total_amount || 0;
+              totalWeight += invoice?.total_weight || 0;
+              
+              return (
+                <tr key={record.id}>
+                  <td>{record.id}</td>
+                  <td>{record.mdl_client?.mdl_client?.name || 'N/A'}</td>
+                  <td>{record.o_talliess?.[0]?.cargo || 'N/A'}</td>
+                  <td>{record.date_time && record.date_time.split(' ')[0]}</td>
+                  <td>{(invoice?.total_weight || 0).toLocaleString()}</td>
+                  <td>{(invoice?.total_amount || 0).toLocaleString()}</td>
+                  <td>{record.status}</td>
+                </tr>
+              );
+            })}
+            <tr>
+              <td colSpan={4}>
+                <p style={styles}>Total Summary:</p>
+              </td>
+              <td>
+                <p style={styles}>{totalWeight.toLocaleString()} KG</p>
+              </td>
+              <td colSpan={2}>
+                <p style={styles}>RWF {totalAmount.toLocaleString()}</p>
+              </td>
+            </tr>
+          </tbody>
+        </TableOpen>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <TitleSmallDesc title={`Cargo Report on ${CurrentDate.todaydate()} `} moreclass="showOnPrint" />
+      <ListToolBar 
+        hideSaveBtn={true} 
+        height={height} 
+        entity='Arrival note'
+        changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)}
+        changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)}
+        handlePrint={handlePrint} 
+        searchHeight={searchHeight} 
+      />
+      <SearchformAnimation searchHeight={searchHeight}>
+        {activeTab === 'cargo-report' && (
+          <CargoSearchBox 
+            getCommonSearchByDate={getCommonSearchByDate}
+            onGoodsFilter={handleGoodsFilter}
+            onTonnageFilter={handleTonnageFilter}
+          />
+        )}
+        {activeTab === 'cargo-exit' && (
+          <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
+        )}
+      </SearchformAnimation>
+
+      <Card>
+        <Card.Header>
+          <Nav variant="tabs" defaultActiveKey="cargo-report">
+            <Nav.Item>
+              <Nav.Link 
+                eventKey="cargo-report" 
+                onClick={() => setActiveTab('cargo-report')}
+                active={activeTab === 'cargo-report'}
+              >
+                Cargo Report
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link 
+                eventKey="inventory" 
+                onClick={() => setActiveTab('inventory')}
+                active={activeTab === 'inventory'}
+              >
+                Inventory
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link 
+                eventKey="cargo-exit" 
+                onClick={() => setActiveTab('cargo-exit')}
+                active={activeTab === 'cargo-exit'}
+              >
+                Cargo Exit
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
+        </Card.Header>
+        <Card.Body>
+          {activeTab === 'cargo-report' && renderCargoReportTab()}
+          {activeTab === 'inventory' && renderInventoryTab()}
+          {activeTab === 'cargo-exit' && renderCargoExitTab()}
+        </Card.Body>
+      </Card>
+    </>
+  );
 }
 
 export const AllRevenue = () => {

@@ -2,6 +2,7 @@ import axios from 'axios'
 import React, { Component } from 'react'
 import StockConn from './StockConn';
 import StockCommons from './StockCommons';
+import { useAuthHeader } from 'react-auth-kit';
 
 class StockRepository {
     static page = (StockRepository.page < 1 || StockRepository.page == undefined) ? 1 : StockRepository.page;
@@ -837,6 +838,10 @@ class StockRepository {
                 }
             })
         // .catch(() => StockCommons.RedirectToLogin());
+    }
+
+    inventoryReport(authHeader) {
+        return axios.get(StockRepository.server + "/client/allCargInWh/", { headers: this.getHeaders(authHeader) });
     }
 
 }

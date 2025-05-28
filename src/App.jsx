@@ -81,192 +81,186 @@ import { Client } from './components/Client/Client';
 import RraRecords from './components/pages/reporting/RraRecords';
 import Berthinginvoice from './components/pages/auditing/Berthinginvoice';
 import AuditingTabs from './components/pages/auditing/AuditingTabs';
-import { Provider } from 'react-redux';
-import store from './redux/store';
 
 function App() {
-
   const [count, setCount] = useState(0)
 
   useEffect(() => {
     // body.classList.add('allPagesBg')
   }, [])
   return (
-    <Provider store={store}>
-      <BrandProvider>
-        <StockOrBisnessProvider>
-          <AppDataContextProvider>
-            <ButtonProvider>
-              <ToastDialogProvider>
+    <BrandProvider>
+      <StockOrBisnessProvider>
+        <AppDataContextProvider>
+          <ButtonProvider>
+            <ToastDialogProvider>
+              <LevelOne />
+              <Routes>
+                <Route path="/" element={
+                  <Login />} />
+                <Route path="/home" element={
+                  <Login />} />
+                <Route path="/login" element={
+                  <Login />} />
+                <Route path="/dashboard" element={<RequireAuth loginPath="/login">
+                  <DateRangeProvider>
+                    <Dashboard />
+                  </DateRangeProvider>
+                </RequireAuth>} />
+                <Route path="/vessel" element={<RequireAuth loginPath="/login">
+                  <Vessels /></RequireAuth>} />
+                <Route path="/gate" element={<RequireAuth loginPath="/login">
+                  <Gate /></RequireAuth>} />
 
-                <LevelOne />
-                <Routes>
-                  <Route path="/" element={
-                    <Login />} />
-                  <Route path="/home" element={
-                    <Login />} />
-                  <Route path="/login" element={
-                    <Login />} />
-                  <Route path="/dashboard" element={<RequireAuth loginPath="/login">
-                    <DateRangeProvider>
-                      <Dashboard />
-                    </DateRangeProvider>
-                  </RequireAuth>} />
-                  <Route path="/vessel" element={<RequireAuth loginPath="/login">
-                    <Vessels /></RequireAuth>} />
-                  <Route path="/gate" element={<RequireAuth loginPath="/login">
-                    <Gate /></RequireAuth>} />
+                {/* -------------------- Forms ------------- */}
 
-                  {/* -------------------- Forms ------------- */}
+                <Route path="/vesselform" element={<RequireAuth loginPath="/login">
+                  <Vessel /></RequireAuth>} />
+                <Route path="/bollardsform" element={<RequireAuth loginPath="/login">
+                  <Bollards /></RequireAuth>} />
+                <Route path="/unberthform" element={<RequireAuth loginPath="/login">
+                  <Unberthing /></RequireAuth>} />
+                <Route path="/invoiceform" element={<RequireAuth loginPath="/login">
+                  <Invoice /></RequireAuth>} />
+                <Route path="/bookingform" element={<RequireAuth loginPath="/login">
+                  <Booking /></RequireAuth>} />
+                <Route path="/entryform" element={<RequireAuth loginPath="/login">
+                  <Entry /></RequireAuth>} />
+                <Route path="/truckwarehouseform" element={<RequireAuth loginPath="/login">
+                  <TruckVessel /></RequireAuth>} />
+                <Route path="/trucktruckform" element={<RequireAuth loginPath="/login">
+                  <TruckTruck /></RequireAuth>} />
+                <Route path="/wvesselform" element={<RequireAuth loginPath="/login">
+                  <WVessel /></RequireAuth>} />
+                <Route path="/wtruckform" element={<RequireAuth loginPath="/login">
+                  <WTrcuk /></RequireAuth>} />
+                <Route path="/truckinvoiceform" element={<RequireAuth loginPath="/login">
+                  <Truck_parking_invoice /></RequireAuth>} />
+                <Route path="/truckpaymentform" element={<RequireAuth loginPath="/login">
+                  <TruckReceipt /></RequireAuth>} />
 
-                  <Route path="/vesselform" element={<RequireAuth loginPath="/login">
-                    <Vessel /></RequireAuth>} />
-                  <Route path="/bollardsform" element={<RequireAuth loginPath="/login">
-                    <Bollards /></RequireAuth>} />
-                  <Route path="/unberthform" element={<RequireAuth loginPath="/login">
-                    <Unberthing /></RequireAuth>} />
-                  <Route path="/invoiceform" element={<RequireAuth loginPath="/login">
-                    <Invoice /></RequireAuth>} />
-                  <Route path="/bookingform" element={<RequireAuth loginPath="/login">
-                    <Booking /></RequireAuth>} />
-                  <Route path="/entryform" element={<RequireAuth loginPath="/login">
-                    <Entry /></RequireAuth>} />
-                  <Route path="/truckwarehouseform" element={<RequireAuth loginPath="/login">
-                    <TruckVessel /></RequireAuth>} />
-                  <Route path="/trucktruckform" element={<RequireAuth loginPath="/login">
-                    <TruckTruck /></RequireAuth>} />
-                  <Route path="/wvesselform" element={<RequireAuth loginPath="/login">
-                    <WVessel /></RequireAuth>} />
-                  <Route path="/wtruckform" element={<RequireAuth loginPath="/login">
-                    <WTrcuk /></RequireAuth>} />
-                  <Route path="/truckinvoiceform" element={<RequireAuth loginPath="/login">
-                    <Truck_parking_invoice /></RequireAuth>} />
-                  <Route path="/truckpaymentform" element={<RequireAuth loginPath="/login">
-                    <TruckReceipt /></RequireAuth>} />
+                <Route path="/berthPaymentform" element={<RequireAuth loginPath="/login">
+                  <BerthPayment /></RequireAuth>} />
+                <Route path="/commonreport" element={<RequireAuth loginPath="/login">
+                  <CommonReporting /></RequireAuth>} />
+                {/* -------------------- End of Forms  ----------  */}
 
-                  <Route path="/berthPaymentform" element={<RequireAuth loginPath="/login">
-                    <BerthPayment /></RequireAuth>} />
-                  <Route path="/commonreport" element={<RequireAuth loginPath="/login">
-                    <CommonReporting /></RequireAuth>} />
-                  {/* -------------------- End of Forms  ----------  */}
+                <Route path="/ops" element={<RequireAuth loginPath="/login">
+                  <Ops /></RequireAuth>} />
+                <Route path="/test" element={<RequireAuth loginPath="/login">
+                  <Testuser /></RequireAuth>} />
+                <Route path="/user" element={<RequireAuth loginPath="/login">
+                  <AccountPage /> </RequireAuth>} />
+                <Route path="/companyName" element={<RequireAuth loginPath="/login">
+                  <CompanyName />
+                </RequireAuth>} />
+                <Route path="/currency" element={<RequireAuth loginPath="/login">
+                  <Currency />
+                </RequireAuth>} />
+                <Route path="/startproc" element={<RequireAuth loginPath="/login">
+                  <CollectTypeProvider>
+                    <Generic />
+                  </CollectTypeProvider>
+                </RequireAuth>} />
 
-                  <Route path="/ops" element={<RequireAuth loginPath="/login">
-                    <Ops /></RequireAuth>} />
-                  <Route path="/test" element={<RequireAuth loginPath="/login">
-                    <Testuser /></RequireAuth>} />
-                  <Route path="/user" element={<RequireAuth loginPath="/login">
-                    <AccountPage /> </RequireAuth>} />
-                  <Route path="/companyName" element={<RequireAuth loginPath="/login">
-                    <CompanyName />
-                  </RequireAuth>} />
-                  <Route path="/currency" element={<RequireAuth loginPath="/login">
-                    <Currency />
-                  </RequireAuth>} />
-                  <Route path="/startproc" element={<RequireAuth loginPath="/login">
-                    <CollectTypeProvider>
-                      <Generic />
-                    </CollectTypeProvider>
-                  </RequireAuth>} />
-
-                  <Route path="/anysetting" element={<RequireAuth loginPath="/login">
-                    <AnySettingsName />
-                  </RequireAuth>} />
-                  <Route path="/items" element={<RequireAuth loginPath="/login">
-                    <Items />
-                  </RequireAuth>} />
-                  <Route path="/itemcategory" element={<RequireAuth loginPath="/login">
-                    <ItemCategory />
-                  </RequireAuth>} />
-                  <Route path="/sales" element={<RequireAuth loginPath="/login">
-                    <Sales />
-                  </RequireAuth>} />
-                  <Route path="/damage" element={<RequireAuth loginPath="/login">
-                    <Damage />
-                  </RequireAuth>} />
-                  <Route path="/returns" element={<RequireAuth loginPath="/login">
-                    <Return />
-                  </RequireAuth>} />
-                  <Route path="/stocklevel" element={<RequireAuth loginPath="/login">
-                    <StockLevel />
-                  </RequireAuth>} />
-                  <Route path="/purchase" element={<RequireAuth loginPath="/login">
-                    <Purchase />
-                  </RequireAuth>} />
-                  <Route path="/expenses" element={<RequireAuth loginPath="/login">
-                    <Expenses />
-                  </RequireAuth>} />
-                  <Route path="/truckform" element={<RequireAuth loginPath="/login">
-                    <TruckForm />
-                  </RequireAuth>} />
-                  <Route path="/truckexitform" element={<RequireAuth loginPath="/login">
-                    <Truck_exit />
-                  </RequireAuth>} />
-                  <Route path="/truckexitprint" element={<RequireAuth loginPath="/login">
-                    <TruckExitPrint />
-                  </RequireAuth>} />
+                <Route path="/anysetting" element={<RequireAuth loginPath="/login">
+                  <AnySettingsName />
+                </RequireAuth>} />
+                <Route path="/items" element={<RequireAuth loginPath="/login">
+                  <Items />
+                </RequireAuth>} />
+                <Route path="/itemcategory" element={<RequireAuth loginPath="/login">
+                  <ItemCategory />
+                </RequireAuth>} />
+                <Route path="/sales" element={<RequireAuth loginPath="/login">
+                  <Sales />
+                </RequireAuth>} />
+                <Route path="/damage" element={<RequireAuth loginPath="/login">
+                  <Damage />
+                </RequireAuth>} />
+                <Route path="/returns" element={<RequireAuth loginPath="/login">
+                  <Return />
+                </RequireAuth>} />
+                <Route path="/stocklevel" element={<RequireAuth loginPath="/login">
+                  <StockLevel />
+                </RequireAuth>} />
+                <Route path="/purchase" element={<RequireAuth loginPath="/login">
+                  <Purchase />
+                </RequireAuth>} />
+                <Route path="/expenses" element={<RequireAuth loginPath="/login">
+                  <Expenses />
+                </RequireAuth>} />
+                <Route path="/truckform" element={<RequireAuth loginPath="/login">
+                  <TruckForm />
+                </RequireAuth>} />
+                <Route path="/truckexitform" element={<RequireAuth loginPath="/login">
+                  <Truck_exit />
+                </RequireAuth>} />
+                <Route path="/truckexitprint" element={<RequireAuth loginPath="/login">
+                  <TruckExitPrint />
+                </RequireAuth>} />
 
 
-                  <Route path="/arrivalnote" element={<RequireAuth loginPath="/login">
-                    <CollectTypeProvider>
-                      <Arrival_note />
-                    </CollectTypeProvider>
-                  </RequireAuth>} />
-                  <Route path="/arrivalPrint" element={<RequireAuth loginPath="/login">
-                    <ArrivalDetailsToPrint />
-                  </RequireAuth>} />
-                  <Route path="/pringberth" element={<RequireAuth loginPath="/login">
-                    <BerthPrint />
-                  </RequireAuth>} />
-                  <Route path="/tally" element={<RequireAuth loginPath="/login">
-                    <Tally />
-                  </RequireAuth>} />
-                  <Route path="/pringinvoice" element={<RequireAuth loginPath="/login">
-                    <InvoicePrint />
-                  </RequireAuth>} />
-                  <Route path="/prinreceipt" element={<RequireAuth loginPath="/login">
-                    <BerthPaymentPrint />
-                  </RequireAuth>} />
-                  <Route path="/printInvoice" element={<RequireAuth loginPath="/login">
-                    <PrintOpsInvoice />
-                  </RequireAuth>} />
-                  <Route path="/revenuereport" element={<RequireAuth loginPath="/login">
-                    <RevenueReports />
-                  </RequireAuth>} />
-                  <Route path="/receiptprint" element={<RequireAuth loginPath="/login">
-                    <GenReceiptPrint />
-                  </RequireAuth>} />
-                  <Route path="/genexittprint" element={<RequireAuth loginPath="/login">
-                    <GenExitPrint />
-                  </RequireAuth>} />
-                  <Route path="/unberthPrint" element={<RequireAuth loginPath="/login">
-                    <UnberthPrint />
-                  </RequireAuth>} />
-                  <Route path="/truckEntryPrint" element={<RequireAuth loginPath="/login">
-                    <TruckEntryPrint />
-                  </RequireAuth>} />
-                  <Route path="/truckParkingInvoicePrint" element={<RequireAuth loginPath="/login">
-                    <TruckParkingInvoicePrint />
-                  </RequireAuth>} />
-                  <Route path="/truckreceiptPrint" element={<RequireAuth loginPath="/login">
-                    <TruckReceiptPrint />
-                  </RequireAuth>} />
-                  <Route path="/clients" element={<RequireAuth loginPath="/login">
-                    <Client />
-                  </RequireAuth>} />
-                  <Route path="/rrarec" element={<RequireAuth loginPath="/login">
-                    <RraRecords />
-                  </RequireAuth>} />
-                  <Route path="/appauditing" element={<RequireAuth loginPath="/login">
-                    <AuditingTabs />
-                  </RequireAuth>} />
-
-                </Routes>
-              </ToastDialogProvider>
-            </ButtonProvider>
-          </AppDataContextProvider>
-        </StockOrBisnessProvider>
-      </BrandProvider>
-    </Provider>
-  )
+                <Route path="/arrivalnote" element={<RequireAuth loginPath="/login">
+                  <CollectTypeProvider>
+                    <Arrival_note />
+                  </CollectTypeProvider>
+                </RequireAuth>} />
+                <Route path="/arrivalPrint" element={<RequireAuth loginPath="/login">
+                  <ArrivalDetailsToPrint />
+                </RequireAuth>} />
+                <Route path="/pringberth" element={<RequireAuth loginPath="/login">
+                  <BerthPrint />
+                </RequireAuth>} />
+                <Route path="/tally" element={<RequireAuth loginPath="/login">
+                  <Tally />
+                </RequireAuth>} />
+                <Route path="/pringinvoice" element={<RequireAuth loginPath="/login">
+                  <InvoicePrint />
+                </RequireAuth>} />
+                <Route path="/prinreceipt" element={<RequireAuth loginPath="/login">
+                  <BerthPaymentPrint />
+                </RequireAuth>} />
+                <Route path="/printInvoice" element={<RequireAuth loginPath="/login">
+                  <PrintOpsInvoice />
+                </RequireAuth>} />
+                <Route path="/revenuereport" element={<RequireAuth loginPath="/login">
+                  <RevenueReports />
+                </RequireAuth>} />
+                <Route path="/receiptprint" element={<RequireAuth loginPath="/login">
+                  <GenReceiptPrint />
+                </RequireAuth>} />
+                <Route path="/genexittprint" element={<RequireAuth loginPath="/login">
+                  <GenExitPrint />
+                </RequireAuth>} />
+                <Route path="/unberthPrint" element={<RequireAuth loginPath="/login">
+                  <UnberthPrint />
+                </RequireAuth>} />
+                <Route path="/truckEntryPrint" element={<RequireAuth loginPath="/login">
+                  <TruckEntryPrint />
+                </RequireAuth>} />
+                <Route path="/truckParkingInvoicePrint" element={<RequireAuth loginPath="/login">
+                  <TruckParkingInvoicePrint />
+                </RequireAuth>} />
+                <Route path="/truckreceiptPrint" element={<RequireAuth loginPath="/login">
+                  <TruckReceiptPrint />
+                </RequireAuth>} />
+                <Route path="/rrarecords" element={<RequireAuth loginPath="/login">
+                  <RraRecords />
+                </RequireAuth>} />
+                <Route path="/audit" element={<RequireAuth loginPath="/login">
+                  <AuditingTabs />
+                </RequireAuth>} />
+                <Route path="/appauditing" element={<RequireAuth loginPath="/login">
+                  <AuditingTabs />
+                </RequireAuth>} />
+              </Routes>
+            </ToastDialogProvider>
+          </ButtonProvider>
+        </AppDataContextProvider>
+      </StockOrBisnessProvider>
+    </BrandProvider>
+  );
 }
-export default App
+
+export default App;

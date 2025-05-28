@@ -445,10 +445,7 @@ let totBerthing=0.0, totWharfage=0.0
                   )}
                 </tr>
               )})}
-              <tr>
-                <td colSpan={8} style={{ textAlign:'right',    fontSize:'20px', fontWeight:'bold'}}  >RWF {totBerthing.toLocaleString()}</td>
-                <td colSpan={2} style={{ textAlign:'right',    fontSize:'20px', fontWeight:'bold'}} className="text-center">RWF {totWharfage && (Number(totWharfage)).toLocaleString()}   </td>
-              </tr>
+
               
               </tbody>
           </TableOpen>

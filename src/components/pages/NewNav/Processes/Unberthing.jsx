@@ -28,11 +28,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import SearchResultTable from '../../sale/SearchResultTable'
 import { TitleSmallDesc } from '../../../globalcomponents/TitleSmallDesc'
 import { SmallSplitter, Splitter } from '../../../globalcomponents/Splitter'
-<<<<<<< HEAD
 import CurrentDate from '../../../Global/CurrentDate';
-=======
 import { FaTrash } from 'react-icons/fa'
->>>>>>> 1e23a1f (fix: initial audit logs)
 
 
 function Unberthing() {

@@ -74,7 +74,6 @@ function Invoice() {
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
 
   const authHeader = useAuthHeader()();
-  const [isEditing,setIsEditing]=useState(false);
   const formatTime = (time) => {
     const hours = String(time.getHours()).padStart(2, "0");
     const minutes = String(time.getMinutes()).padStart(2, "0");

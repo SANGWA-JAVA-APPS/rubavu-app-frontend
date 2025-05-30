@@ -59,7 +59,7 @@ function Gen_invoice() {
   const [refresh, setRefresh] = useState(false);
 
   const { arrival_id, chosenProcess,
-    setSourceId, setdestId, setArrival_id, obj, setObj, arrivalInvModal, setArrivalInvModal, showModal, setShowModal } 
+    setSourceId, setdestId, setArrival_id, obj, setObj, arrivalInvModal, setArrivalInvModal, showModal, setShowModal }
     = useContext(ColItemContext)
 
   const { serviceName, setServiceName, chargeCriteria, setChargeCriteria } = useContext(ButtonContext)
@@ -74,7 +74,7 @@ function Gen_invoice() {
 
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
   const [invoiceType, setInvoiceType] = useState('')
-  const [invoiceTypedata,setInvoiceTypeDAta]=useState({})
+  const [invoiceTypedata, setInvoiceTypeDAta] = useState({})
 
 
   function getFormattedDate() {
@@ -105,6 +105,8 @@ function Gen_invoice() {
   const [description, setDescription] = useState()
   const [storageOthercosts, setstorageOthercosts] = useState(false)//this helps to switch from storage calculation vs other costs. it then help to show the modal with different content
 
+
+  const [showRecepted, setShowReceipted] = useState(false)
   const auth = useAuthUser()
   const user = auth();
   /*#region ---------- SAVING DATA TO DB--------------------------------------*/
@@ -140,8 +142,16 @@ function Gen_invoice() {
       setDataLoad(true)
     });
   }
-  const getAllArrival_notes = (startDate, endDate) => {
+  const getAllArrival_notes = () => {
     StockRepository.findArrival_note(date1, date2, user?.userid, authHeader).then((res) => {
+
+      setArrival_notes(res.data);
+      // setDataLoad(true)
+
+    });
+  }
+  const getAllArrival_notesNotInvoiced = () => {
+    StockRepository.findArrival_noteNotInvoiced(date1, date2, user?.userid, authHeader).then((res) => {
       setArrival_notes(res.data);
       // setDataLoad(true)
 
@@ -151,12 +161,25 @@ function Gen_invoice() {
     setObj({})
     setInvoiceTypeDAta({})
     getAllGen_invoices(0, 20)
-    getAllArrival_notes(date1, date2)
+    if (showRecepted) {
+      getAllArrival_notes(date1, date2)
+    }else {
+      getAllArrival_notesNotInvoiced()
+    }
+
     setInvoiceToBePrinted(false)
     //Get Token and catname
     setUserType(localStorage.getItem('catname'))
     setArrivalInvModal('invoice')// this is set to 'invoice' to switch the button as to calculate the tally cost
   }, [refresh]);
+
+  useEffect(() => {
+    if (showRecepted) {
+      getAllArrival_notes()
+    } else {
+      getAllArrival_notesNotInvoiced()
+    }
+  }, [showRecepted])
 
   const getGen_invoiceById = (id) => {
     StockRepository.findGen_invoiceById(id, authHeader).then((res) => {
@@ -245,10 +268,10 @@ function Gen_invoice() {
         setChargeCriteria(res.data.ChargeCriteria)
         setPayment(res.data.Payment)
         setTallyItems(res.data.Payment.res)
-        if (invoiceType  === 'tally') {
+        if (invoiceType === 'tally') {
           setObj(res.data)
           setServiceName(res.data.Payment.service)
-        } else{
+        } else {
           setObj(invoiceTypedata)
           setServiceName('Storage')
           console.log('-------------------THIS IS STORAGE----------')
@@ -272,7 +295,7 @@ function Gen_invoice() {
 
     }
 
-  }, [ invoiceToBePrinted])
+  }, [invoiceToBePrinted])
 
 
   const navigate = useNavigate()
@@ -293,7 +316,7 @@ function Gen_invoice() {
     console.log(gen_invoice.invoiceType)
     console.log('----------------------')
     setInvoiceTypeDAta(gen_invoice)
-        
+
     setInvoiceToBePrinted(true)
 
   }
@@ -351,9 +374,9 @@ function Gen_invoice() {
     // <PagesWapper>
     <>
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
-        storageOthercosts ? <StorageCalculation refresh={refresh} setRefresh ={setRefresh}/> : <>
+        storageOthercosts ? <StorageCalculation refresh={refresh} setRefresh={setRefresh} /> : <>
           <ArrivalMovementsSummary setShowModal={setShowModal} movementsSummary={movementsSummary} purchMvt={arrivalPurchasesMovt}
-            saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt} startDate={date1} endDate={date2} setRefresh={setRefresh}refresh={refresh} />
+            saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt} startDate={date1} endDate={date2} setRefresh={setRefresh} refresh={refresh} />
         </>} />
 
       <AnimateHeight id="animForm" duration={300} animateOpacity={true} height={height}>
@@ -395,6 +418,13 @@ function Gen_invoice() {
                     </tr>
                   ))}</tbody>
               </TableOpen>}
+            {userType == 'admin' &&
+              <Row>
+                
+                <Col md={6}>
+                  <input type="checkbox" id="receiptedInvoices" onChange={() => setShowReceipted(!showRecepted)} /> <label for="receiptedInvoices">Show receipted</label>
+                </Col>
+              </Row>}
             <Row className="mt-3  ">
 
 

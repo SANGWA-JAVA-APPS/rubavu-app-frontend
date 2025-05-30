@@ -84,6 +84,8 @@ function TruckReceipt() {
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
 
   const [editingRowId, setEditingRowId] = useState(null);
+
+  const [showRecepted, setShowReceipted] = useState(false)
   const [editFields, setEditFields] = useState({
     payment_amount: ''
   });
@@ -126,6 +128,11 @@ function TruckReceipt() {
       setDataLoad(true)
     });
   }
+  const findTruck_parking_invoiceNoteReceipted = () => {
+    StockRepository.finNongroupedinvoicesbydateNotReceipted(authHeader, startDate, endDate).then((res) => {
+      setTruckParkingInvoices(res.data)
+    })
+  }
   const findTruck_parking_invoice = () => {
     StockRepository.finNongroupedinvoicesbydate(authHeader, startDate, endDate).then((res) => {
       setTruckParkingInvoices(res.data)
@@ -133,11 +140,23 @@ function TruckReceipt() {
   }
   useEffect(() => {
     getAllTruck_payments()
-    findTruck_parking_invoice()
+     if (showRecepted) {
+      findTruck_parking_invoice()
+    } else {
+      findTruck_parking_invoiceNoteReceipted()
+    }
     //Get Token and catname
     setUserType(localStorage.getItem('catname'))
 
   }, [refresh]);
+
+  useEffect(() => {
+    if (showRecepted) {
+      findTruck_parking_invoice()
+    } else {
+      findTruck_parking_invoiceNoteReceipted()
+    }
+  }, [showRecepted])
 
 
 
@@ -253,12 +272,12 @@ function TruckReceipt() {
 
   useEffect(() => {
     if (id) {
-      alert('id changed ....')
+      
       navigate('/truckreceiptPrint')
     }
   }, [id])
   const printData = (obj) => {
-    alert('id changed on print: '+ obj.id)
+    
     setObj(obj)
     setId(obj.id)
     console.log(obj)
@@ -300,7 +319,17 @@ function TruckReceipt() {
       })
     }, () => { })
   }
+  const [invoiceDetails, setInvoiceDetails] = useState([])
+  const getTruckParkingInvoiceDetails = (e) => {
+    const invId = e.target.value
+    settruckParkingInvoice(invId)
+    if (invId) {
+      StockRepository.findTruck_parking_invById(invId, authHeader).then((res) => {
+        setInvoiceDetails(res.data)
+      })
+    }
 
+  }
   return (
     <PagesWapper>
 
@@ -308,17 +337,25 @@ function TruckReceipt() {
         <ContainerRowBtwn clearBtn={clearBtn} form={'Truck parking payment'} showLoader={showLoader}  >
           <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
           <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
-            {/* <DropDownInput val={truckParkingInvoice} handle={(e) => settruckParkingInvoice(e.target.value)} name='Invoice' label='Invoice' >
-              {truckParkingInvoices.map((invoice) => (
-                <option value={invoice.id} key={invoice.id}> {invoice.id} </option>
-              ))}
-            </DropDownInput> */}
-            <DropDownInput val={truckParkingInvoice} handle={(e) => settruckParkingInvoice(e.target.value)} name='Invoice' label='Invoice' >
+
+            <DropDownInput val={truckParkingInvoice} handle={(e) => getTruckParkingInvoiceDetails(e)} name='Invoice' label='Invoice' >
               {truckParkingInvoices.map((invoice) => (
                 <option value={invoice.id} key={invoice.id}> {invoice.id} {" \t  "} - {invoice.licence_plate_number} - {(invoice.amount).toLocaleString()} </option>
               ))}
             </DropDownInput>
-            <InputRow num={true} name='Total Amount (Rwf) ' val={payment_amount} handle={(e) => setPayment_amount(e.target.value)} label='lblget_out_time' />
+            {userType == 'admin' &&
+              <Row>
+                <Col md={3}></Col>
+                <Col md={6}>
+                  <input type="checkbox" id="receiptedInvoices" onChange={() => setShowReceipted(!showRecepted)} /> <label for="receiptedInvoices">Show receipted</label>
+                </Col>
+              </Row>}
+                <InputReadOnly name='licence plate number' val={invoiceDetails[0]?.licence_plate_number} label='lblget_out_time' />
+                <InputReadOnly name='get Out Time' val={invoiceDetails[0]?.get_out_time} label='lblgetamount' />
+                <InputReadOnly name='Amount' val={invoiceDetails[0]?.amount} label='lblget_weight' />
+                <InputReadOnly name='Total 12-Hour blocks' val={invoiceDetails[0]?.totalHours} label='lblget_description' />
+                <InputReadOnly name='Driver Name' val={invoiceDetails[0]?.driverName} label='lblget_description' />
+            <InputRow num={true} name='Actual Amount Paid (Rwf) ' val={payment_amount} handle={(e) => setPayment_amount(e.target.value)} label='lblget_out_time' />
             <LongTextINputRow name='Description ' val={description} handle={(e) => setDescription(e.target.value)} label='lbldesc' />
             <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />
           </FormInnerRightPane>
@@ -332,14 +369,13 @@ function TruckReceipt() {
         </SearchformAnimation>
 
         <div ref={componentRef} className="dataTableBox">
-          
+
           <PrintCompanyInfo />
           <TableOpen>
             <TableHead>
 
               <td>ID</td>
               <td>Amount</td>
-
               <td> Date   </td>
               <td> description   </td>
               {userType == 'admin' && <td className='delButton '>Option</td>}

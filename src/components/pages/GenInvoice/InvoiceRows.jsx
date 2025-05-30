@@ -18,7 +18,6 @@ export const InvoiceRows = ({ tally, index, serviceName }) => {
                 {tally.unitPrice}
             </td>
             <td className=" border border-down text-center">
-                 
                 {'Assorted' === tally.cargoAssorted ?
                         ( 
                             (tally?.weight ?? 1) *

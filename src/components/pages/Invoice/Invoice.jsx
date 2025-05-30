@@ -73,6 +73,7 @@ function Invoice() {
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
 
   const authHeader = useAuthHeader()();
+  const [isEditing,setIsEditing]=useState(false);
   const formatTime = (time) => {
     const hours = String(time.getHours()).padStart(2, "0");
     const minutes = String(time.getMinutes()).padStart(2, "0");
@@ -409,18 +410,7 @@ let totBerthing=0.0, totWharfage=0.0
                   <td className="text-center">{invoice.quay_amount && (Number(invoice.quay_amount)).toLocaleString()}   </td>
                   <td className="text-center">{invoice.vessel_handling_charges && (invoice.vessel_handling_charges).toLocaleString()}   </td>
                   {userType == 'admin' && <ListOptioncol print={true} printData={() => printData(invoice)} getEntityById={() => getInvoiceById(invoice.id)} delEntityById={() => delInvoiceById(invoice.id)} />}
-                  <td className="text-center">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        value={editFields.quay_amount}
-                        onChange={e => setEditFields(f => ({ ...f, quay_amount: e.target.value }))}
-                        style={{ width: '100px' }}
-                      />
-                    ) : (
-                      invoice.quay_amount && Number(invoice.quay_amount).toLocaleString()
-                    )}
-                  </td>
+                   
                   <td className="text-center">
                     {isEditing ? (
                       <input

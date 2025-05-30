@@ -78,10 +78,10 @@ function Arrival_note({ DynamicMenu }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [smallModalOpen, setSmallModalOpen] = useState(false)
 
-  const { step, setStep, arrivalNote, setArrivalNote, updateArrivalNote, inputs, serviceName, setInputs, setServiceName } = useContext(ButtonContext)
+  const { step, setStep, arrivalNote, setArrivalNote, updateArrivalNote, inputs, serviceName, setInputs, setServiceName} = useContext(ButtonContext)
 
   const { chosenProcess, chosenProcessId, chosenProcessCategory, sourceId, setSourceId, destId, setdestId, arrival_id, setArrival_id, obj, setObj,
-    arrivalInvModal, setArrivalInvModal, checkAll, setcheckAll, myRecords, setMyRecords, process, setProcess
+    arrivalInvModal, setArrivalInvModal, checkAll, setcheckAll, myRecords, setMyRecords, process, setProcess, commonsDate, commonArray,setCommonSDate, commoneDate, setCommoneDate
   } = useContext(ColItemContext)
 
 
@@ -109,6 +109,7 @@ function Arrival_note({ DynamicMenu }) {
   const [searchedclientId, setSearchedclientId] = useState(0)
 
   const { collect_type, setCollect_type } = useCollectTypeContext()
+  
 
   const authHeader = useAuthHeader()();
   const getAllVessels = (page, size) => {
@@ -130,6 +131,7 @@ function Arrival_note({ DynamicMenu }) {
     getAllVessels()
     getOnlyTrucks()
     setArrivalInvModal('arrival')
+    
     // showToast("Success! Data saved.", "success");
   }, [])
   useEffect(() => {
@@ -545,48 +547,53 @@ function Arrival_note({ DynamicMenu }) {
   }
 
 
+  const commongSearchCriteris = (startDate, endDate, clientId) => {
+    if (checkAll) {
+      StockRepository.findArrival_noteFilterByclient(startDate, endDate, user?.userid, searchedclientId, authHeader).then((res) => {
+        setArrival_notes(res.data)
+      })
+    } else if (myRecords && process) {//both
+      StockRepository.findArrival_noteByProcessAndUserAndClient(startDate, endDate, user?.userid, chosenProcessId, clientId, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        // setDataLoad(true)
+      });
+    } else if (process && !myRecords) {
+      StockRepository.findArrival_noteByProcessAndClient(startDate, endDate, user?.userid, chosenProcessId, clientId, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        // setDataLoad(true)
+      });
+    } else if (!process && myRecords) {
+      StockRepository.findArrival_noteFilterByUserAndCliebt(startDate, endDate, user?.userid, clientId, authHeader).then((res) => {
+        setArrival_notes(res.data);
+        // setDataLoad(true)
+      });
+    }
+  }
 
-  const searchOptions = (startDate, endDate, clientId) => {
+  const getArrivalById = (arrivalId) => {
+    StockRepository.findArrival_noteFilterbyid(arrivalId, authHeader).then((res) => {
+      setArrival_notes(res.data);
+    })
+  }
+  const searchOptions = (startDate, endDate, clientId, arrivalId) => {
+    setSearchItemValue('')
     if ('client_name' === type) {
       if (searchedclientId || clientId) {
-
-        if (checkAll) {
-          StockRepository.findArrival_noteFilterByclient(startDate, endDate, user?.userid, searchedclientId, authHeader).then((res) => {
-            setArrival_notes(res.data)
-            // setDataLoad(true)
-
-          })
-        } else if (myRecords && process) {//both
-          StockRepository.findArrival_noteByProcessAndUserAndClient(startDate, endDate, user?.userid, chosenProcessId, clientId, authHeader).then((res) => {
-            setArrival_notes(res.data);
-            // setDataLoad(true)
-          });
-        } else if (process && !myRecords) {
-          StockRepository.findArrival_noteByProcessAndClient(startDate, endDate, user?.userid, chosenProcessId, clientId, authHeader).then((res) => {
-            setArrival_notes(res.data);
-            // setDataLoad(true)
-          });
-        } else if (!process && myRecords) {
-          StockRepository.findArrival_noteFilterByUserAndCliebt(startDate, endDate, user?.userid, clientId, authHeader).then((res) => {
-            setArrival_notes(res.data);
-            // setDataLoad(true)
-          });
-        }
-
-      } else {
-        // alert('Please select the client')
+        commongSearchCriteris(startDate, endDate, clientId)
       }
     } else if (startDate && endDate) {
       setStartDate(startDate)
       setEndDate(endDate)
       setRefresh(!refresh)
-    } else {
+    }  else {
       alert('Put some values to search by')
     }
   }
 
   const getCommonSearchByDate = (startDate, endDate, name) => {
     searchOptions(startDate, endDate, searchedclientId)
+      setCommonSDate(startDate)
+       setCommoneDate(endDate)
   }
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const getSortSymbol = (key) => {
@@ -632,8 +639,8 @@ function Arrival_note({ DynamicMenu }) {
 
   }
   const [numCaharacters, setNumCaharacters] = useState(0)
- 
- 
+
+
   const searchDone = (id, name, platenumber, status) => {
     setSearchTableVisible(false)
     setSearchItemValue(name)
@@ -641,7 +648,6 @@ function Arrival_note({ DynamicMenu }) {
 
     setSearchedclientId(id)
     if (searchedclientId) {
-
       searchOptions(startDate, endDate, searchedclientId)
     }
 
@@ -652,21 +658,26 @@ function Arrival_note({ DynamicMenu }) {
   }, [searchedclientId])
   /* #endregion */
   const [searchCriteria, setSearchCriteria] = useState('')//this is to be used globally in this component
+  const[searchArrivalId,setSearchArrivalId]=useState()
   const realTimeValueEvent = (e) => {
     let word = e.target.value
     setSearchItemValue(word)
     setSearchCriteria(word)
-    if (word.length > 3) {
+    if ('arrival_note' === type) {
+      if (word.length > 0) {
+        setSearchArrivalId(word)//we would liek to get in globally once we are searching by username
+        getArrivalById(word)
+      }
+    } else if (word.length > 3) {
       if ('client_name' === type) {
         setSearchTableVisible(true)
-        findClientByNameLike(searchItemValue)
+        findClientByNameLike(word)
+        setSearchArrivalId('')
       }
     } else {
       setSearchedclientId(0)
-
       setSearchTableVisible(false)
     }
-
   }
   const [noSelection, setNoSelection] = useState(false)
 
@@ -711,14 +722,25 @@ function Arrival_note({ DynamicMenu }) {
   }, [checkAll, setcheckAll, myRecords, setMyRecords, process, setProcess, searchedclientId, refresh])
 
   useEffect(() => {
-    if (noSelection) {
-      setcheckAll(true)
+    if (noSelection) {// if no checkbox is selected, the "check all" checkbox is selected  
+      setcheckAll(true)// there is a logic in "OtherToolBarItems" component that manages the checkboxes events, so when this is checked al other checkboxes are unchecked!
       setNoSelection(false)
       console.log('-----------------Checked the first------------------------------')
     }
   }, [dataLoad])
+
+   useEffect(()=>{
+    if(commonArray && commonArray.length>0){
+      
+      let arr=commonArray
+      setArrival_notes([])
+      setArrival_notes(arr)
+    }
+   },[commonArray])
   return (
     <>
+
+    hello
       <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={"Arrival Details"} content={
         <>
           <ArrivalMovementsSummary movementsSummary={movementsSummary} purchMvt={arrivalPurchasesMovt} saleMvt={arrivalSalesyMovt} tallyMvt={arrivalTallyMovt}
@@ -956,11 +978,14 @@ function Arrival_note({ DynamicMenu }) {
       </AnimateHeight >
       <ContainerRow mt='3'>
         <ListToolBar height={height} entity='Arrival note' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} >
-          <OtherToolBarItems />
+          <OtherToolBarItems  />
         </ListToolBar>
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} setType={setType} noValueField={true} realTimeValueEvent={realTimeValueEvent} realTimeValueCatch={true}
-            options={[{ name: 'client_name', value: 'client_name', label: 'Client Name' }]} />
+            options={[
+              { name: 'client_name', value: 'client_name', label: 'Client Name' },
+              { name: 'arrival_note', value: 'arrival_note', label: 'Arrival note' }
+            ]} />
         </SearchformAnimation>
 
         <Row className='d-flex justify-content-start d-none'>

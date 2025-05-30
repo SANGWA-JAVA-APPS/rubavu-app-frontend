@@ -259,8 +259,13 @@ class StockRepository {
             .catch(() => StockCommons.RedirectToLogin());
     }
 
-    findUnberthing(authHeader) {
-        return axios.get(StockRepository.server + "/unberthing/", { headers: this.getHeaders(authHeader) });
+    findUnberthing(startDate, endDate, authHeader) {
+        return axios.get(StockRepository.server + "/unberthing/", {
+            headers: this.getHeaders(authHeader),
+            params: {
+                startDate: startDate, endDate: endDate
+            }
+        });
     }
 
     findUnberthingById(id, authHeader) {
@@ -313,9 +318,19 @@ class StockRepository {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
+    findArrival_noteNotInvoiced(startDate, endDate, userid, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/notInvoiced/" + userid, {
+            headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
     findArrival_noteFilterByclient(startDate, endDate, userid, clientId, authHeader) {
         return axios.get(StockRepository.server + "/arrival_note/filterbyclient/" + userid + '/' + clientId, {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+    findArrival_noteFilterbyid(arrivalId, authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/filterbyid/" + arrivalId, {
+            headers: this.getHeaders(authHeader)
         }).catch(() => StockCommons.RedirectToLogin());
     }
     findArrival_noteFilterByUser(startDate, endDate, userid, authHeader) {
@@ -585,6 +600,11 @@ class StockRepository {
             params: { startDate: startDate, endDate: endDate }
         });
     }
+    findTruck_parking_invById(invId, authHeader) {
+        return axios.get(StockRepository.server + "/truck_parking_invoice/getInvById/" + invId, {
+            headers: this.getHeaders(authHeader)
+        });
+    }
     findTrucksInvoicesNoGrp(authHeader, startDate, endDate) {
         return axios.get(StockRepository.server + "/truck_parking_invoice/allInvoicesNoGrp", {
             headers: this.getHeaders(authHeader),
@@ -593,6 +613,12 @@ class StockRepository {
     }
     finNongroupedinvoicesbydate(authHeader, startDate, endDate) {
         return axios.get(StockRepository.server + "/truck_parking_invoice/allInvoicesNoGrp", {
+            headers: this.getHeaders(authHeader),
+            params: { startDate: startDate, endDate: endDate }
+        });
+    }
+    finNongroupedinvoicesbydateNotReceipted(authHeader, startDate, endDate) {
+        return axios.get(StockRepository.server + "/truck_parking_invoice/allInvoicesNoGrpNotReceipted", {
             headers: this.getHeaders(authHeader),
             params: { startDate: startDate, endDate: endDate }
         });
@@ -683,8 +709,19 @@ class StockRepository {
         });
     }
 
+    findGen_NonReceiptedinvoice(authHeader, startDate, endDate) {
+        return axios.get(StockRepository.server + "/gen_invoice/nonReceipted", {
+            headers: this.getHeaders(authHeader),
+            params: { startDate: startDate, endDate: endDate }
+        });
+    }
+
     findGen_invoiceById(id, authHeader) {
         return axios.get(StockRepository.server + "/gen_invoice/" + id, { headers: this.getHeaders(authHeader) })
+            .catch(() => StockCommons.RedirectToLogin());
+    }
+    findGen_DetailedinvoiceById(id, authHeader) {
+        return axios.get(StockRepository.server + "/gen_invoice/getInvoicesById/" + id, { headers: this.getHeaders(authHeader) })
             .catch(() => StockCommons.RedirectToLogin());
     }
 
@@ -796,7 +833,7 @@ class StockRepository {
             {
                 headers: this.getHeaders(authHeader),
                 params: {
-                    username: username 
+                    username: username
                 }
             })
         // .catch(() => StockCommons.RedirectToLogin());

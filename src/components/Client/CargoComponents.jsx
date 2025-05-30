@@ -25,7 +25,7 @@ export const CargoGrpByByItem = ({ clientsItems }) => {
                 <td className="text-center" style={localHead}>Quantity </td>
                 <td className="text-center" style={localHead}>Weight </td>
             </tr>
-            <tbody> {clientsItems.map((client, index) => (
+            <tbody> { clientsItems && clientsItems.map((client, index) => (
                 <tr>
                     <td className="text-center">{client.id}</td>
                     <td className="text-center">{client.arrivalNote}</td>

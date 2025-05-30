@@ -11,7 +11,7 @@ import TableHead from '../../Global/TableHead'
 import SearchBox from '../../Global/SearchBox'
 import 'react-datepicker/dist/react-datepicker.css'
 import ContainerRow, { ClearBtnSaveStatus, ContainerRowBtwn, ContainerRowHalf, FormInnerRightPane, FormSidePane, SaveUpdateBtns } from '../../Global/ContainerRow'
-import InputRow, { DropDownInput, EmptyInputRow, LongTextINputRow } from '../../Global/Forms/InputRow'
+import InputRow, { DropDownInput, EmptyInputRow, InputReadOnly, LongTextINputRow } from '../../Global/Forms/InputRow'
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
@@ -22,6 +22,7 @@ import StockCommons from '../../services/StockServices/StockCommons'
 import StockRepository from '../../services/StockServices/StockRepository'
 import { useNavigate } from 'react-router-dom'
 import CurrentDate from '../../Global/CurrentDate';
+import { Col, Row } from 'react-bootstrap';
 
 
 function Gen_receipt() {
@@ -53,7 +54,7 @@ function Gen_receipt() {
   const [startDate, setStartDate] = useState(CurrentDate.todaydate())
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
 
-
+  const [showRecepted, setShowReceipted] = useState(false)
   /*#region ---------- SAVING DATA TO DB--------------------------------------*/
   const onSubmitHandler = (e) => {
     e.preventDefault()
@@ -83,32 +84,50 @@ function Gen_receipt() {
   /*#endregion Listing data*/
 
   /*#region ------------All Records, Deleting and By Id------------------------*/
-  const getAllGen_invoices = (page, size) => {
-    StockRepository.findGen_invoice(page, size, authHeader).then((res) => {
+  const getAllGen_invoices = () => {
+    StockRepository.findGen_invoice(authHeader, startDate, endDate).then((res) => {
       setGen_invoices(res.data);
       setDataLoad(true)
 
     });
   }
-  const getAllTruck_parking_invoices = ( ) => {
-    StockRepository.findTruck_parking_invoice(  authHeader ,startDate, endDate).then((res) => {
+  const findGen_NonReceiptedinvoice = () => {
+    StockRepository.findGen_NonReceiptedinvoice(authHeader, startDate, endDate).then((res) => {
+      setGen_invoices(res.data);
+      setDataLoad(true)
+
+    });
+  }
+  const getAllTruck_parking_invoices = () => {
+    StockRepository.findTruck_parking_invoice(authHeader, startDate, endDate).then((res) => {
       setTruck_parking_invoices(res.data);
       setDataLoad(true)
     });
   }
 
   const getAllGen_receipts = () => {
-    StockRepository.findGen_receipt(  authHeader,startDate,endDate).then((res) => {
+    StockRepository.findGen_receipt(authHeader, startDate, endDate).then((res) => {
       setGen_receipts(res.data);
       setDataLoad(true)
 
     });
   }
+  useEffect(() => {
+    if (showRecepted) {
+      getAllGen_invoices()
+    } else {
+      findGen_NonReceiptedinvoice()
+    }
+  }, [showRecepted])
 
   useEffect(() => {
     getAllGen_receipts(0, 20)
     getAllTruck_parking_invoices(startDate, endDate)
-    getAllGen_invoices()
+    if (showRecepted) {
+      getAllGen_invoices()
+    } else {
+      findGen_NonReceiptedinvoice()
+    }
     //Get Token and catname
     setUserType(localStorage.getItem('catname'))
 
@@ -179,13 +198,17 @@ function Gen_receipt() {
     }
   }, [genReceiptPrint])
 
+  const [invoiceDetails, setInvoiceDetails] = useState([])
 
   const getInvoiceById = (invoice_id) => {
-    StockRepository.findGen_invoiceById(invoice_id, authHeader).then((res) => {
-      setInvoice_id(res.data.id)
-      setTotalAmount(res.data.total_amount)
-      setAmount(res.data.total_amount)
-    })
+    if (invoice_id) {
+      setInvoice_id(invoice_id)
+      StockRepository.findGen_DetailedinvoiceById(invoice_id, authHeader).then((res) => {
+        setTotalAmount(res.data.amount)
+        setAmount(res.data.amount)
+        setInvoiceDetails(res.data)
+      })
+    }
   }
   const getCommonSearchByDate = (date1, date2) => {
     setStartDate(date1)
@@ -201,10 +224,28 @@ function Gen_receipt() {
           <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
             <DropDownInput handle={(e) => getInvoiceById(e.target.value)} name='Invoice' label='Invoice' >
               {gen_invoices.map((invoice) => (
-                <option value={invoice.id} key={invoice.id}>   {invoice.id} ----------- RWF{(invoice.amount).toLocaleString()} --------- {(invoice.total_weight).toLocaleString()}KG </option>
+                <option value={invoice.id} key={invoice.id} >   {invoice.id} ----------- RWF{(invoice.amount).toLocaleString()} --------- {(invoice.total_weight).toLocaleString()}KG </option>
               ))}
             </DropDownInput>
+            {userType == 'admin' &&
+              <Row>
+                <Col md={3}></Col>
+                <Col md={6}>
+                  <input type="checkbox" id="receiptedInvoices" onChange={() => setShowReceipted(!showRecepted)} /> <label for="receiptedInvoices">Show receipted</label>
+                </Col>
+              </Row>}
             <InputRow name='Amount ' val={amount} handle={(e) => setAmount(e.target.value)} label='lblamount' />
+
+
+            <InputReadOnly name='Date Time' val={invoiceDetails[0]?.date_time} label='lblget_out_time' />
+            <InputReadOnly name='Weight(KG)' val={invoiceDetails[0]?.total_weight.toLocaleString()} label='lblget_weight' />
+            <InputReadOnly name='Amount' val={invoiceDetails[0]?.total_amount.toLocaleString()} label='lblget_amount' />
+            <InputReadOnly name='Description' val={invoiceDetails[0]?.description} label='lblget_desc' />
+            <InputReadOnly name='ArrivalId No.' val={invoiceDetails[0]?.arrivalId} label='lblget_an' />
+            <InputReadOnly name='Process' val={invoiceDetails[0]?.destIName} label='lblget_an' />
+            <InputReadOnly name='Client' val={invoiceDetails[0]?.clientName} label='lblget_an' />
+            <InputReadOnly name='Tin Number' val={invoiceDetails[0]?.tinNumber} label='lblget_an' />
+
 
             <LongTextINputRow name='Description ' val={description} handle={(e) => setDescription(e.target.value)} label='lbldesc' />
             <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />

@@ -28,6 +28,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import SearchResultTable from '../../sale/SearchResultTable'
 import { TitleSmallDesc } from '../../../globalcomponents/TitleSmallDesc'
 import { SmallSplitter, Splitter } from '../../../globalcomponents/Splitter'
+import CurrentDate from '../../../Global/CurrentDate';
 
 
 function Unberthing() {
@@ -59,12 +60,14 @@ function Unberthing() {
   const authHeader = useAuthHeader()();
   const navigate=useNavigate()
 
-  /* #region ------------------SEARCH VESSEL BY TYPING ------------------------------------------------- */
+ /* #region ------------------SEARCH VESSEL BY TYPING ------------------------------------------------- */
   const { searchTableVisible, setSearchTableVisible } = useContext(ColItemContext)
   const { showSelected, setShowSelected } = useContext(ColItemContext)
   const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
   const inputRef = useRef(null);
   const [itemssbyname, setItemssbyname] = useState([]) //Data List searched by name
+  const  [startDate,setStartDate]=useState(CurrentDate.todaydate())
+  const  [endDate,setEndDate]=useState(CurrentDate.todaydate())
   const hideSelectorLink = () => {
     setShowSelected(false)
     setSearchItemValue('')
@@ -90,8 +93,6 @@ function Unberthing() {
       // setCompletedSearch(false)
       // setSearchProgress(true) // Go and show the progress bar,
     }
-
-
   }
   //previous steps
   const [sName, setSName] = useState()
@@ -211,8 +212,8 @@ function Unberthing() {
   /*#endregion Listing data*/
 
   /*#region ------------All Records, Deleting and By Id------------------------*/
-  const getAllUnberthings = (page, size) => {
-    StockRepository.findUnberthing(page, size, authHeader).then((res) => {
+  const getAllUnberthings = ( ) => {
+    StockRepository.findUnberthing(startDate, endDate, authHeader).then((res) => {
       setUnberthings(res.data);
       setDataLoad(true)
 
@@ -300,9 +301,14 @@ function Unberthing() {
     }
 
   },[unberthPrint])
+
+  const getCommonSearchByDate=(date1,date2)=>{
+    setStartDate(date1)
+    setEndDate(date2)
+    setRefresh(!refresh)
+  }
   return (
     <PagesWapper>
-
       <AnimateHeight id="animForm" duration={300} animateOpacity={true} height={height}>
         <ContainerRowBtwn clearBtn={clearBtn} form={'Unberthing'} showLoader={showLoader}  >
           <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
@@ -409,7 +415,7 @@ function Unberthing() {
       <ContainerRow mt='3'>
         <ListToolBar listTitle='Unberthing List' height={height} entity='Unberthing' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
-          <SearchBox />
+          <SearchBox    getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
 
         <div ref={componentRef} className="dataTableBox">

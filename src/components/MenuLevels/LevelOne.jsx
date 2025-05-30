@@ -240,7 +240,6 @@ function LevelOne({ visible }) {
     const userIsAdmin = ['addVessel', 'updateVessel', 'deleteVessel', 'viewVessel', 'addBooking', 'updateBooking', 'deleteBooking', 'viewBooking', 'addGate', 'updateGate', 'deleteGate', 'viewGate', 'addBerthInvoice', 'updateBerthInvoice', 'deleteBerthInvoice', 'viewBerthInvoice', 'addBerthReceipt', 'updateBerthReceipt', 'deleteBerthReceipt', 'viewBerthReceipt', 'addBerthExit', 'updateBerthExit', 'deleteBerthExit', 'viewBerthExit', 'addGateEntry', 'updateGateEntry', 'deleteGateEntry', 'viewGateEntry', 'addGateInvoice', 'updateGateInvoice', 'deleteGateInvoice', 'viewGateInvoice', 'addGateReceipt', 'updateGateReceipt', 'deleteGateReceipt', 'viewGateReceipt', 'addGateExit', 'updateGateExit', 'deleteGateExit', 'viewGateExit', 'addOpsArrivalNote', 'updateOpsArrivalNote', 'deleteOpsArrivalNote', 'viewOpsArrivalNote', 'addOpsInvoice', 'updateOpsInvoice', 'deleteOpsInvoice', 'viewOpsInvoice', 'addOpsReceipt', 'updateOpsReceipt', 'deleteOpsReceipt', 'viewOpsReceipt', 'addOpsExit', 'updateOpsExit', 'deleteOpsExit', 'viewOpsExit']
         .every(role => userRoles.includes(role))
 
-
     const userIsBerthOfficer = ["addVessel", "updateVessel", "deleteVessel", "viewVessel", "addBooking", "updateBooking", "deleteBooking", "viewBooking", "addBerthExit", "updateBerthExit", "deleteBerthExit", "viewBerthExit"]
         .every(role => userRoles.includes(role))
     const userIsGateOfficer = ["addGateEntry", "updateGateEntry", "deleteGateEntry", "viewGateEntry"]

@@ -250,7 +250,7 @@ export const Client = () => {
                   
 
                     <SearchformAnimation searchHeight={searchHeight}>
-                        <SearchBox noDates={true} noDates={true} />
+                        <SearchBox noDates={true}   />
                     </SearchformAnimation>
                 </ContainerRow>
 
@@ -335,7 +335,7 @@ export const Client = () => {
                             {/* <td className='delButton'>Option </td> */}
                         </TableHead>
                         <tbody>
-                            {clients.length > 0 && clients.map((client) => (
+                            {clients && clients.map((client) => (
                                 <tr key={client.id}>
                                     <td>{client?.name}</td>
                                     <td>{client?.surname}</td>

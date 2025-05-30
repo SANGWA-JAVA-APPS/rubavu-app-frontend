@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import Utils from './Utils';
+import CurrentDate from './CurrentDate';
 
 
 
@@ -95,6 +96,16 @@ export const AppDataContextProvider = ({ children }) => {
 
   /* #region ----tracking the pressed key in the textbox ---- */
   const [pressedKey, setPressedKey] = useState('');
+
+  const [commonArray,setCommonArray]=useState([])
+  
+   const [commonsDate, setCommonSDate] = useState(CurrentDate.todaydate())
+    const [commoneDate, setCommoneDate] = useState(CurrentDate.todaydate())
+
+
+
+
+
   const handleKeyPress = (event) => {
     setPressedKey(event.key);
     if (event.key === 'Enter') {
@@ -198,7 +209,8 @@ export const AppDataContextProvider = ({ children }) => {
       disableBodyScroll, arrivalInvModal, setArrivalInvModal,
       dataTodisplayInModal, setDataTodisplayInModal, // this holds the data type to be displayed in the modal, so is for now the report and dashboard data
       HandlingObj, setHandlingObj,
-      checkAll, setcheckAll, myRecords, setMyRecords,process, setProcess
+      checkAll, setcheckAll, myRecords, setMyRecords,process, setProcess,
+      commonArray,setCommonArray,commonsDate, setCommonSDate,commoneDate, setCommoneDate
     }}>
       {children}
     </ColItemContext.Provider>

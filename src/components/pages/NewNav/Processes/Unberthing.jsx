@@ -28,7 +28,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import SearchResultTable from '../../sale/SearchResultTable'
 import { TitleSmallDesc } from '../../../globalcomponents/TitleSmallDesc'
 import { SmallSplitter, Splitter } from '../../../globalcomponents/Splitter'
+<<<<<<< HEAD
 import CurrentDate from '../../../Global/CurrentDate';
+=======
+import { FaTrash } from 'react-icons/fa'
+>>>>>>> 1e23a1f (fix: initial audit logs)
 
 
 function Unberthing() {
@@ -216,13 +220,12 @@ function Unberthing() {
     StockRepository.findUnberthing(startDate, endDate, authHeader).then((res) => {
       setUnberthings(res.data);
       setDataLoad(true)
-
     });
   }
 
   useEffect(() => {
-    getAllUnberthings(0, 20)
-
+    const result = getAllUnberthings(0, 20)
+    console.log(result)
     //Get Token and catname
     setUserType(localStorage.getItem('catname'))
 
@@ -457,8 +460,13 @@ function Unberthing() {
                   <td>{unberthing.quay_amount}   </td>
                   <td>{unberthing.vessel_handling_charges}   </td>
 
-                  {userType == 'admin' && <ListOptioncol print={true}
-                   printData={()=>printData(unberthing)} getEntityById={() => getUnberthingById(unberthing.id)} delEntityById={() => delUnberthingById(unberthing.id)} />}
+                  {userType == 'admin' && (
+                    <td className='delButton'>
+                      <button className="btn btn-danger btn-sm" onClick={() => delUnberthingById(unberthing.id)} title="Delete Unberthing">
+                        <FaTrash />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}</tbody>
           </TableOpen>

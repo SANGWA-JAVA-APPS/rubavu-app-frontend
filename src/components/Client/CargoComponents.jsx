@@ -9,7 +9,7 @@ export const CargoComponents = () => {
     )
 }
 
-export const CargoGrpByByItem = ({ clientsItems }) => {
+export const CargoGrpByByItem = ({ clientsItems = [] }) => {
      const localHead = {
         padding: '12px', color: '#fff'
     }
@@ -25,16 +25,25 @@ export const CargoGrpByByItem = ({ clientsItems }) => {
                 <td className="text-center" style={localHead}>Quantity </td>
                 <td className="text-center" style={localHead}>Weight </td>
             </tr>
-            <tbody> { clientsItems && clientsItems.map((client, index) => (
-                <tr>
+            <tbody> 
+                {clientsItems && clientsItems.length > 0 ? (
+                    clientsItems.map((client, index) => (
+                        <tr key={`${client.id}-${index}`}>
                     <td className="text-center">{client.id}</td>
                     <td className="text-center">{client.arrivalNote}</td>
                     <td className="text-center" style={{ fontWeight: 'bold', color: '#000' }}>
-                         {((client.quantity ?? 1)  ).toLocaleString()}  </td>
-                    <td className="text-center" style={{ fontWeight: 'bold', color: '#000' }}> {((client.quantity ?? 1) * (client.weight ?? 1)).toLocaleString()}  KG</td>
-
+                                {((client.quantity ?? 1)).toLocaleString()}  
+                            </td>
+                            <td className="text-center" style={{ fontWeight: 'bold', color: '#000' }}> 
+                                {((client.quantity ?? 1) * (client.weight ?? 1)).toLocaleString()}  KG
+                            </td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="4" className="text-center">No cargo items found</td>
                 </tr>
-            ))}
+                )}
             </tbody>
         </table>
     </>

@@ -32,6 +32,7 @@ import { Col, Row } from 'react-bootstrap'
 import { red } from '@mui/material/colors'
 import { Link, useNavigate } from 'react-router-dom'
 import { setRef } from '@mui/material'
+import StockDelete from '../../../services/StockServices/StockDelete'
 
 
 export const Bollards = () => {
@@ -243,6 +244,7 @@ export const Bollards = () => {
     })
   }
   const delBerthingById = (id) => {
+    console.log(id)
     Utils.Submit(() => {
       StockDelete.deleteBerthingById(id).then(() => {
         setRefresh(!refresh)

@@ -29,6 +29,7 @@ import { Col, Row } from 'react-bootstrap'
 import CurrentDate from '../Global/CurrentDate'
 import { useNavigate } from 'react-router-dom';
 import { setRef } from '@mui/material';
+import StockDelete from '../services/StockServices/StockDelete'
 
 function Truck_exit() {
 

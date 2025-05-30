@@ -18,6 +18,7 @@ import ListOptioncol, { TableOpen } from '../../Global/ListTable'
 import Utils from '../../Global/Utils'
 import Commons from '../../services/Commons'
 import Repository from '../../services/Repository'
+import StockDelete from '../../services/StockServices/StockDelete'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 
 

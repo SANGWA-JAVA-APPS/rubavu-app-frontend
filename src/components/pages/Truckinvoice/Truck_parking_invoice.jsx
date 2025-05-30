@@ -27,6 +27,7 @@ import SeaarchBytyping, { SearchTableResult } from '../../globalcomponents/Seaar
 import { TableRows, TruckTableRows } from '../Invoice/Invoice'
 import CurrentDate from '../../Global/CurrentDate'
 import { useNavigate } from 'react-router-dom';
+import StockDelete from '../../services/StockServices/StockDelete'
 
 
 

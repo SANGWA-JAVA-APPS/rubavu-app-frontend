@@ -80,6 +80,9 @@ import { TruckExitPrint } from './components/pages/Entry/TruckExitPrint';
 import { Client } from './components/Client/Client';
 import RraRecords from './components/pages/reporting/RraRecords';
 import Berthinginvoice from './components/pages/auditing/Berthinginvoice';
+import AuditingTabs from './components/pages/auditing/AuditingTabs';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 
 function App() {
 
@@ -89,7 +92,7 @@ function App() {
     // body.classList.add('allPagesBg')
   }, [])
   return (
-    <>
+    <Provider store={store}>
       <BrandProvider>
         <StockOrBisnessProvider>
           <AppDataContextProvider>
@@ -254,7 +257,7 @@ function App() {
                     <RraRecords />
                   </RequireAuth>} />
                   <Route path="/appauditing" element={<RequireAuth loginPath="/login">
-                    <Berthinginvoice />
+                    <AuditingTabs />
                   </RequireAuth>} />
 
                 </Routes>
@@ -263,7 +266,7 @@ function App() {
           </AppDataContextProvider>
         </StockOrBisnessProvider>
       </BrandProvider>
-    </>
+    </Provider>
   )
 }
 export default App

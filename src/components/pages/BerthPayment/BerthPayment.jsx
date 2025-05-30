@@ -16,7 +16,7 @@ import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
 import Utils from '../../Global/Utils'
-
+import StockDelete from '../../services/StockServices/StockDelete'
 
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 import StockRepository from '../../services/StockServices/StockRepository'
@@ -130,11 +130,19 @@ function Berthpayment() {
         })
     }
     const delBerthpaymentById = (id) => {
-        Utils.Submit(() => {
-            StockDelete.deleteBerthpaymentById(id).then(() => {
-                setRefresh(!refresh)
-            })
-        }, () => { })
+        Utils.Submit(
+            () => {
+                StockDelete.deleteBerthpaymentById(id)
+                    .then(() => {
+                        setRefresh(!refresh)
+                    })
+                    .catch((error) => {
+                        console.error('Delete error:', error)
+                    })
+            },
+            () => {
+            }
+        )
     }
     /*#endregion Listing data*/
 

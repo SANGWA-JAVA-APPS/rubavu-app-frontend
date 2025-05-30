@@ -41,6 +41,7 @@ function Invoice() {
   const [id, setId] = useState()
   const [quay_amount, setQuay_amount] = useState()
   const [etd, setEtd] = useState()
+  const [isEditing, setIsEditing] = useState(false)
 
   const [vessel_id, setVessel_id] = useState()
   const { searchItemValue, setSearchItemValue, obj, setObj } = useContext(ColItemContext)

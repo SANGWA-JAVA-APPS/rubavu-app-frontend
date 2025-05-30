@@ -194,7 +194,7 @@ function TvVessel() {
                     <td>{vessel.plate_number}   </td>
                     <td>{vessel.dimension}   </td>
                     <td>{vessel.capacity}   </td>
-
+          
                     {userType == 'admin' && <ListOptioncol getEntityById={() => getVesselById(vessel.id)} delEntityById={() => delVesselById(vessel.id)} />}
                   </tr>
                 ))}</tbody>

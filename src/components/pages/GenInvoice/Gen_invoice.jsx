@@ -34,6 +34,7 @@ import { ArrivalMovementsSummary } from '../Arrivalnote/ArrivalMovementsSummary'
 import CurrentDate from '../../Global/CurrentDate'
 import { BillDetails } from './BillDetails'
 import { StorageCalculation } from '../Dashboard/StorageCalculation';
+import StockDelete from '../../services/StockServices/StockDelete'
 
 function Gen_invoice() {
 
@@ -138,7 +139,8 @@ function Gen_invoice() {
   /*#region ------------All Records, Deleting and By Id------------------------*/
   const getAllGen_invoices = () => {
     StockRepository.findGen_invoice(authHeader, date1, date2).then((res) => {
-      setGen_invoices(res.data);
+      console.log(res.data)
+      setGen_invoices(res.data.filter(gen_invoice => !gen_invoice.isDeleted));
       setDataLoad(true)
     });
   }
@@ -192,9 +194,9 @@ function Gen_invoice() {
       showheight('auto')
     })
   }
-  const delGen_invoiceById = (id) => {
+  const deleteGenInvoiceById = (id) => {
     Utils.Submit(() => {
-      StockDelete.deleteGen_invoiceById(id).then(() => {
+      StockDelete.deleteGenInvoiceById(id).then(() => {
         setRefresh(!refresh)
       })
     }, () => { })
@@ -477,7 +479,7 @@ function Gen_invoice() {
                     {userType == 'admin' && <ListOptioncol print={true}
                       printData={() => printInvoice(gen_invoice.destIName, gen_invoice.source_id, gen_invoice.dest_id, gen_invoice.destCat, gen_invoice.arrivalId, gen_invoice.id, gen_invoice
                       )} getEntityById={() => getGen_invoiceById(gen_invoice.id)}
-                      delEntityById={() => delGen_invoiceById(gen_invoice.id)} />}
+                      delEntityById={() => deleteGenInvoiceById(gen_invoice.id)} />}
                   </tr>
                 )
               }

@@ -41,13 +41,23 @@ class Utils {
       buttons: [
         {
           label: 'Yes',
-          onClick: ClickedYes
+          onClick: () => {
+            if (typeof ClickedYes === 'function') {
+              ClickedYes();
+            }
+          }
         },
         {
           label: 'No',
-          onClick: ClickedNo
+          onClick: () => {
+            if (typeof ClickedNo === 'function') {
+              ClickedNo();
+            }
+          }
         }
-      ]
+      ],
+      closeOnEscape: true,
+      closeOnClickOutside: true
     });
   };
 

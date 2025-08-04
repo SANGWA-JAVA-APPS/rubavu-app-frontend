@@ -27,8 +27,7 @@ class StockRepository {
     }
 
     Login(authRequest) {
-
-        return axios.post(StockConn.server.name + StockConn.port.val + "authenticate", authRequest, { headers: StockRepository.headers }
+        return axios.post( "/authenticate", authRequest, { headers: StockRepository.headers }
         )
     }
     findCategoriesCount() {

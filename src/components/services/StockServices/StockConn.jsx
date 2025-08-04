@@ -21,7 +21,8 @@ export default class StockConn {
         stockVal: 'stock/api'
     }
     static wholePath = {
-        name: StockConn.server.name + StockConn.port.val + StockConn.basicPath.val  /*  http://localhost:8089/guru/api  */
+        // name: StockConn.server.name + StockConn.port.val + StockConn.basicPath.val  /*  http://localhost:8089/guru/api  */
+        name:  StockConn.basicPath.val  /*  /codeguru/api  */
     }
     static sbp = { /* Stock basic path (sbp) This is used on the settings, but it can/shall be used even for other endpoints, it maded in order to expand endpoinds*/
         name: StockConn.server.name + StockConn.port.val + StockConn.basicPath.stockVal

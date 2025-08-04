@@ -1,0 +1,38 @@
+name: RUBAVU REACT APP CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'build/**'
+
+jobs:
+  deploy-react:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1 - Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2 - Set up SSH agent
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.MY_LINUX }}
+
+      # Step 3 - Rename build folder and copy to server
+      - name: Copy and rename build folder to server
+        run: |
+          mv build rubavu-app-frontend
+          scp -r -o StrictHostKeyChecking=no \
+              rubavu-app-frontend \
+              root@108.181.190.111:/home/administrator/apps_backup/
+
+      # Step 4 - Run remote frontend deploy script
+      - name: Run remote deploy script
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              root@108.181.190.111 \
+              "/bin/bash /home/administrator/apps_backup/shell_cmds/mgrport-frontend.sh"

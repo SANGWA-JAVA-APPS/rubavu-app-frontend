@@ -1,11 +1,7 @@
 name: RUBAVU REACT APP CI/CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'build/**'
+  push:  # <-- runs on ANY push to ANY branch
 
 jobs:
   deploy-react:
@@ -30,7 +26,7 @@ jobs:
               rubavu-app-frontend \
               root@108.181.190.111:/home/administrator/apps_backup/
 
-      # Step 4 - Run remote frontend deploy script
+      # Step 4 - Run remote deploy script
       - name: Run remote deploy script
         run: |
           ssh -o StrictHostKeyChecking=no \

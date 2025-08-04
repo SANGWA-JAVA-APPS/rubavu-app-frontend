@@ -220,7 +220,11 @@ export const PrintRow = ({ txt, txtValue }) => {
     </>
   )
 }
-export const PrintSignature = ()=>{
+
+export const usertoEditprint = (userType) => {
+  return userType === "Ops Supervisor" || userType === "admin";
+}
+export const PrintSignature = () => {
   return (<Col md={11} style={{ marginBottom: '40px' }}>
     <Row style={{ position: 'absolute', width: '90%', bottom: '40px' }}>
       <table>

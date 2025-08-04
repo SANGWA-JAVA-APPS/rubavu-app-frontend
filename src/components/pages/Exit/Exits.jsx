@@ -15,7 +15,7 @@ import InputRow, { DropDownInput, EmptyInputRow } from '../../Global/Forms/Input
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 import Commons from '../../services/Commons'
 import Repository from '../../services/Repository'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
@@ -170,7 +170,7 @@ function Exits() {
                 <td>Date Time </td>
                 <td>Arrival Id </td>
 
-                {userType == 'admin' && <td className='delButton'>Option</td>}
+                {usertoEditprint(userType) && <td className='delButton'>Option</td>}
               </TableHead>
               <tbody>
                 {exitss.map((exits) => (
@@ -179,7 +179,7 @@ function Exits() {
                     <td>{exits.date_time}   </td>
                     <td>{exits.arrival_id}   </td>
 
-                    {userType == 'admin' && <ListOptioncol getEntityById={() => getExitsById(exits.id)} delEntityById={() => delExitsById(exits.id)} />}
+                    {usertoEditprint(userType) && <ListOptioncol role="addBerthExit" getEntityById={() => getExitsById(exits.id)} delEntityById={() => delExitsById(exits.id)} />}
                   </tr>
                 ))}</tbody>
             </TableOpen>

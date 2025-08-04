@@ -16,7 +16,7 @@ import InputRow, { DropDownInput, EmptyInputRow } from '../../Global/Forms/Input
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 import StockCommons from '../../services/StockServices/StockCommons'
@@ -194,7 +194,7 @@ function Gen_exit() {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='Exit List' height={height} entity='Gen_exit' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='Exit List' role="addOpsExit" height={height} entity='Gen_exit' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -216,7 +216,7 @@ function Gen_exit() {
               <td>  total weight</td>
               <td> Invoice amount</td>
 
-              {userType == 'admin' && <td className='delButton '>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
               {gen_exits.map((gen_exit) => (
@@ -229,7 +229,9 @@ function Gen_exit() {
                   <td>{gen_exit.total_weight}   </td>
                   <td>{gen_exit.total_amount}   </td>
 
-                  {userType == 'admin' && <ListOptioncol print={true} printData={() => printReceipt(gen_exit)} getEntityById={() => getGen_exitById(gen_exit.id)} delEntityById={() => delGen_exitById(gen_exit.id)} />}
+                  {usertoEditprint(userType) && <ListOptioncol 
+                  editRole="updateOpsExit" deleteRole="deleteOpsExit"
+                   print={true} printData={() => printReceipt(gen_exit)} getEntityById={() => getGen_exitById(gen_exit.id)} delEntityById={() => delGen_exitById(gen_exit.id)} />}
                 </tr>
               ))}</tbody>
           </TableOpen>

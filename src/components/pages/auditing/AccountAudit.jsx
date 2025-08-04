@@ -178,7 +178,7 @@ function AccountAudit() {
                                             <td>{audit.username}</td>
                                             <td>{audit.entityId}</td>
                                             <td>{audit.timestamp ? new Date(audit.timestamp).toLocaleString() : '-'}</td>
-                                            <td style={{ backgroundColor: 'beige' }}>{audit.revisionType}</td>
+                                            <td style={{ backgroundColor: 'beige' }}>{'ADD'==audit.revisionType?'INSERT': audit.revisionType}</td>
                                             <td>{audit.accountUsername}</td>
                                             <td>{audit.email}</td>
                                             <td>{audit.status}</td>

@@ -15,7 +15,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputOnlyReadOnly, InputReadOnl
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 import StockDelete from '../../services/StockServices/StockDelete'
 
 import { ColItemContext } from '../../Global/GlobalDataContentx'
@@ -68,7 +68,7 @@ function Berthpayment() {
         setShowLoader(true)
 
         var berthpayment = {
-            id: id, invoice_id: invoice_id, date_time: date_time, payment: payment.replace(/,/g, ""), description: description
+            id: id, invoice_id: invoice_id, date_time: CurrentDate.CurrentDateTime(), payment: payment.replace(/,/g, ""), description: description
         }
         if (id) {
             StockCommons.updateBerthpayment(berthpayment, id, authHeader).then((res) => {
@@ -95,8 +95,8 @@ function Berthpayment() {
     /*#endregion Listing data*/
 
     /*#region ------------All Records, Deleting and By Id------------------------*/
-    const getAllBerthpayments = (page, size) => {
-        StockRepository.findBerthpayment(page, size, authHeader).then((res) => {
+    const getAllBerthpayments = ( ) => {
+        StockRepository.findBerthpayment( startDate, endDate ,authHeader).then((res) => {
             setBerthpayments(res.data);
             setDataLoad(true)
         });
@@ -225,7 +225,8 @@ function Berthpayment() {
                         </DropDownInput>
 
                         <InputReadOnly name='Total Payment' val={totalReceipt} handle={(e) => setPayment(e.target.value)} label='lblpayment' />
-                        <InputRow name='Paid Amount' val={payment} handle={(e) => setPayment(e.target.value)} label='lblpayment' />
+                       
+                        {/* <InputRow name='Paid Amount' val={payment} handle={(e) => setPayment(e.target.value)} label='lblpayment' /> */}
 
                         <LongTextINputRow name='Description ' val={description} handle={(e) => setDescription(e.target.value)} label='lbldesc' />
 
@@ -236,7 +237,7 @@ function Berthpayment() {
                 </ContainerRowBtwn>
             </AnimateHeight>
             <ContainerRow mt='3'>
-                <ListToolBar listTitle='Berth payment List' height={height} entity='Berth payment' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+                <ListToolBar listTitle='Berth payment List' role="addBerthReceipt" height={height} entity='Berth payment' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
                 <SearchformAnimation searchHeight={searchHeight}>
                     <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
                 </SearchformAnimation>
@@ -253,7 +254,7 @@ function Berthpayment() {
                             <td className="text-center">Vessel Name </td>
                             <td className="text-center">Vessel Operator </td>
                             <td className="text-center">Description </td>
-                            {userType == 'admin' && <td className='delButton '>Option</td>}
+                            {usertoEditprint(userType) && <td className='delButton '>Option</td>}
                         </TableHead>
                         <tbody>
                             
@@ -269,7 +270,8 @@ function Berthpayment() {
                                     <td className="text-center">{ berthpayment?.mdl_invoice?.mdl_vessel?.name}   </td>
                                     <td className="text-center">{ berthpayment?.mdl_invoice?.mdl_vessel?.owner_operator}   </td>
                                     <td className="text-center">{berthpayment.description}   </td>
-                                    {userType == 'admin' && <ListOptioncol print={true}
+                                    {usertoEditprint(userType) && <ListOptioncol print={true}
+                                    editRole="updateBerthReceipt" deleteRole="deleteBerthReceipt"
                                         printData={() => printData(berthpayment)} getEntityById={() => getBerthpaymentById(berthpayment.id)} delEntityById={() => delBerthpaymentById(berthpayment.id)} />}
                                 </tr>
                             ))}

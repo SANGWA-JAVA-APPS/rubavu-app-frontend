@@ -16,7 +16,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputRowDateNoLabel, LongTextIN
 import FormTools from '../../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../../Global/ListTable'
-import Utils from '../../../Global/Utils'
+import Utils, { usertoEditprint } from '../../../Global/Utils'
 
 
 import { ColItemContext } from '../../../Global/GlobalDataContentx'
@@ -422,7 +422,7 @@ export const Bollards = () => {
                 </Row>
               </Col>
             </Row>
-            
+
             <DropDownInput handle={(e) => setBollard_or_vessel(e.target.value)} name='Bollard / Vessel ' label='Bollard' >
               <option selected={bollard_or_vessel == 'Bollard'} value={"Bollard"}  >Bollard   </option>
               <option selected={bollard_or_vessel == 'Vessel'} value={"Vessel"}  >vessel   </option>
@@ -487,7 +487,8 @@ export const Bollards = () => {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='Berthing List' height={height} entity='Berthing' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='Berthing List' role="addBerthing"
+          height={height} entity='Berthing' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -509,9 +510,7 @@ export const Bollards = () => {
               <td>plate n. </td>
               <td>dimension   </td>
               <td>capacity (ton)   </td>
-             
-
-              {userType == 'admin' && <td className='delButton'>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton'>Option</td>}
             </TableHead>
             <tbody>
               {berthings.map((berthing) => (
@@ -523,7 +522,7 @@ export const Bollards = () => {
                   </td>
                   <td>{berthing.etd}   </td>
                   <td>{berthing.bollard_or_vessel}   </td>
-                  <td>{berthing.bollard_or_vessel==='Vessel'? berthing.vesselOne+' - '+berthing.vesselTwo: berthing.vessel_or_bollard_refId    }  </td>
+                  <td>{berthing.bollard_or_vessel === 'Vessel' ? berthing.vesselOne + ' - ' + berthing.vesselTwo : berthing.vessel_or_bollard_refId}  </td>
 
                   <td>{berthing.vessel_arr_draft}   </td>
                   <td>{berthing.description}   </td>
@@ -531,8 +530,8 @@ export const Bollards = () => {
                   <td>{berthing.plate_number}   </td>
                   <td>{berthing.dimension}   </td>
                   <td>{berthing.capacity && (Number(berthing.capacity)).toLocaleString()}   </td>
-                  
-                  {userType == 'admin' && <ListOptioncol getEntityById={() => getBerthingById(berthing.id)} delEntityById={() => delBerthingById(berthing.id)}
+
+                  {usertoEditprint(userType) && <ListOptioncol editRole="updateBerthing" deleteRole="deleteBerthing" getEntityById={() => getBerthingById(berthing.id)} delEntityById={() => delBerthingById(berthing.id)}
                     print={true} printData={() => printData(berthing)} />}
                 </tr>
               ))}</tbody>

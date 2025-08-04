@@ -40,6 +40,8 @@ export const GenExitPrint = () => {
               <Row>
 
                 <Col className="col-5"  >Exit date   </Col> <Col className="col-6"  >{obj.date_time}</Col>
+                <h5 className="mt-5 text-underline"><u><b>ARRIVAL NOTE</b></u></h5>
+                 <Col className="col-5"  >Arrival ID   </Col><Col className="col-6"  >{obj.arrivalId}</Col>
 
               </Row>
             </Col>

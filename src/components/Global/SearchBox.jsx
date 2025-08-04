@@ -5,6 +5,7 @@ import { search } from 'react-icons-kit/icomoon/search'
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css'
 import { ic_refresh as refreshBtn } from 'react-icons-kit/md/ic_refresh'
+import DateUtils from './DateUtils'
 
 
 function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], setType, noDates, noValueField ,realTimeValueCatch,realTimeValueEvent}) {
@@ -17,8 +18,8 @@ function SearchBox({ getCommonSearchByDate, refreshClick, nobtns, options = [], 
         backgroundColor: "#fff"
     }
     const formatDateFn = (date) => {
-        const selectedDate = new Date(date)
-        return selectedDate.getFullYear() + '-' + parseInt(selectedDate.getMonth() + 1) + '-' + selectedDate.getDate();
+        if (!date) return '';
+        return DateUtils.formatForAPI(date);
     }
 
     return (

@@ -40,46 +40,29 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import DoughnutChart from '../reporting/DoughnutChart';
 import { SingleNumberTop } from './SingleNumberTop';
 import PagesWapper from '../../Global/PagesWapper';
-import { useAuthHeader } from 'react-auth-kit';
+import { useAuthHeader, useAuthUser } from 'react-auth-kit';
 import { DateRangeContext } from '../../globalcomponents/ButtonContext';
 import { IncomingOutgoing } from './IncomingOutgoing';
 import { BerthedList } from './BerthedList';
 import { DetailedReportLoaderModal } from './DetailedReportLoaderModal';
 import VesselStatsModal from './VesselStatsModal';
 import TruckStatsModal from './TruckStatsModal';
+import DateUtils from '../../Global/DateUtils';
+import { useDailyReport } from '../reporting/useDailyReport';
+import { ThreeCharts } from './ThreeCharts'
+import * as XLSX from 'xlsx';
 
 function Dashboard() {
+
+  // Use the daily report hook instead of manual state management
+  const { dailyReportData, loading: dailyReportLoading, error: dailyReportError, fetchDailyReport } = useDailyReport();
 
   const [hwmovements, setHwmovement] = useState([]) //Data List that comes initially
   const [item_categorys, setItem_categorys] = useState([]) //Data List
   const [companyName, setCompanyName] = useState('')// this is used on search on the beginning of the form registration
 
-
-  const [thousands, setThousands] = useState('')
-  const [totPurchases, setTotPurchases] = useState(0)
-  const [totSales, setTotSales] = useState(0)
   const [totEpenses, setTotEpenses] = useState(0)
-  const [totBenefit, setTotBenefit] = useState(0)
 
-  const [yest_totPurchases, setYest_totPurchases] = useState(0)
-  const [yest_totSales, setYest_totSales] = useState(0)
-  const [yest_totEpenses, setYest_totEpenses] = useState(0)
-  const [yest_totBenefit, setYest_totBenefit] = useState(0)
-
-  const [last7_totPurchases, setLast7_totPurchases] = useState(0)
-  const [last7_totSales, setLast7_totSales] = useState(0)
-  const [last7_totEpenses, setLast7_totEpenses] = useState(0)
-  const [last7_totBenefit, setLast7_totBenefit] = useState(0)
-
-  const [last30_totPurchases, setLast30_totPurchases] = useState(0)
-  const [last30_totSales, setLast30_totSales] = useState(0)
-  const [last30_totEpenses, setLast30_totEpenses] = useState(0)
-  const [last30_totBenefit, setLast30_totBenefit] = useState(0)
-
-  const [last180_totPurchases, setLast180_totPurchases] = useState(0)
-  const [last180_totSales, setLast180_totSales] = useState(0)
-  const [last180_totEpenses, setLast180_totEpenses] = useState(0)
-  const [last180_totBenefit, setLast180_totBenefit] = useState(0)
   const [modelContent, setmodelContent] = useState(0)
   const iconSize = 30
   const subColor = "#46210b", subSalesColor = ""
@@ -100,6 +83,7 @@ function Dashboard() {
   const { currency, setCurrency } = useContext(BrandContext)
   const { setPurchaseMenu, setSaleMenu, setRecPurchase, showModal, setShowModal, modalTitle, setupBycolor,
     setDataTodisplayInModal, dataTodisplayInModal, setReportType } = useContext(ColItemContext)
+
 
 
   const [berthingReport, setBerthingReport] = useState([])
@@ -150,88 +134,10 @@ function Dashboard() {
     // return  value
   };
 
-  const getSummary = async (date1, date2) => {
-    const purchaseDatesDTO = {
-      date1: date1,
-      date2: date2
-    }
-    await StockRepository.getSummary(purchaseDatesDTO, authHeader).then((res) => {
-      // if (res) {
-      var p = res.data.totPurchases
-      var s = res.data.totSales
-      var e = res.data.totEpenses
-      var b = res.data.totBenefit
-      setTotPurchases(fv(p))
-      setTotSales(fv(s))
-      setTotEpenses(fv(e))
-      setTotBenefit(fv(b))
-      //yesterday
-
-      p = res.data.yest_totPurchases
-      s = res.data.yest_totSales
-      e = res.data.yest_totEpenses
-      b = res.data.yest_totBenefit
-      setYest_totPurchases(fv(p))
-      setYest_totSales(fv(s))
-      setYest_totEpenses(fv(e))
-      setYest_totBenefit(fv(b))
-
-      // last 7 days
-      p = res.data.L7days_totPurchases
-      s = res.data.L7days_totSales
-      e = res.data.L7days_totEpenses
-      b = res.data.L7days_totBenefit
-
-      setLast7_totPurchases(fv(p))
-      setLast7_totSales(fv(s))
-      setLast7_totEpenses(fv(e))
-      setLast7_totBenefit(fv(b))
-
-      // last 30 days
-      p = res.data.L30days_totPurchases
-      s = res.data.L30days_totSales
-      e = res.data.L30days_totEpenses
-      b = res.data.L30days_totBenefit
-
-      setLast30_totPurchases(fv(p))
-      setLast30_totSales(fv(s))
-      setLast30_totEpenses(fv(e))
-      setLast30_totBenefit(fv(b))
-
-
-      // last 180 days = 3 months
-
-      p = res.data.L180days_totPurchases
-      s = res.data.L180days_totSales
-      e = res.data.L180days_totEpenses
-      b = res.data.L180days_totBenefit
-
-      setLast180_totPurchases(fv(p))
-      setLast180_totSales(fv(s))
-      setLast180_totEpenses(fv(e))
-      setLast180_totBenefit(fv(b))
-      setDebtsList(res.data.listDebts)
-      // }
-    })
-
-  }
-
-  const todaydate = () => {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const dd = String(today.getDate()).padStart(2, '0');
-
-    const formattedDate = `${yyyy}-${mm}-${dd}`;
-
-
-    return formattedDate
-  }
+ 
 
   const getSettingByName = async () => {
     try {
-
-
       // First request: company_name
       const companyResponse = await StockRepository.getSettingByName('company_name', authHeader);
       // console.log(' company resp  '+companyResponse)
@@ -298,6 +204,7 @@ function Dashboard() {
 
   const [berthReportGrpByhour, setBerthReportGrpByhour] = useState([])
   const [berthReportGrpByMonth, setBerthReportGrpByMonth] = useState([])
+  const [berthReportGrpByWeek, setBerthReportGrpByWeek] = useState([])
 
   // this are the states to capture all tallyin tallyou and tally
   const [tally, setTally] = useState([])
@@ -307,8 +214,13 @@ function Dashboard() {
   const [truckAmount, setTruckAmount] = useState(0)
   const [dataFinishedFetching, setDataFinishedFetching] = useState(false)
   const getAllREvenue = (date1, date2) => {
+    // Ensure dates are properly formatted
+    const formattedStartDate = DateUtils.validateAndFormat(date1);
+    const formattedEndDate = DateUtils.validateAndFormat(date2);
+    
+    console.log('Formatted dates for API:', { formattedStartDate, formattedEndDate });
 
-    Reporting.revenueReport(date1, date2, authHeader).then((res) => {
+    Reporting.revenueReport(formattedStartDate, formattedEndDate, authHeader).then((res) => {
       // setPurchasess(res.data.res);
       setTruckAmount(res.data.totalAmountParkingInvoice)
       setBerthingReport(res.data.berthReport)
@@ -318,20 +230,39 @@ function Dashboard() {
       //group by hour
       setBerthReportGrpByhour(res.data.berthReportGrpByhour)
       setBerthReportGrpByMonth(res.data.berthReportGrpByMonth)
+      setBerthReportGrpByWeek(res.data.berthReportGrpByWeek)
       setDataFinishedFetching(true)
-      
+
     })
   }
 
   useEffect(() => {
-    // getAllPurchasess(CurrentDate.todaydate(), CurrentDate.todaydate())
-    
-    getSettingByName()
-   
-    getAllREvenue(startDate, endDate)
-    setDataLoad(true)
-    // setShowModal(true)
+    const loadDailyReport = async () => {
+      try {
+        // Call the daily report function
+        await fetchDailyReport(startDate, endDate);
+        // getAllPurchasess(CurrentDate.todaydate(), CurrentDate.todaydate())
+        await getSettingByName();
 
+        getAllREvenue(startDate, endDate);
+        setDataLoad(true);
+        
+        // Send test email notification on dashboard load
+        try {
+          await StockRepository.sendTestEmail(authHeader);
+          console.log('Test email sent successfully on dashboard load');
+        } catch (error) {
+          console.error('Failed to send test email on dashboard load:', error);
+          // Don't break the dashboard load if email fails
+        }
+        
+        // setShowModal(true)
+      } catch (error) {
+        console.error('Error loading daily report:', error);
+      }
+    }
+    
+    loadDailyReport()
   }, [])
 
   let totalBerthing = 0.0
@@ -451,7 +382,11 @@ function Dashboard() {
 
   let allAvailableAtPort = 0
   const loadAllData = () => {
-    Reporting.revenueReport(startDate, endDate, authHeader).then((res) => {
+    // Ensure dates are properly formatted
+    const formattedStartDate = DateUtils.validateAndFormat(startDate);
+    const formattedEndDate = DateUtils.validateAndFormat(endDate);
+    
+    Reporting.revenueReport(formattedStartDate, formattedEndDate, authHeader).then((res) => {
       setBerthingReport(res.data.berthReport)
       setBerthingList(res.data.berthingList)
       setTruckReport(res.data.truckReport)
@@ -467,12 +402,12 @@ function Dashboard() {
       setTotOutgoingWoodedboats(res.data.totOutgoingWoodedboats)//only a number
       setTotBerthedWoodedboats(res.data.totBerthedWoodedboats)//only a number
       setTruckAmount(res.data.totalAmountParkingInvoice)
-      
+
     })
-    Reporting.vesselTruckWeightReport(startDate, endDate, authHeader).then((res) => {
+    Reporting.vesselTruckWeightReport(formattedStartDate, formattedEndDate, authHeader).then((res) => {
       setTruckReport(res.data.BerthedVessels)
     })
-    Reporting.allCargoReport(startDate, endDate, authHeader).then((res) => {
+    Reporting.allCargoReport(formattedStartDate, formattedEndDate, authHeader).then((res) => {
       setTally(res.data.tally)
       setTallyIn(res.data.tallyIn)
       setTallyOut(res.data.tallyOut)
@@ -499,19 +434,24 @@ function Dashboard() {
 
     if ('Reporting' === dataToDisplay) {
       setPaneReportDataLoad(true)
-      Reporting.revenueReport(startDate, endDate, authHeader).then((res) => {
+      
+      // Ensure dates are properly formatted
+      const formattedStartDate = DateUtils.validateAndFormat(startDate);
+      const formattedEndDate = DateUtils.validateAndFormat(endDate);
+      
+      Reporting.revenueReport(formattedStartDate, formattedEndDate, authHeader).then((res) => {
         setBerthingReport(res.data.berthReport)
         setBerthingList(res.data.berthingList)
         setTruckReport(res.data.truckReport)
         setCargoAmountReport(res.data.cargoAmount)
         setPaneReportDataLoad(false)
         setTruckAmount(res.data.totalAmountParkingInvoice)
-        
+
       })
-      Reporting.vesselTruckWeightReport(startDate, endDate, authHeader).then((res) => {
+      Reporting.vesselTruckWeightReport(formattedStartDate, formattedEndDate, authHeader).then((res) => {
         setTruckReport(res.data.BerthedVessels)
       })
-      Reporting.allCargoReport(startDate, endDate, authHeader).then((res) => {
+      Reporting.allCargoReport(formattedStartDate, formattedEndDate, authHeader).then((res) => {
         setTally(res.data.tally)
         setTallyIn(res.data.tallyIn)
         setTallyOut(res.data.tallyOut)
@@ -527,18 +467,59 @@ function Dashboard() {
 
 
   let berthingCount = 0, totalTruckAtPort = 0
-  
+
   const [showVesselStats, setShowVesselStats] = useState(false);
   const [showTruckStats, setShowTruckStats] = useState(false);
 
+  // Client filtering states
+  const [availableClients, setAvailableClients] = useState([]);
+  const [selectedClients, setSelectedClients] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [showClientFilter, setShowClientFilter] = useState(false);
+
+  const auth = useAuthUser();
+  const user = auth();
+  const roless = user?.roles || [];
+  const accountCategory = user?.accountCategory || '';
+
+  // Filter functions
+  const filterDataByClients = (data, selectedClientsList) => {
+    if (selectedClientsList.length === 0) return data;
+    return data.filter(item => selectedClientsList.includes(item.client || item.clientName || item.company));
+  };
+
+  const handleClientToggle = (client) => {
+    setSelectedClients(prev => 
+      prev.includes(client) 
+        ? prev.filter(c => c !== client)
+        : [...prev, client]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedClients([]);
+  };
+
+  const selectAllClients = () => {
+    setSelectedClients([...availableClients]);
+  };
+
+  // Excel export function
+  const exportToExcel = (data, filename) => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+    XLSX.writeFile(workbook, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <>
-     
-      <DetailedReportLoaderModal show={showModal} onHide={ ()=>setShowModal(false)} />
+
+      <DetailedReportLoaderModal show={showModal} onHide={() => setShowModal(false)} />
       <VesselStatsModal show={showVesselStats} onHide={() => setShowVesselStats(false)} />
       <TruckStatsModal show={showTruckStats} onHide={() => setShowTruckStats(false)} />
-    
-      
+
+
       {allTrucksAtTheport.map((truck) => { totalTruckAtPort += 1 })}
       {vessels.map((vessel) => { allAvailableAtPort += 1 })}
       {berthingReport.map((inv) => {
@@ -559,48 +540,39 @@ function Dashboard() {
         totBerthingNumber += 1
       })}
       <PagesWapper>
-        
-
         <Container fluid  >
           {/* summarized */}
           {/* <DashboardReportsFilters /> */}
 
+          {/* <p>{Array.isArray(roless) ? roless.join(', ') : 'No roles assigned'}</p> */}
           {dataLoad ? <>
-            <SingleNumberTop 
-              topRightTxt1={(totalBerthing).toLocaleString()} 
-              topRightTxt2={(truckAmount ? truckAmount : 0).toLocaleString()}
-              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()} 
+
+            <h5 className="text-center mt-3" style={{ fontSize: '20px' }}>Report as of <span style={{color:'##d97d04'}}> {startDate}</span> - <span style={{color:'#2003fc'}}> {endDate}</span></h5>
+            <SingleNumberTop
+              topRightTxt1={(totalBerthing).toLocaleString()}
+              topRightTxt2={(totalTruck ? totalTruck : 0).toLocaleString()}
+              topRightTxt3={toCargotAmount && (toCargotAmount).toLocaleString()}
               clickHandler={() => setShowModal(true)}
               topRightTxt4={(totalBerthing + totalTruck + toCargotAmount).toLocaleString()}
               bottomLeftTxt1={
                 <div className="d-flex align-items-center justify-content-between">
                   <span>{berthingCount} Vessel(s) charged</span>
-                  <button 
-                    className="btn btn-primary btn-sm ms-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowVesselStats(true);
-                    }}
-                  >
-                    View Statistics
+                  <button   className="btn btn-primary btn-sm ms-2" onClick={(e) => { e.stopPropagation();  setShowVesselStats(true);                    }}                  >
+                    Statistics
                   </button>
                 </div>
-              } 
+              }
               bottomLeftTxt2={
                 <div className="d-flex align-items-center justify-content-between">
                   <span>{totalTruckNumber} Trucks (Gate)</span>
-                  <button 
-                    className="btn btn-primary btn-sm ms-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowTruckStats(true);
-                    }}
+                  <button   className="btn btn-primary btn-sm ms-2"     onClick={(e) => { 
+                    e.stopPropagation(); setShowTruckStats(true);                    }}
                   >
-                    View Statistics
+                    Statistics
                   </button>
                 </div>
-              } 
-              bottomLeftTxt3={`${toCargotNumber} invoices`} 
+              }
+              bottomLeftTxt3={`${toCargotNumber} invoices`}
             />
 
             <IncomingOutgoing
@@ -610,7 +582,11 @@ function Dashboard() {
               alloutgoingTrucks={alloutgoingTrucks}
               allAvailableAtPort={allAvailableAtPort}
               totalTruckAtPort={totalTruckAtPort} totIncomingWoodedboats={totIncomingWoodedboats} totOutgoingWoodedboats={totOutgoingWoodedboats} totBerthedWoodedboats={totBerthedWoodedboats} />
-            {/* <ThreeCharts dataOne={berthReportGrpByMonth} /> */}
+            <ThreeCharts 
+              dataOne={berthReportGrpByhour} 
+              dataTwo={berthReportGrpByWeek} 
+              dataThree={berthReportGrpByMonth} 
+            />
             <Row className="  m-5 mt-0  p-4   ">
 
               {/* <span className="mt-2 mb-5" /> */}
@@ -640,6 +616,11 @@ function Dashboard() {
               <Splitter />
               <SmallerSplitter /> */}
 
+              
+              
+             
+             
+              
               <Row>
                 <Col md={4} className="offset-md-4 my-4" >
                   <TitleSmallDescNoSlide title="Vessels At the port" />

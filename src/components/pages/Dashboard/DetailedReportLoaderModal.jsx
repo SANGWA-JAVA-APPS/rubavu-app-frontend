@@ -103,12 +103,6 @@ export const DetailedReportLoaderModal = (props) => {
     });
     /* #endregion */
 
-    useEffect(() => {
-        loadAllData()
-    }, [startDate])
-    useEffect(() => {
-        loadAllData()
-    }, [endDate])
     let totalBerthing = 0.0
     let totBerthingNumber = 0.0
 
@@ -154,7 +148,6 @@ export const DetailedReportLoaderModal = (props) => {
                                 }
                             </Col>
                             <Col md={12}>
-
                                 {(!paneReportDataLoad) && <>
                                     {'Trucks' === modalTitle ?
                                         <TrucksRevenue truckReport={truckReport} />

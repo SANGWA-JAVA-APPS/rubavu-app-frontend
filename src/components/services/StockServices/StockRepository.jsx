@@ -25,6 +25,7 @@ class StockRepository {
     findCategories() {
         return axios.get(StockRepository.server + "/")
     }
+
     Login(authRequest) {
 
         return axios.post(StockConn.server.name + StockConn.port.val + "authenticate", authRequest, { headers: StockRepository.headers }
@@ -50,6 +51,10 @@ class StockRepository {
     }
     findAccount_category(authHeader) {
         return axios.get(StockRepository.server + "/category/", { headers: this.getHeaders(authHeader) })
+            .catch(() => StockCommons.RedirectToLogin())
+    }
+    getIAndName(authHeader){
+          return axios.get(StockRepository.server + "/category/getIAndName", { headers: this.getHeaders(authHeader) })
             .catch(() => StockCommons.RedirectToLogin())
     }
     findHw_movement(SearchByDateOnly, authHeader) {
@@ -162,6 +167,10 @@ class StockRepository {
     findDailyreport(SearchByDateOnly, authHeader) {
         return axios.post(StockRepository.server + "/dailyreport/getTodayReport", SearchByDateOnly, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
     }
+    
+    findMonthlyReport(searchByDateRange, authHeader) {
+        return axios.post(StockRepository.server + "/dailyreport/getMonthlyReport", searchByDateRange, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
+    }
     findExpenses(authHeader) {
         return axios.get(StockRepository.server + "/expenses/", { headers: this.getHeaders(authHeader) })
             .catch((err) => StockCommons.RedirectToLogin());
@@ -192,16 +201,19 @@ class StockRepository {
             .catch((err) => StockCommons.RedirectToLogin());
     }
 
-    findClient(authHeader) {
-        return axios.get(StockRepository.server + "/client/", { headers: this.getHeaders(authHeader) });
-    }
+    findClient (limit, page, authHeader)  {
+            return axios.get(`${StockRepository.server}/client/?limit=${limit}&page=${page}`, { headers: authHeader }  )
+        }
+    findClientNoPaging (  authHeader)  {
+            return axios.get(`${StockRepository.server}/client/clientsNoPaging/`, { headers: authHeader }  )
+        }
+        // clientsNoPaging
     findClientCargonById(id, authHeader) {
         return axios.get(StockRepository.server + "/client/findclientCargoById/" + id, { headers: this.getHeaders(authHeader) });
 
     }
     allCargInWh(authHeader) {
         return axios.get(StockRepository.server + "/client/allCargInWh/", { headers: this.getHeaders(authHeader) });
-
     }
 
     findVessel(authHeader) {
@@ -243,6 +255,10 @@ class StockRepository {
 
     findVesselByPlatenumber(plateNumber, authHeader) {
         return axios.get(StockRepository.server + "/truck/gettrucplatelike/" + plateNumber, { headers: this.getHeaders(authHeader) });
+    }
+
+    findTruckWithEntryByPlatenumber(plateNumber, authHeader) {
+        return axios.get(StockRepository.server + "/truck/gettruckwithentrylike/" + plateNumber, { headers: this.getHeaders(authHeader) });
     }
 
     findBerthing(startDate, endDate, authHeader) {
@@ -709,6 +725,10 @@ class StockRepository {
             params: { startDate: startDate, endDate: endDate }
         });
     }
+    findGen_invoiceByArrivalId(authHeader, arrival_id) {
+        return axios.get(StockRepository.server + "/gen_invoice/InvoiceByArrivalNoteid/"+arrival_id, {            headers: this.getHeaders(authHeader) 
+        });
+    }
 
     findGen_NonReceiptedinvoice(authHeader, startDate, endDate) {
         return axios.get(StockRepository.server + "/gen_invoice/nonReceipted", {
@@ -793,8 +813,11 @@ class StockRepository {
             .catch(() => StockCommons.RedirectToLogin());
     }
 
-    findBerthpayment(authHeader) {
-        return axios.get(StockRepository.server + "/berthpayment/", { headers: this.getHeaders(authHeader) });
+    findBerthpayment( startDate, endDate,authHeader) {
+        return axios.get(StockRepository.server + "/berthpayment/", { headers: this.getHeaders(authHeader), params: {
+                startDate: startDate,
+                endDate: endDate
+            } });
     }
 
     findBerthpaymentById(id, authHeader) {
@@ -826,23 +849,85 @@ class StockRepository {
         return axios.get(StockRepository.server + "/client/clientByNameLike/" + clientName, { headers: this.getHeaders(authHeader) })
             .catch(() => StockCommons.RedirectToLogin());
     }
-
-
-
     findAuditingBerthingInvoice(username, authHeader) {
-        return axios.get(StockRepository.server + "/auditing/berthInvoices",
-            {
-                headers: this.getHeaders(authHeader),
-                params: {
-                    username: username
-                }
-            })
+        return axios.get(StockRepository.server + "/auditing/berthInvoices", { headers: this.getHeaders(authHeader), params: { username: username } })
         // .catch(() => StockCommons.RedirectToLogin());
     }
 
     inventoryReport(authHeader) {
         return axios.get(StockRepository.server + "/client/allCargInWh/", { headers: this.getHeaders(authHeader) });
     }
+    finduserRoles(authHeader) {
+        return axios.get(StockRepository.server + "/usersroles", { headers: this.getHeaders(authHeader) });
+    }
+    finduserRolesWithCategories(authHeader) {
+        return axios.get(StockRepository.server + "/usersroles/with-categories", {            headers: this.getHeaders(authHeader),
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+    getAllOtherRevCategories(authHeader){
+           return axios.get(StockRepository.server + "/otherrevcats/", {            headers: this.getHeaders(authHeader),
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+     getAllOtherRevenues(authHeader) {
+        return axios.get(StockRepository.server + "/otherrevenue/", {            headers: StockRepository.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+    findOtherRevenueById(id, authHeader) {
+        return axios.get(StockRepository.server + "/otherrevenue/" + id, {            headers: StockRepository.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+    // Email Service Methods
+    sendTestEmail(authHeader) {
+        return axios.get(StockRepository.server + "/email/test", {
+            headers: this.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+    sendPortOperationNotification(operationType, details, authHeader) {
+        const params = new URLSearchParams();
+        params.append('operationType', operationType);
+        if (details) {
+            params.append('details', details);
+        }
+        
+        return axios.post(StockRepository.server + "/email/port-operation", params, {
+            headers: this.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+    sendTruckEntryNotification(plateNumber, truckType, entryTime, authHeader) {
+        const params = new URLSearchParams();
+        params.append('plateNumber', plateNumber);
+        if (truckType) {
+            params.append('truckType', truckType);
+        }
+        if (entryTime) {
+            params.append('entryTime', entryTime);
+        }
+        
+        return axios.post(StockRepository.server + "/email/truck-entry", params, {
+            headers: this.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+    sendInvoiceGeneratedNotification(invoiceNumber, plateNumber, amount, authHeader) {
+        const params = new URLSearchParams();
+        params.append('invoiceNumber', invoiceNumber);
+        if (plateNumber) {
+            params.append('plateNumber', plateNumber);
+        }
+        if (amount) {
+            params.append('amount', amount);
+        }
+        
+        return axios.post(StockRepository.server + "/email/invoice-generated", params, {
+            headers: this.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+   
+     
 
 }
 

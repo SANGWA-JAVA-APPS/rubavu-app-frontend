@@ -44,15 +44,15 @@ export const TruckReceiptPrint = () => {
                             <Row>
                             <h5>Invoice</h5>
                                 {/* Nested mdl_truck_parking_invoice fields */}
-                                <PrintRow txt="Invoice ID" txtValue={obj?.mdl_truck_parking_invoice?.id} />
-                                <PrintRow txt="Licence plate number" txtValue={obj?.mdl_truck_parking_invoice?.licence_plate_number} />
-                                <PrintRow txt="Entry time" txtValue={obj?.mdl_truck_parking_invoice?.entryTime} />
-                                <PrintRow txt="Get out time" txtValue={obj?.mdl_truck_parking_invoice?.get_out_time} />
-                                <PrintRow txt="Amount" txtValue={obj?.mdl_truck_parking_invoice?.amount} />
-                                <PrintRow txt="Total days" txtValue={obj?.mdl_truck_parking_invoice?.totalDays} />
-                                <PrintRow txt="Total hours" txtValue={obj?.mdl_truck_parking_invoice?.totalHours+' hour(s)'}/>
-                                <PrintRow txt="Total minutes" txtValue={obj?.mdl_truck_parking_invoice?.totalMin} />
-                                <PrintRow txt="Fee" txtValue={obj?.mdl_truck_parking_invoice?.fee && 'RWF '+ (obj?.mdl_truck_parking_invoice?.fee).toLocaleString()} />
+                                <PrintRow txt="Invoice ID" txtValue={obj?.id} />
+                                <PrintRow txt="Licence plate number" txtValue={obj?.licence_plate_number} />
+                                <PrintRow txt="Entry time" txtValue={obj?.entryTime} />
+                                <PrintRow txt="Get out time" txtValue={obj?.get_out_time} />
+                                <PrintRow txt="Amount" txtValue={obj?.amount} />
+                                <PrintRow txt="Total days" txtValue={obj?.totalDays} />
+                                <PrintRow txt="Total hours" txtValue={obj?.totalHours+' hour(s)'}/>
+                                <PrintRow txt="Total minutes" txtValue={obj?.totalMin} />
+                                <PrintRow txt="Fee" txtValue={obj?.fee && 'RWF '+ (obj?.fee).toLocaleString()} />
                                 
                             </Row>
                         </Col>

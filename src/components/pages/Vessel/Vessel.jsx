@@ -374,7 +374,7 @@ function Vessel() {
           </ContainerRowBtwn>
         </AnimateHeight>
         <ContainerRow mt='3'>
-          <ListToolBar listTitle='Vessel List' height={height} entity='Vessel' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+          <ListToolBar listTitle='Vessel List' role="addVessel" height={height} entity='Vessel' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
           <SearchformAnimation searchHeight={searchHeight}>
             <SearchBox />
           </SearchformAnimation>

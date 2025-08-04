@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import ContainerRow from '../Global/ContainerRow'
-import { Alert, Button, Col, Tab, Tabs } from 'react-bootstrap'
+import { Alert, Button, Col, Row, Tab, Tabs } from 'react-bootstrap'
 import { DropDownInput } from '../Global/InputRow'
 import { useState } from 'react'
 import { Icon } from 'react-icons-kit'
@@ -15,12 +15,14 @@ import { useMemo } from 'react'
 import { CargoGrpByArrivalByClient, CargoGrpByByItem } from './CargoComponents'
 import { StorageWithAsosrtedOrNot } from '../pages/Dashboard/StorageCalculation'
 import { useEffect } from 'react'
+import { ProcessMultipleArrivalNotes } from './ProcessMultipleArrivalNotes'
 function ClientCargo({ setClients, clients, refresh, setRefresh, clientsItems }) {
-    const { searchItemValue } = useContext(ColItemContext)
+    const { searchItemValue, commonArrayTwo, setCommonArrayTwo } = useContext(ColItemContext)
     const authHeader = useAuthHeader()();
-const auth = useAuthUser()
+    const auth = useAuthUser()
     const user = auth();
-
+    const [processedWeight, setProcessedWeight] = useState(0);
+    const [processedQty, setProcessedQty] = useState(0);
     const [mainTableorNextStep, setMainTableorNextStep] = useState(1)// 1 is main table, 2 is next step
 
     const localHead = {
@@ -33,9 +35,23 @@ const auth = useAuthUser()
 
     const showmoreHandler = () => {
         setShowmore(!showmore)
-        
+
     }
-    
+    const alteredPayments = [];
+    const updatedPayments = []
+
+    const [newclients, setNewClients] = useState([])
+
+    useEffect(() => {
+        if (clientsItems && clientsItems.length > 0) {
+            setNewClients(clientsItems)
+            setCommonArrayTwo([])
+            setCommonArrayTw(clientsItems)
+            console.log('>>The size of newClient: ' + clientsItems.length)
+        }
+
+    }, [clientsItems])
+
     const [selectedPeriod, setSelectedPeriod] = useState(0)
     // let totalTonnage = 0
     const [indexForLoader, setIndexForLoader] = useState(0)
@@ -43,24 +59,26 @@ const auth = useAuthUser()
     /* #region -----------------EDITING THE NEW QUANTITY ---------------------------- */
     const [error, setError] = useState(''); // State for validation errors
     const [dataLoad, setDataLoad] = useState(false)
-    const handleUpdateClick = (arrivalId, quantity, newQuantity, itemId,  index, totalAmount, totalWeights, period, assortedOrNot) => {//saving in the db
+    const handleUpdateClick = (arrivalId, quantity, newQuantity, itemId, index, totalAmount,
+        totalWeights, period, assortedOrNot) => {//saving in the db
 
-       
 
         // if ('Assorted'===assortedOrNot && newQuantity > totalWeights) {
         //     alert(`Error occured: Cannot update: New quantity (${newQuantity}) exceeds original quantity (${totalWeights}).`);
         //     setError(`Cannot update: New quantity (${newQuantity}) exceeds original quantity (${quantity}).`);
         //     return;
         // }
-        if (itemId === undefined || itemId === null || quantity === undefined || quantity === null || newQuantity === undefined || newQuantity === null || totalAmount === undefined || totalAmount === null || totalWeights === undefined || totalWeights === null) {
+        if (itemId === undefined || itemId === null || quantity === undefined || quantity === null || newQuantity === undefined || newQuantity === null || totalAmount === 0 || totalAmount === null || totalWeights === undefined || totalWeights === null) {
             setError('Error: either  itemId or quantity, totalAmount, total Weight and new Quantity may be  null');
             alert('Error: either  itemId or quantity or new Quantity may be undefined or null');
             alert(itemId + ' ' + quantity + ' ' + newQuantity + ' ' + totalAmount + ' ' + totalWeights)
             return;
         }
         totalWeights = totalWeights
+        console.log('------------- The udpated payments ----------------------');
+        console.log(updatedPayments);
 
-        StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, user.userid, totalAmount, totalWeights, selectedPeriod).then(res => {
+        StockCommons.updateWarehouse(itemId, arrivalId, quantity, newQuantity, user.userid, totalAmount, totalWeights, period).then(res => {
             const updatedClients = [...clients];
             updatedClients[index].quantity = updatedClients[index].quantity - newQuantity;
             updatedClients[index].newQuantity = 0;
@@ -71,10 +89,7 @@ const auth = useAuthUser()
             console.error('Error updating warehouse:', err);
             setError('An error occurred while updating the warehouse.');
         })
-       
-
-        console.log(`Updating Arrival ID: ${arrivalId}, Quantity: ${quantity}, New Quantity: ${newQuantity},the itemId: ${itemId}, the user: ${userId.userid} `);
-
+        // console.log(`Updating Arrival ID: ${arrivalId}, Quantity: ${quantity}, New Quantity: ${newQuantity},the itemId: ${itemId}, the user: ${userId.userid} `);
         // Add your update API call here, e.g., StockRepository.updateArrivalNote(arrivalId, newQuantity);
     }
 
@@ -83,17 +98,17 @@ const auth = useAuthUser()
     const handleChange = (index, field, value) => {
         const updatedClients = [...clients];
         updatedClients[index] = { ...updatedClients[index], [field]: value };
-        setClients(updatedClients);
+
     };
     const [charges, setCharges] = useState(0)
-    
-    const handleChangePeriod = (index, field,newQuantity,totalWeight, value) => {// select option
-        
+
+    const handleChangePeriod = (index, field, newQuantity, totalWeight, value) => {// select option
+
         setIndexForLoader(index)
-        
+
         const updatedClients = [...clients];
         updatedClients[index] = { ...updatedClients[index], [field]: value };
-        const weights =totalWeight;
+        const weights = totalWeight;
         const storagePeriod = value
         setSelectedPeriod(storagePeriod)
         if (newQuantity < 1) {
@@ -109,7 +124,7 @@ const auth = useAuthUser()
             setDataLoad(true)
             StockRepository.getStorageCost(weights, storagePeriod, authHeader).then(res => {
                 updatedClients[index].InvoicableCost = res.data;
-                setClients(updatedClients);
+                // setClients(updatedClients);
                 setDataLoad(false)
                 setCharges(res.data)
             }).catch(err => {
@@ -133,18 +148,27 @@ const auth = useAuthUser()
         } else {
             setError(''); // Clear error if validation passes
         }
-        setClients(updatedClients);
+        // setClients(updatedClients);
     };
     /* #endregion */
 
+
+
     const CalCulateGrandTotal = (data) => {
-        if (!Array.isArray(data)) return 0;
+        if (!Array.isArray(data)) return { total: 0, count: 0 };
         return data.reduce((acc, client) => {
-            const quantity = Number(client.quantity) || Number(client.noGrpCargoBalance) || 1;
-            const weight = Number(client.weight) || 1;
-            console.log('quantity:', quantity, 'weight:', weight)
+            let addValue = 0;
+            if (client.assortedOrNot === 'Assorted') {
+                addValue = Number(client.weight) || 0;
+
+            } else {
+                const qty = Number(client.quantity) || Number(client.noGrpCargoBalance) || 1;
+                const weight = Number(client.weight) || 1;
+                addValue = qty * weight;
+
+            }
             return {
-                total: acc.total + quantity * weight,
+                total: acc.total + addValue,
                 count: acc.count + 1,
             };
         }, { total: 0, count: 0 });
@@ -154,7 +178,6 @@ const auth = useAuthUser()
     const [cargoDetails, setCargoDetails] = useState({})
     const NewQtyFocusEvent = (e, index, client) => {
         let i = index
-
         setCargoDetails(client)
         setIndexForLoader(i)
         console.log('-------------------------------|||---CARGO DETAILS')
@@ -165,52 +188,142 @@ const auth = useAuthUser()
         if (cargoDetails.id > 0) {
 
             setMainTableorNextStep(2)
+
             //     setIndexForLoader(-1)
         }
     }, [cargoDetails])
 
+
+    const [inputQty, setInputQty] = useState(0);
+
+    const [warning, setWarning] = useState('');
+    // const totalAmount = newclients.reduce((sum, item) => sum + ('Assorted' === item.assortedOrNot ? item.weight : (item.quantity ?? 1) * (item.weight ?? 1)), 0);
+    let totalQtySet = newclients.reduce((sum, item) => {
+        const qty = Number(item.quantity) || Number(item.cargoBalance) || Number(item.noGrpCargoBalance) || 0
+        return sum + qty
+    }, 0);
+    const handleInputChange = (e) => {
+        setInputQty(e.target.value);
+        setWarning(''); // Clear warning on input change
+    };
+    function mergeClients(originalClients, updatedClients) {
+        // Create a map for quick lookup
+        const updatedMap = new Map(updatedClients.map(item => [item.id, item]));
+        return originalClients.map(client =>
+            updatedMap.has(client.id) ? { ...client, ...updatedMap.get(client.id) } : client
+        );
+    }
+    // Place this function inside your component, above handleProcess
+    const processClientWeight = (client, quantity) => {
+        let calculatedWeight = 0;
+        if (client.assortedOrNot === 'Assorted') {
+            calculatedWeight = Number(client.weight) || 0;
+            setProcessedWeight(calculatedWeight);
+            console.log(
+                `ID: ${client.id} | Input Quantity: ${quantity}`
+            );
+            console.log(
+                `Calculated Weight: ${calculatedWeight} (${client.weight})`
+            );
+        } else {
+            calculatedWeight = quantity * (Number(client.weight) || 1);
+            setProcessedWeight(calculatedWeight);
+            console.log(
+                `ID: ${client.id} | Input Quantity: ${quantity}`
+            );
+            console.log(
+                `Calculated Weight: ${calculatedWeight} (${client.weight} x ${quantity})`
+            );
+        }
+        return calculatedWeight;
+    };
+    const handleProcess = (e) => {
+        e.preventDefault();
+        const quantity = parseFloat(inputQty);
+        if (isNaN(quantity) || quantity <= 0) {
+            setWarning('Please enter a valid positive number.');
+            return;
+        }
+        if (quantity > totalQtySet) {
+            setWarning(`Entered amount (${quantity}) exceeds total available (${totalQtySet}).`);
+            return;
+        }
+        setProcessedQty(quantity); // <-- Save processed quantity here
+
+        // Find the first client to process (customize as needed)
+        const clientToProcess = newclients.find(
+            c => (Number(c.quantity) || Number(c.cargoBalance) || Number(c.noGrpCargoBalance) || 0) > 0
+        );
+
+        if (clientToProcess) {
+            processClientWeight(clientToProcess, quantity);
+        }
+
+
+        // ...existing deduction logic...
+        let remaining = quantity;
+        for (const item of clientsItems) { // Use clientsItems for guaranteed order
+
+            if (remaining <= 0) {
+                updatedPayments.push(item);
+                continue;
+            }
+            const deduction = Math.min(item.quantity, remaining);
+            remaining -= deduction;
+            const newItem = { ...item, quantity: Number(item.quantity) - deduction };
+            updatedPayments.push(newItem);
+            if (deduction > 0) alteredPayments.push(newItem);
+        }
+        setNewClients(
+            clientsItems.map(item => updatedPayments.find(u => u.id === item.id) || item)
+        );
+        setClients(prevClients => mergeClients(prevClients, updatedPayments));
+        setWarning('Amount processed successfully.');
+        console.log('Updated payments:' + updatedPayments.length + ' \t', updatedPayments); // Debug
+        console.log('changed payments:', alteredPayments); // Debug
+        console.log('Original list:', clients.length); // Debug
+    }
+
+    let totalAssorted = 0;
+    let totalNotAssorted = 0;
+
+    newclients.forEach(client => {
+        if (client.assortedOrNot === 'Assorted') {
+            totalAssorted += Number(client.weight) || 0;
+        } else {
+            const qty = Number(client.quantity) || Number(client.noGrpCargoBalance) || 1;
+            const weight = Number(client.weight) || 1;
+            totalNotAssorted += qty * weight;
+        }
+    });
+
+    console.log('Total Assorted:', totalAssorted);
+    console.log('Total Not Assorted:', totalNotAssorted);
     return (
         <>
-
             <ContainerRow mt='3'>
-                <Splitter />
-
+                <SmallSplitter />
                 {/* <TitleSmallDesc title="Client Cargo " /> */}
-
-
-                <Col md={2} className="d-none">
-                    <div className="border d-flex justify-content-center " style={{ height: '100px', width: '100px' }}>
-                        <Icon size={'70%'} style={{ color: '#1d6d7b' }} icon={client} />
-                    </div>
-                    <p style={{ fontSize: '12px', fontWeight: 'bold' }}>{searchItemValue}</p>
-                    <p style={{ fontSize: '12px', fontWeight: 'bold' }}> { }</p>
-                </Col>
-                <Col md={6} className='border'>
-                    <DropDownInput label='Period' name='year'  >
-                        <option>2025</option>
-                    </DropDownInput>
-                </Col>
-                <Col md={6}>
-                    <p style={{ fontSize: '20px' }}>Total Tonnage: <b>{(totalTonnage).toLocaleString()} KG</b></p>
-                    <p style={{ fontSize: '20px' }}>Total Entries: <b>{(totalIterations).toLocaleString()}  Entries</b></p>
-                </Col>
+               
+                
+                <Row className="d-flex flex-rows ">
+                    <Col>Total Quantity: <b>{totalQtySet}  </b></Col>
+                    
+                </Row>
+                <ProcessMultipleArrivalNotes  />
+                <Splitter />
                 <Col md={12}  >
                     {error && <Alert variant="danger">{error}</Alert>}
-                    <a href='#' onClick={showmoreHandler} className=''>Show more info</a>
+                    {/* <a href='#' onClick={showmoreHandler} className=''>Show more info</a> */}
                     <Tabs
                         defaultActiveKey="home"
-                        id="uncontrolled-tab-example"
-                        className="mb-3"
-                    >
+                        id="uncontrolled-tab-example" className="mb-3" >
                         <Tab eventKey="home" title="Available Cargo">
-                            {/* <CargoGrpByArrivalByClient clients={clients}
-                                handleChange={handleChange} handleChangePeriod={handleChangePeriod} handleUpdateClick={handleUpdateClick}
-                                dataLoad={dataLoad} indexForLoader={indexForLoader} /> */}
 
                             {mainTableorNextStep === 2 && cargoDetails.id > 0
                                 ? <StorageWithAsosrtedOrNot setMainTableorNextStep={setMainTableorNextStep} cargoDetails={cargoDetails}
                                     setCargoDetails={setCargoDetails} handleUpdateClick={handleUpdateClick} handleChangePeriod={handleChangePeriod}
-                                    handleEditableChange={handleEditableChange} charges={charges}/>
+                                    handleEditableChange={handleEditableChange} charges={charges} />
                                 : (mainTableorNextStep === 1 ?
                                     <table className='  table-bordered w-100' style={{ width: '100%' }}>
 
@@ -239,7 +352,7 @@ const auth = useAuthUser()
                                             <td style={localHead}> Option </td>
                                         </tr>
                                         {/* {userType == 'admin' && <td className='delButton d-none'>Option</td>} */}
-                                        <tbody> {clients.map((client, index) => (
+                                        <tbody> {clients  && clients.isArray && clients.map((client, index) => (
                                             <tr>
                                                 <td>{client.id} </td>
                                                 <td>{client.name}</td>
@@ -256,7 +369,7 @@ const auth = useAuthUser()
                                                 <td >
                                                     {((client.weight ? client.weight : 0).toLocaleString())} KG</td>
                                                 <td style={{ fontWeight: 'bold', color: '#000' }}>
-                                                    {'Assorted'===client.assortedOrNot? client.weight.toLocaleString():  ((client.quantity ?? 1) * (client.weight?? 1)) .toLocaleString()} KG</td>
+                                                    {'Assorted' === client.assortedOrNot ? client.weight.toLocaleString() : ((client.quantity ?? 1) * (client.weight ?? 1)).toLocaleString()} KG</td>
 
                                                 <td>{showmore && client.lastDate}</td>
                                                 <td style={focuscols}><InputOnly handleFocus={(e) => NewQtyFocusEvent(e, index, client)} name="exit" moreclass="w-100" val={client.newQuantity} handle={(e) => handleEditableChange(index, e.target.value)} label='exit' />

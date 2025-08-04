@@ -8,10 +8,19 @@ import { Link } from 'react-router-dom';
 import { ColItemContext } from '../../../Global/GlobalDataContentx';
 import Icon from 'react-icons-kit';
 import { checkmark as tick } from 'react-icons-kit/icomoon/checkmark'
+import { useAuthUser } from 'react-auth-kit';
 export const Submenu = () => {
     const { chosenProcess, chosenProcessCategory,
         setArrivalPage, setTallyPage, setPurchasePage, setSalePage,
         setInvoicePage, setReceiptPage, setExitPage } = useContext(ColItemContext)
+    
+    // Get authenticated user and roles
+    const userAuthenticated = useAuthUser();
+    const userRoles = userAuthenticated()?.roles ?? [];
+    
+    // Check if user is admin - you can adjust this logic based on your role structure
+    const isAdmin = userRoles.includes('admin') || localStorage.getItem('catname') === 'admin';
+    
     const pageSetter = (item) => {
         if (item === 'arrival') { //arrival
             setAllToFalse()
@@ -61,6 +70,9 @@ export const Submenu = () => {
         } else if (item === 'ext') {
             setAllToFalse()
             setExitPage(true)
+        } else if (item === 'settings') {
+            // Navigate to CargoSettings page
+            window.location.href = '/cargosettings';
         }
     }
     const setAllToFalse = () => {
@@ -92,6 +104,12 @@ export const Submenu = () => {
                         <a style={{ color: '#000', }} onClick={() => pageSetter('rec')} className="btn fw-bold  btn-outline-info"> Receipt</a></Col>
                     <Col className="col-auto">
                         <a style={{ color: '#000', }} onClick={() => pageSetter('ext')} className="btn fw-bold  btn-outline-info"> Exit</a></Col>
+
+                    {isAdmin && (
+                        <Col className="col-auto">
+                            <a style={{ color: '#000', }} onClick={() => pageSetter('settings')} className="btn fw-bold  btn-outline-info"> Settings</a>
+                        </Col>
+                    )}
 
                 </Row>
             </Container >

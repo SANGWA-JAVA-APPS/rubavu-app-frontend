@@ -15,7 +15,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputReadOnly, InputRowDateNoLa
 import FormTools from '../../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../../Global/ListTable'
-import Utils from '../../../Global/Utils'
+import Utils, { usertoEditprint } from '../../../Global/Utils'
 import Commons from '../../../services/Commons'
 
 import { ColItemContext } from '../../../Global/GlobalDataContentx'
@@ -54,21 +54,21 @@ function Unberthing() {
   const [searchHeight, setSearchHeight] = useState(0);
   const [refresh, setRefresh] = useState(false);
 
-  const { itemOrCargo, setitemOrCargo , obj, setObj } = useContext(ColItemContext)
+  const { itemOrCargo, setitemOrCargo, obj, setObj } = useContext(ColItemContext)
 
   const tableHead = ['Operator Name', 'Vessel Name', 'plate number', 'dimension', 'capacity', 'contact number']
 
   const authHeader = useAuthHeader()();
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
- /* #region ------------------SEARCH VESSEL BY TYPING ------------------------------------------------- */
+  /* #region ------------------SEARCH VESSEL BY TYPING ------------------------------------------------- */
   const { searchTableVisible, setSearchTableVisible } = useContext(ColItemContext)
   const { showSelected, setShowSelected } = useContext(ColItemContext)
   const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
   const inputRef = useRef(null);
   const [itemssbyname, setItemssbyname] = useState([]) //Data List searched by name
-  const  [startDate,setStartDate]=useState(CurrentDate.todaydate())
-  const  [endDate,setEndDate]=useState(CurrentDate.todaydate())
+  const [startDate, setStartDate] = useState(CurrentDate.todaydate())
+  const [endDate, setEndDate] = useState(CurrentDate.todaydate())
   const hideSelectorLink = () => {
     setShowSelected(false)
     setSearchItemValue('')
@@ -129,55 +129,61 @@ function Unberthing() {
   const [svessel_handling_charges, setSvessel_handling_charges] = useState()
 
   //Payment (receipt)
+  const [pytId, setPytId] = useState()
   const [spytDate_time, setSPytDate_time] = useState()
 
   const [spayment, setSpayment] = useState()
 
 
-  const searchDone = (id, name, owner) => {
+  const searchDone = async (id, name, owner) => {
     setSearchTableVisible(false)
     setVessel_id(id)
     setSearchItemValue(name)
     setShowSelected(true)
 
-    StockRepository.findVesselDetailsUnberth(id, authHeader).then((res) => {
-      setSName(res.data[0].name)
-      setSplate_number(res.data[0].plate_number)
-      setSdimension(res.data[0].dimension)
-      setScapacity(res.data[0].capacity)
-      setSowner_operator(res.data[0].owner_operator)
-      setSrura_certificate(res.data[0].rura_certificate)
-      setScontact_number(res.data[0].contact_number)
+    await StockRepository.findVesselDetailsUnberth(id, authHeader).then((res) => {
+    
+     const data = res.data.content[0]; // Access the first item in the content array
 
-      //berthing
-      setSata(res.data[0].etd)
-      setSetd(res.data[0].etd)
-      setSbollard_or_vesseletd(res.data[0].bollard_or_vesseletd)
-      setSvessel_arr_draft(res.data[0].vessel_arr_draft)
-      setSdescription(res.data[0].description)
-      setSvessel_or_bollard_refId(res.data[0].vessel_or_bollard_refId)
-      setSberthing_side(res.data[0].berthing_side)
-      //booking
+  setSName(data.name);
+  setSplate_number(data.plate_number);
+  setSdimension(data.dimension);
+  setScapacity(data.capacity);
+  setSowner_operator(data.owner_operator);
+  setSrura_certificate(data.rura_certificate);
+  setScontact_number(data.contact_number);
 
-      setSdate_time(res.data[0].date_time)
-      setScontact_n(res.data[0].contact_n)
-      setSrura_auth_n(res.data[0].rura_auth_n)
-      setSloading_port(res.data[0].loading_port)
-      setSstatus(res.data[0].status)
-      setSbollardOrVesselNumber(res.data[0].bollardOrVesselNumber)
-      setSeta(res.data[0].eta)
-      setSbkEtd(res.data[0].eta)
-      setBkDescription(res.data[0].bkDescription)
-      setSbkBerthing_side(res.data[0].bkBerthing_side)
+  // berthing
+  setSata(data.etd);
+  setSetd(data.etd);
+  setSbollard_or_vesseletd(data.bollard_or_vesseletd);
+  setSvessel_arr_draft(data.vessel_arr_draft);
+  setSdescription(data.description);
+  setSvessel_or_bollard_refId(data.vessel_or_bollard_refId);
+  setSberthing_side(data.berthing_side);
 
-      //invoice
-      setSquay_amount(res.data[0].quay_amount)
-      setSinvEtd(res.data[0].invEtd)
-      setSvessel_handling_charges(res.data[0].svessel_handling_charges)
+  // booking
+  setSdate_time(data.date_time);
+  setScontact_n(data.contact_n);
+  setSrura_auth_n(data.rura_auth_n);
+  setSloading_port(data.loading_port);
+  setSstatus(data.status);
+  setSbollardOrVesselNumber(data.bollardOrVesselNumber);
+  setSeta(data.eta);
+  setSbkEtd(data.eta);
+  setBkDescription(data.bkDescription);
+  setSbkBerthing_side(data.bkBerthing_side);
 
-      //receipt
-      setSPytDate_time(res.data[0].pytDate_time)
-      setSpayment(res.data[0].payment)
+  // invoice
+  setSquay_amount(data.quay_amount);
+  setSinvEtd(data.invEtd);
+  setSvessel_handling_charges(data.svessel_handling_charges);
+
+  // receipt
+  setPytId(data.pytId);
+  
+  setSPytDate_time(data.pytDate_time);
+  setSpayment(data.payment);
 
     })
 
@@ -199,7 +205,7 @@ function Unberthing() {
         resetAfterSave()
       })
     } else {
-      StockCommons.saveUnberthing(unberthing, vessel_id, authHeader).then((res) => {
+      StockCommons.saveUnberthing(unberthing, vessel_id,pytId, authHeader).then((res) => {
         console.log(res.data)
         if (res.data != null) {
           resetAfterSave()
@@ -213,9 +219,9 @@ function Unberthing() {
   /*#endregion Listing data*/
 
   /*#region ------------All Records, Deleting and By Id------------------------*/
-  const getAllUnberthings = ( ) => {
+  const getAllUnberthings = () => {
     StockRepository.findUnberthing(startDate, endDate, authHeader).then((res) => {
-      setUnberthings(res.data);
+      setUnberthings(res.data.content  ||res.data);
       setDataLoad(true)
     });
   }
@@ -291,18 +297,19 @@ function Unberthing() {
   const [showHideBerthingDetails, setShowHideBerthingDetails] = useState(false)
   const [unberthPrint, setUnberthPrintprint] = useState(false)
 
-  const printData=(unberthing)=>{
+  const printData = (unberthing) => {
     setObj(unberthing)
     setUnberthPrintprint(true)
+    
   }
-  useEffect(()=>{
-    if (unberthPrint){
+  useEffect(() => {
+    if (unberthPrint) {
       navigate("/unberthPrint")
     }
 
-  },[unberthPrint])
+  }, [unberthPrint])
 
-  const getCommonSearchByDate=(date1,date2)=>{
+  const getCommonSearchByDate = (date1, date2) => {
     setStartDate(date1)
     setEndDate(date2)
     setRefresh(!refresh)
@@ -313,7 +320,7 @@ function Unberthing() {
         <ContainerRowBtwn clearBtn={clearBtn} form={'Unberthing'} showLoader={showLoader}  >
           <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
           <FormInnerRightPaneFull onSubmitHandler={onSubmitHandler}>
-            
+
             {setSearchTableVisible &&
               <SeaarchBytyping placeholder="Vessel to book, search vessel by operator name"
                 labelName='  Operator' searchTableVisible={searchTableVisible}
@@ -413,9 +420,9 @@ function Unberthing() {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='Unberthing List' height={height} entity='Unberthing' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='Unberthing List' role="addBerthExit" height={height} entity='Unberthing' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
-          <SearchBox    getCommonSearchByDate={getCommonSearchByDate} />
+          <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
 
         <div ref={componentRef} className="dataTableBox">
@@ -425,7 +432,7 @@ function Unberthing() {
               <td colSpan={2} className="border border-light">Vessel</td>
               <td colSpan={3} className="border border-light">Unberth</td>
               <td colSpan={2} className="border border-light">Payment</td>
-              <td style={{borderRight:'1px solid #fff !important'}} colSpan={3}>Invoice</td>
+              <td style={{ borderRight: '1px solid #fff !important' }} colSpan={3}>Invoice</td>
             </thead>
             <TableHead>
 
@@ -442,7 +449,7 @@ function Unberthing() {
               <td>Invoice Quay amount </td>
               <td>Invoiced handling charges</td>
 
-              {userType == 'admin' && <td className='delButton'>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton'>Option</td>}
             </TableHead>
             <tbody>
               {unberthings.map((unberthing) => (
@@ -457,13 +464,12 @@ function Unberthing() {
                   <td>{unberthing.quay_amount}   </td>
                   <td>{unberthing.vessel_handling_charges}   </td>
 
-                  {userType == 'admin' && (
-                    <td className='delButton'>
-                      <button className="btn btn-danger btn-sm" onClick={() => delUnberthingById(unberthing.id)} title="Delete Unberthing">
-                        <FaTrash />
-                      </button>
-                    </td>
-                  )}
+                  
+                     {usertoEditprint(userType) && 
+                     <ListOptioncol print={true} 
+                     editRole="updateBerthExit" deleteRole="deleteBerthExit" printData={()=>printData(unberthing)} getEntityById={() => getTrucksById(unberthing.id)}
+                      delEntityById={() => delUnberthingById(unberthing.id)} />}
+ 
                 </tr>
               ))}</tbody>
           </TableOpen>

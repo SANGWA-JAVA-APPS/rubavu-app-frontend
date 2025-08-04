@@ -8,16 +8,18 @@ export const ThreeCharts = ({ dataOne, dataTwo, dataThree }) => {
     return (
         <Container fluid className=' ' >
             <Row className=" threecharts m-5 pt-4 mt-5 d-flex align-items-stretch   " style={{ height: '300px' }}>
-                <ChartCol title="Today" desc="Today's revenue" bgColor="bg1" chartComponent={<ChartComponent dataOne={dataOne} />} />
-                <ChartCol title="This week  " desc="This week revenue" bgColor="bg2" chartComponent={<ChartComponent dataOne={dataOne} />} />
-                <ChartCol title="This Month" desc="This month revenue" bgColor="bg3" chartComponent={<ChartComponent dataOne={dataOne} />} />
+                <ChartCol title="Today" desc="Today's revenue by hour" bgColor="bg1" chartComponent={<ChartComponent dataOne={dataOne} />} colSize={8} />
+                <ChartCol title="This week  " desc="This week revenue" bgColor="bg2" chartComponent={<ChartComponent dataOne={dataTwo || dataOne} />} colSize={4} />
+            </Row>
+            <Row className=" threecharts m-5 pt-4 mt-0 d-flex align-items-stretch   " style={{ height: '300px' }}>
+                <ChartCol title="This Month" desc="This month revenue" bgColor="bg3" chartComponent={<ChartComponent dataOne={dataThree || dataOne} />} colSize={12} />
             </Row>
         </Container>
     )
 }
-export const ChartCol = ({ title, desc, chartComponent, bgColor }) => {
+export const ChartCol = ({ title, desc, chartComponent, bgColor, colSize = 4 }) => {
 
-    return (<Col className='   d-flex flex-column  align-items-stretch justify-content-between' md={4} >
+    return (<Col className='   d-flex flex-column  align-items-stretch justify-content-between' md={colSize} >
         <div className='bg-light chartopPartparent  ' style={{ position: 'relative', height: '200px' }} >
             <div className={`chartopPart  d-flex    ${bgColor} `}
                 style={{ position: 'absolute', height: '200px', top: '-30px' }}>
@@ -35,56 +37,169 @@ export const ChartCol = ({ title, desc, chartComponent, bgColor }) => {
         </div>
     </Col>)
 }
-export const ChartComponent = ({ dataOne = [] }) => {//
+export const ChartComponent = ({ dataOne = [] }) => {
+    // Process the real data to extract hours and group by hour if needed
+    const processedData = dataOne.length > 0 ? dataOne : [];
+    
+    // Extract unique hours/periods and aggregate data by hour/day/week
+    const aggregatedData = processedData.reduce((acc, item) => {
+        let key = 'No Data';
+        
+        if (item.etd) {
+            if (item.period) {
+                // For weekly data - convert DAYOFWEEK number to day name
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                key = dayNames[item.period - 1] || `Day ${item.period}`;
+            } else {
+                // For hourly data - extract hour
+                const hour = new Date(item.etd).getHours();
+                key = `${hour.toString().padStart(2, '0')}h`;
+            }
+            
+            if (!acc[key]) {
+                acc[key] = {
+                    period: key,
+                    quay_amount: 0,
+                    vessel_handling_charges: 0,
+                    count: 0
+                };
+            }
+            
+            acc[key].quay_amount += (item.quay_amount || item.quayAmount || 0);
+            acc[key].vessel_handling_charges += (item.vessel_handling_charges || item.handlingCharges || 0);
+            acc[key].count += 1;
+        }
+        return acc;
+    }, {});
+    
+    // Convert to array and sort appropriately
+    const sortedData = Object.values(aggregatedData).sort((a, b) => {
+        // If it's hourly data (contains 'h'), sort by hour number
+        if (a.period.includes('h') && b.period.includes('h')) {
+            const hourA = parseInt(a.period.replace('h', ''));
+            const hourB = parseInt(b.period.replace('h', ''));
+            return hourA - hourB;
+        }
+        // If it's weekly data (day names), sort by day order
+        const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const indexA = dayOrder.indexOf(a.period);
+        const indexB = dayOrder.indexOf(b.period);
+        if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB;
+        }
+        // Default alphabetical sort
+        return a.period.localeCompare(b.period);
+    });
+    
+    // If no real data, show empty chart
+    const labels = sortedData.length > 0 
+        ? sortedData.map(item => item.period)
+        : ['No Data'];
+        
+    const quayData = sortedData.length > 0 
+        ? sortedData.map(item => item.quay_amount)
+        : [0];
+        
+    const handlingData = sortedData.length > 0 
+        ? sortedData.map(item => item.vessel_handling_charges)
+        : [0];
+
     return (
-        <Line data={{
-            labels: SampleLineChartData().map((berthRevByMonth, index) => berthRevByMonth.period),
-            datasets: [
-                {
-                    label: 'Quay Amount',
-                    data: SampleLineChartData().map((berthRevByMonth, index) => berthRevByMonth.quay_amount),
-                    backgroundColor: '#064ff0',
-                    borderColor: '#064ff0', borderWidth: 3
+        <Line 
+            data={{
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Quay Amount (RWF)',
+                        data: quayData,
+                        backgroundColor: '#064ff0',
+                        borderColor: '#064ff0', 
+                        borderWidth: 3,
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Handling Charges (RWF)',
+                        data: handlingData,
+                        backgroundColor: '#ff3030',
+                        borderColor: '#ff3030', 
+                        borderWidth: 3,
+                        tension: 0.1,
+                        fill: false
+                    }
+                ]
+            }}
+            options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: labels[0] && labels[0].includes('h') ? 'Berthing Revenue by Hour' : 
+                              labels[0] && (labels[0].includes('day') || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].includes(labels[0])) ? 'Berthing Revenue by Day' : 
+                              'Berthing Revenue',
+                        font: {
+                            size: 12
+                        }
+                    }
                 },
-                {
-                    label: 'Handling Charges Amount',
-                    data: SampleLineChartData().map((berthRevByMonth, index) => berthRevByMonth.vessel_handling_charges),
-                    backgroundColor: '#ff3030',
-                    borderColor: '#ff3030', borderWidth: 3
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: labels[0] && labels[0].includes('h') ? 'Hour' : 
+                                  labels[0] && (labels[0].includes('day') || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].includes(labels[0])) ? 'Day' : 
+                                  'Period',
+                            font: {
+                                size: 10
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 9
+                            }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Amount (RWF)',
+                            font: {
+                                size: 10
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 9
+                            },
+                            callback: function(value) {
+                                // Format large numbers with K/M suffixes
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'M';
+                                } else if (value >= 1000) {
+                                    return (value / 1000).toFixed(1) + 'K';
+                                }
+                                return value;
+                            }
+                        },
+                        beginAtZero: true
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 3,
+                        hoverRadius: 5
+                    }
                 }
-            ]
-
-        }} />
+            }}
+        />
     )
-}
-
-
-export const SampleLineChartData = () => {
-    const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    const randomPlate = () => `${String.fromCharCode(65 + randomInt(0, 25))}${String.fromCharCode(65 + randomInt(0, 25))}E-${randomInt(100, 999)}`;
-    const randomDate = (month) => {
-        const day = randomInt(1, 28); // Keep it simple, avoid edge cases
-        return `2025-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${randomInt(0, 23)}:${randomInt(0, 59)}:00`;
-    };
-    const vesselNames = ['Sunset Explorer', 'Ocean Star', 'Blue Horizon', 'Wave Rider', 'Sea Venture', 'Tidal Dream'];
-    const operators = ['Maritime Express', 'BlueWave Shipping', 'Oceanic Co.', 'SeaLink Operators'];
-
-    // Generate 12 months of data
-    return Array.from({ length: 12 }, (_, index) => ({
-        id: index + 1, // Sequential IDs (1 to 12)
-        quay_amount: randomInt(0, 5000), // Random quay amount between 0 and 5000
-        etd: randomDate(index + 1), // ETD as a 2025 date in the given month
-        vessel_handling_charges: randomInt(100, 1000), // Random charges between 100 and 1000
-        name: vesselNames[randomInt(0, vesselNames.length - 1)], // Random vessel name
-        plate_number: randomPlate(), // Random plate like "RAE-153"
-        dimension: `${randomInt(20, 50)} x ${randomInt(10, 60)} x ${randomInt(20, 40)}`, // Random dimensions
-        capacity: `${randomInt(10000, 60000)}`, // Random capacity between 10,000 and 60,000
-        owner_operator: operators[randomInt(0, operators.length - 1)], // Random operator
-        rura_certificate: `RURA-CERT-${String(randomInt(1, 999)).padStart(3, '0')}`, // Random certificate
-        contact_number: `07${randomInt(80, 89)}${randomInt(1000000, 9999999)}`, // Random phone number
-        loa: `${randomInt(20, 50)}`, // Random length overall
-        vesselId: randomInt(1, 20), // Random vessel ID
-        period: index + 1, // Month number (1 to 12)
-    }));
-
 }

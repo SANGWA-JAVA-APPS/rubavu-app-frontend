@@ -16,7 +16,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputOnly, InputRowDate, InputR
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 import Commons from '../../services/Commons'
 import Repository from '../../services/Repository'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
@@ -490,7 +490,7 @@ function Booking() {
             </ContainerRowBtwn>
           </AnimateHeight>
           <ContainerRow mt='3'>
-            <ListToolBar listTitle='Booking List' height={height} entity='Booking' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+            <ListToolBar listTitle='Booking List' role="addBerthing" height={height} entity='Booking' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
             <SearchformAnimation searchHeight={searchHeight}>
               <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
             </SearchformAnimation>
@@ -508,7 +508,7 @@ function Booking() {
                   <td>Destination Port </td>
                   <td>bollard or vessel </td>
                   <td>bollard Or Vessel Number </td>
-                  {userType == 'admin' && <td className='delButton'>Option</td>}
+                  {userType == usertoEditprint && <td className='delButton'>Option</td>}
                 </TableHead>
                 <tbody>
                   {bookings && bookings.map((booking) => (
@@ -521,7 +521,7 @@ function Booking() {
                       <td>{booking.loading_port}   </td>
                       <td>{booking.bollard_or_vessel}   </td>
                       <td>{booking.bollard_or_vessel === 'vessel' ? booking.vesselOne + ' - ' + booking.vesselTwo : booking.bollardOrVesselNumber}   </td>
-                      {userType == 'admin' && <ListOptioncol getEntityById={() => getBookingById(booking.id)} delEntityById={() => delBookingById(booking.id)} />}
+                      {userType == usertoEditprint && <ListOptioncol getEntityById={() => getBookingById(booking.id)} delEntityById={() => delBookingById(booking.id)} />}
                     </tr>
                   ))}</tbody>
               </TableOpen>

@@ -87,22 +87,10 @@ class Commons {
         return axios.post(Conn.wholePath.name + "/appointment/find/apptmt/customer/bystatus/" + status, SearchByDateOnly, { headers: Conn.GetToken })
     }
     updateOrder(id, user_id, product_id, Mdl_orders) {
-        return axios.put(Conn.wholePath.name + '/orders/' + id + '/' + user_id + '/' + product_id,Mdl_orders, { headers: Conn.GetToken })
+        return axios.put(Conn.wholePath.name + '/orders/' + id + '/' + user_id + '/' + product_id, Mdl_orders, { headers: Conn.GetToken })
     }
 
     /* #region  Public urls */
-    savePubAccount(usersDTO) {
-        return axios.post(Conn.PubWholePath.name + "/account", usersDTO)
-    }
-    savePubOrder(sendOrder, account_id, product_id) {
-        return axios.post(Conn.PubWholePath.name + '/' + account_id + '/' + product_id, sendOrder)
-
-    }
-
-
-
-    /* #endregion */
-
 }
 
 export default new Commons()

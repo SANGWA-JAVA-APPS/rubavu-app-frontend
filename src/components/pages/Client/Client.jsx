@@ -20,15 +20,16 @@ import Commons from '../../services/Commons'
 import Repository from '../../services/Repository'
 import StockDelete from '../../services/StockServices/StockDelete'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
+import { Tabs, Tab, Card, Row, Col } from 'react-bootstrap';
 
 
 function Client() {
 
- const [userType, setUserType] = useState()
+  const [userType, setUserType] = useState()
   /*#region ---------- ENTITY FIELDS DECLARATIONS ---------------------------*/
-const [id, setId] = useState()
-const [tin_number, setTin_number] = useState()
-const [profile_id, setProfile_id] = useState()
+  const [id, setId] = useState()
+  const [tin_number, setTin_number] = useState()
+  const [profile_id, setProfile_id] = useState()
 
   /*#endregion ENTITY FIELDS DECLARATION */
 
@@ -53,7 +54,7 @@ const [profile_id, setProfile_id] = useState()
     setShowLoader(true)
 
     var client = {
-      id:id,tin_number : tin_number,profile_id : profile_id
+      id: id, tin_number: tin_number, profile_id: profile_id
     }
     if (id) {
       Commons.updateClient(client, id, authHeader).then((res) => {
@@ -120,15 +121,15 @@ const [profile_id, setProfile_id] = useState()
     setShowLoader(false)
     setShowAlert(true)
     setHeight(0)
-setId(null)
-setTin_number("")
-setProfile_id("")
+    setId(null)
+    setTin_number("")
+    setProfile_id("")
 
   }
   const clearHandle = () => {
-setId(null)
-setTin_number("")
-setProfile_id("")
+    setId(null)
+    setTin_number("")
+    setProfile_id("")
 
     setClearBtn(false)
   }
@@ -145,55 +146,63 @@ setProfile_id("")
 
   return (
     <PagesWapper>
-
-      <AnimateHeight id="animForm" duration={300} animateOpacity={true} height={height}>
-        <ContainerRowBtwn clearBtn={clearBtn} form={'Client'} showLoader  = {showLoader}  >
-          <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
-          <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
-            <InputRow name='Tin Number ' val={tin_number} handle={(e) => setTin_number(e.target.value)} label='lbltin_number' />
-            <InputRow name='Profile Id ' val={profile_id} handle={(e) => setProfile_id(e.target.value)} label='lblprofile_id' />
-    
-            <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />
-          </FormInnerRightPane>
-          {/* <FormSidePane /> */}
-        </ContainerRowBtwn>
-      </AnimateHeight>
-      <ContainerRow mt='3'>
-        <ListToolBar listTitle='client List' height={height} entity='Client' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
-        <SearchformAnimation searchHeight={searchHeight}>
-          <SearchBox />
-        </SearchformAnimation>
-
-        <div ref={componentRef} className="dataTableBox">
-          <PrintCompanyInfo />
-          <TableOpen>
-            <TableHead>
-
-                <td>ID</td>
-                <td>Tin Number </td>
-                <td>Profile Id </td>
-
-              {userType == 'admin' && <td className='delButton'>Option</td>}
-            </TableHead>
-            <tbody>
-              {clients.map((client) => (
-                <tr key={client.id}>
-                  <td>{client.id}   </td>
-                  <td>{client.tin_number}   </td>
-                  <td>{client.profile_id}   </td>
-
-                  {userType == 'admin' && <ListOptioncol getEntityById={() => getClientById(client.id)} delEntityById={() => delClientById(client.id)} />}
-                </tr>
-              ))}</tbody>
-          </TableOpen>
-        </div>
-      </ContainerRow>
-      {!dataLoad && <DataListLoading />
-      }
+      <Row className="d-flex justify-content-center">
+        <Col md={11} className="bg-dark">
+          <Tabs defaultActiveKey="tab1" id="client-tabs" className="mb-3">
+            <Tab eventKey="tab1" title="Client List">
+              {/* Your original content goes here */}
+              <AnimateHeight id="animForm" duration={300} animateOpacity={true} height={height}>
+                <ContainerRowBtwn clearBtn={clearBtn} form={'Client'} showLoader={showLoader}>
+                  <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
+                  <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
+                    <InputRow name='Tin Number ' val={tin_number} handle={(e) => setTin_number(e.target.value)} label='lbltin_number' />
+                    <InputRow name='Profile Id ' val={profile_id} handle={(e) => setProfile_id(e.target.value)} label='lblprofile_id' />
+                    <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />
+                  </FormInnerRightPane>
+                  {/* <FormSidePane /> */}
+                </ContainerRowBtwn>
+              </AnimateHeight>
+              <ContainerRow mt='3'>
+                <ListToolBar listTitle='client List' height={height} entity='Client' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+                <SearchformAnimation searchHeight={searchHeight}>
+                  <SearchBox />
+                </SearchformAnimation>
+                <div ref={componentRef} className="dataTableBox">
+                  <PrintCompanyInfo />
+                  <TableOpen>
+                    <TableHead>
+                      <td>ID</td>
+                      <td>Tin Number </td>
+                      <td>Profile Id </td>
+                      {userType == 'admin' && <td className='delButton'>Option</td>}
+                    </TableHead>
+                    <tbody>
+                      {clients.map((client) => (
+                        <tr key={client.id}>
+                          <td>{client.id}   </td>
+                          <td>{client.tin_number}   </td>
+                          <td>{client.profile_id}   </td>
+                          {userType == 'admin' && <ListOptioncol getEntityById={() => getClientById(client.id)} delEntityById={() => delClientById(client.id)} />}
+                        </tr>
+                      ))}</tbody>
+                  </TableOpen>
+                </div>
+              </ContainerRow>
+              {!dataLoad && <DataListLoading />}
+            </Tab>
+            <Tab eventKey="tab2" title="Second Tab">
+              <Card className="mt-3">
+                <Card.Body>
+                  <h5>Second Tab Content</h5>
+                  <p>Put your second tab content here.</p>
+                </Card.Body>
+              </Card>
+            </Tab>
+          </Tabs>
+        </Col>
+      </Row>
 
     </PagesWapper>
-
-
   )
 }
 

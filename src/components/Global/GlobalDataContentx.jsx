@@ -98,6 +98,7 @@ export const AppDataContextProvider = ({ children }) => {
   const [pressedKey, setPressedKey] = useState('');
 
   const [commonArray,setCommonArray]=useState([])
+  const [commonArrayTwo,setCommonArrayTwo]=useState([])
   
    const [commonsDate, setCommonSDate] = useState(CurrentDate.todaydate())
     const [commoneDate, setCommoneDate] = useState(CurrentDate.todaydate())
@@ -210,7 +211,7 @@ export const AppDataContextProvider = ({ children }) => {
       dataTodisplayInModal, setDataTodisplayInModal, // this holds the data type to be displayed in the modal, so is for now the report and dashboard data
       HandlingObj, setHandlingObj,
       checkAll, setcheckAll, myRecords, setMyRecords,process, setProcess,
-      commonArray,setCommonArray,commonsDate, setCommonSDate,commoneDate, setCommoneDate
+      commonArray,setCommonArray,commonArrayTwo,setCommonArrayTwo,commonsDate, setCommonSDate,commoneDate, setCommoneDate
     }}>
       {children}
     </ColItemContext.Provider>

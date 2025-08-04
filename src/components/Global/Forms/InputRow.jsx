@@ -8,25 +8,25 @@ import { FloatingLabel, Form } from 'react-bootstrap';
 
 export const DropDownInputNoLabel = (props) => {
     return (<>
-     
-            <select required value={props.val} style={OtherStyles.txt()} onChange={props.handle} className="form-select" id={props.label} >
-                <option value=""></option>
-                {props.children}
-            </select>
+
+        <select required value={props.val} style={OtherStyles.txt()} onChange={props.handle} className="form-select" id={props.label} >
+            <option value=""></option>
+            {props.children}
+        </select>
     </>)
 }
 export const InputOnly = (props) => {
     return (
         <>
-                <FloatingLabel   label={props.name}>
-                    <Form.Control type={props.num ? 'number' : 'text'} autoComplete='false' required
-                        value={props.val} 
-                        placeholder={props.placeholder}
-                        onChange={props.handle} onFocus={props.handleFocus} onBlur={props.handleBlur}
-                        className={`form-control  w-75 ${props.moreclass} `}
-                        min={props.num ? 1 : undefined}  />
-                    {props.additionalelement}
-                </FloatingLabel>
+            <FloatingLabel label={props.name}>
+                <Form.Control type={props.num ? 'number' : 'text'} autoComplete='false' required
+                    value={props.val}
+                    placeholder={props.placeholder}
+                    onChange={props.handle} onFocus={props.handleFocus} onBlur={props.handleBlur}
+                    className={`form-control  w-75 ${props.moreclass} `}
+                    min={props.num ? 1 : undefined} />
+                {props.additionalelement}
+            </FloatingLabel>
 
 
         </>
@@ -35,15 +35,15 @@ export const InputOnly = (props) => {
 export const InputOnlyDisabled = (props) => {
     return (
         <>
-                <FloatingLabel   label={props.name}>
-                    <Form.Control type={props.num ? 'number' : 'text'} autoComplete='false' required
-                        value={props.val} 
-                        placeholder={props.placeholder}
-                        onChange={props.handle} onFocus={props.handleFocus} onBlur={props.handleBlur}
-                        className={`form-control  w-75 ${props.moreclass} `}
-                        min={props.num ? 1 : undefined} disabled />
-                    {props.additionalelement}
-                </FloatingLabel>
+            <FloatingLabel label={props.name}>
+                <Form.Control type={props.num ? 'number' : 'text'} autoComplete='false' required
+                    value={props.val}
+                    placeholder={props.placeholder}
+                    onChange={props.handle} onFocus={props.handleFocus} onBlur={props.handleBlur}
+                    className={`form-control  w-75 ${props.moreclass} `}
+                    min={props.num ? 1 : undefined} disabled />
+                {props.additionalelement}
+            </FloatingLabel>
 
 
         </>
@@ -62,12 +62,12 @@ export const InputOnlyReadOnly = (props) => {
 }
 export const InputOnlyEditable = (props) => {
     return (
-        <> 
-         
-            <input type="text"  autoComplete='false' style={OtherStyles.txt()} value={props.val} placeholder={props.placeholder}
-                onChange={props.handle}   className={`form-control   ${props.moreclass} `} id={props.label} />
+        <>
+
+            <input type="text" autoComplete='false' style={OtherStyles.txt()} value={props.val} placeholder={props.placeholder}
+                onChange={props.handle} className={`form-control   ${props.moreclass} `} id={props.label} />
             {props.additionalelement}
-       
+
         </>
     )
 }
@@ -94,7 +94,7 @@ export const FileInputRow = (props) => {
         </>
     )
 }
-function InputRow(props) {
+export const InputRow=(props) =>{
     return (
         <>
             <GenIputRow name={props.name} label={props.label} moreclass={props.moreclass}>
@@ -107,15 +107,14 @@ function InputRow(props) {
     )
 }
 
-export const  TimeInputRow=(props)=> {
+export const TimeInputRow = (props) => {
     return (
         <>
-            {/* <GenIputRow name={props.name} label={props.label} moreclass={props.moreclass}> */}
-                <input type='time' autoComplete='off' required style={OtherStyles.txt()}
-                    value={props.val} onChange={props.handle} className={`form-control `}
-                    id={props.label} placeholder={props.placeholder} />
-                {props.additionalelement}
-            {/* </GenIputRow> */}
+            <input type='time' max={props.maxTime} autoComplete='off' required style={OtherStyles.txt()}
+                value={props.val} onChange={props.handle} className={`form-control `}
+                id={props.label} placeholder={props.placeholder} />
+            {props.additionalelement}
+
         </>
     )
 }
@@ -181,7 +180,7 @@ export const InputRowDate = (props) => {
 export const InputRowDateNoLabel = (props) => {
     return (
         <>
-            <DatePicker  id="date" className={`form-control   ${props.moreclass}`} style={{ width: '100% !important' }}
+            <DatePicker id="date" className={`form-control   ${props.moreclass}`} style={{ width: '100% !important' }}
                 selected={props.nDate} format='yyyy-MM-dd' title="Pick the date" autoComplete="off" required
                 onChange={props.handle} showYearDropdown />
             {props.additionalelement}
@@ -279,7 +278,7 @@ export const DropDownInput = (props) => {
                     <div className='unitsLoading' style={{ backgroundColor: '#fff', position: 'relative', overflow: 'hidden', width: '380px', height: '40px' }}>
                     </div>
                 </div>}
-            <select required style={OtherStyles.txt()}   value={props.val} onChange={props.handle} className="form-select" id={props.label} >
+            <select required style={OtherStyles.txt()} value={props.val} onChange={props.handle} className="form-select" id={props.label} >
                 <option value=""></option>
                 {props.children}
             </select>

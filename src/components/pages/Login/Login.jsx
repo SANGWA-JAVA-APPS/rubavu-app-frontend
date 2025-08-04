@@ -32,9 +32,7 @@ function Login() {
 
   useEffect(() => {
 
-
-
-
+ 
 
     document.body.style.backgroundColor = '#fff'
     if (StockConn.server.name === '//hahandiinn.codeguru-pro.com:') {
@@ -129,7 +127,7 @@ function Login() {
 
   return (
     <>
-    
+
 
       <Container fluid className="">
 
@@ -176,6 +174,9 @@ function Login() {
                 </Col>
               </Row>
             </Form>
+          </Col>
+          <Col md={12} style={{position: 'absolute', bottom: '0', left: '0', right: '0', textAlign: 'center', padding: '16px',fontFamily:'century gothic', fontSize:'13px', color: '#596175' }}>
+                Port Management System. V.1.0, Designed and Maintained by <a target="_blank" href="#" style={{color: '#596175'}}>CODEGURU Ltd</a>
           </Col>
         </Row>
       </Container>

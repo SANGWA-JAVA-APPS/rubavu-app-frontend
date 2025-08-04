@@ -30,6 +30,9 @@ import SeaarchBytyping, { SearchTableResult } from '../globalcomponents/SeaarchB
 import { ColItemContext } from '../Global/GlobalDataContentx';
 import ClientCargo from './ClientCargo';
 import { ClientTableRows, TruckTableRows } from '../pages/Invoice/Invoice';
+import { TitleSmallDesc } from '../globalcomponents/TitleSmallDesc';
+import { Tabs, Tab, Card, Row, Col } from 'react-bootstrap';
+import { ClientReg } from './ClientReg';
 
 export const Client = () => {
 
@@ -200,8 +203,11 @@ export const Client = () => {
     const searchOnThirdSecond = (e) => {
         // setSearchTableVisible(true)
         const newVal = e.target.value
-        setSearchItemValue(newVal)
-        setNumCaharacters(newVal.length)
+        if (newVal.length > 0) {
+            setSearchItemValue(newVal)
+            setNumCaharacters(newVal.length)
+
+        }
         if (newVal.length > 3) {
             setSearchTableVisible(true)
             findClientByNameLike(searchItemValue)
@@ -234,123 +240,140 @@ export const Client = () => {
     return (
         <>
             <PagesWapper>
+                <Row className="d-flex justify-content-center">
+                    <Col md={11} >
+                        <Tabs defaultActiveKey="tab1" id="client-tabs" className="mb-3">
+                            <Tab eventKey="tab1" title="Client profiles">
+                                <Card className="mt-3">
+                                    <Card.Body>
+                                        <ClientReg/>
+                                    </Card.Body>
+                                </Card>
+                            </Tab>
+                            <Tab eventKey="tab2" title="Clients cargo inventory">
+  
+                                <ContainerRow mt='3'>
+                                    <TitleSmallDesc title="Client" />
+                                    <SeaarchBytyping
+                                        placeholder="Enter a Cleint Name"
+                                        labelName='Search Client By Name '
+                                        searchTableVisible={searchTableVisible}
+                                        showSelected={showSelected}
+                                        hideSelectorLink={hideSelectorLink}
+                                        currentTypingVal={searchItemValue}
+                                        ref={inputRef}
+                                        sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)}
+                                    />
 
+                                    {searchTableVisible && (
+                                        <SearchTableResult
+                                            tableHead={tableHead}
+                                            TableRows={() => <ClientTableRows clients={itemssbyname} searchDone={searchDone} />}
+                                        />
+                                    )}
 
-                <ContainerRow mt='3'>
-                    <SeaarchBytyping placeholder="Enter a Cleint Name"
-                        labelName='Search Client By Name ' searchTableVisible={searchTableVisible} showSelected={showSelected} hideSelectorLink={hideSelectorLink}
-                        currentTypingVal={searchItemValue} ref={inputRef}                        sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)} />
+                                    <ClientCargo clients={clients} />
 
-                    {searchTableVisible && <SearchTableResult tableHead={tableHead}                         TableRows={() => <ClientTableRows clients={itemssbyname} searchDone={searchDone} />} />}
+                                    <SearchformAnimation searchHeight={searchHeight}>
+                                        <SearchBox noDates={true} />
+                                    </SearchformAnimation>
+                                </ContainerRow>
 
-
-
-
-                    <ClientCargo clients={clients} />
-                  
-
-                    <SearchformAnimation searchHeight={searchHeight}>
-                        <SearchBox noDates={true}   />
-                    </SearchformAnimation>
-                </ContainerRow>
-
-
-
-                <AnimateHeight
-                    id="animForm"
-                    duration={300} animateOpacity={true}
-                    height={height}  >
-                    <div className="container  " classname="formPane">
-                        <div className='row'>
-                            <div className='row  d-flex justify-content-between align-top'>
-
-                                {clearBtn && <EditTitle name="Client" />}
-                                {!clearBtn && <Title name=" Client " />}
-                                <div className='col-8'  >
-                                    {showAlert &&
-                                        <div class="alert alert-primary" role="alert">
-                                            Record Saved Successfully!
+                                <AnimateHeight  id="animForm"                                    duration={300}                                    animateOpacity={true}                                    height={height}
+                                >
+                                    <div className="container" classname="formPane">
+                                        <div className='row'>
+                                            <div className='row  d-flex justify-content-between align-top'>
+                                                {clearBtn && <EditTitle name="Client" />}
+                                                {!clearBtn && <Title name=" Client " />}
+                                                <div className='col-8'>
+                                                    {showAlert &&
+                                                        <div className="alert alert-primary" role="alert">
+                                                            Record Saved Successfully!
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div className='box col-lg-8 col-md-8  ms-3 formBox p-3'>
+                                                    {showLoader && <Loader />}
+                                                    <div className='form-row'>
+                                                        <form onSubmit={submitHndler} id="Form">
+                                                            <div className="form-group row m-1">
+                                                                <label htmlFor="inputName" className="col-sm-2 col-form-label">Name</label>
+                                                                <div className="col-sm-10">
+                                                                    <input type="text" name='item_name' required autoComplete='false' style={txtStyle} className="form-control" value={name} onChange={(e) => setName(e.target.value)} id="inputName" />
+                                                                </div>
+                                                            </div>
+                                                            <div className="form-group row m-1">
+                                                                <label htmlFor="inputPhone" className="col-sm-2 col-form-label">Location</label>
+                                                                <div className="col-sm-10">
+                                                                    <input type="text" name='weight' required style={txtStyle} className="form-control" value={telephone} onChange={(e) => setTelephone(e.target.value)} id="inputPhone" />
+                                                                </div>
+                                                            </div>
+                                                            <div className="form-group row m-1">
+                                                                <label htmlFor="inputtin" className="col-sm-2 col-form-label">TIN</label>
+                                                                <div className="col-sm-10">
+                                                                    <input type="text" name='arriv_tallying' required autoComplete='false' style={txtStyle} className="form-control" value={tin} onChange={(e) => setTin(e.target.value)} id="inputtin" />
+                                                                </div>
+                                                            </div>
+                                                            <div className="form-group row m-1">
+                                                                <label htmlFor="inputAddress" className="col-sm-2 col-form-label">Seal Number</label>
+                                                                <div className="col-sm-10">
+                                                                    <input type="text" name='arriv_tallying' required autoComplete='false' style={txtStyle} className="form-control" value={address} onChange={(e) => setAddress(e.target.value)} id="inputAddress" />
+                                                                </div>
+                                                            </div>
+                                                            <div className='container'>
+                                                                <div className="row">
+                                                                    <div className='col-6'>
+                                                                        {clearBtn &&
+                                                                            <button type='button' onClick={clearHandle} className='mt-4 btn btn-danger'>
+                                                                                <Icon style={{ color: '#fff', marginRight: "10px" }} icon={cancel} />  Cancel
+                                                                            </button>
+                                                                        }
+                                                                    </div>
+                                                                    <div className='col-6'>
+                                                                        <button type="submit" className="mt-4 offset-6 col-6 float-right saveBtn " style={{ color: "#fff", fontWeight: "bolder" }}>
+                                                                            <Icon style={{ color: '#fff', marginRight: "10px" }} icon={save} />
+                                                                            {changeSaveUpdateBtntxt()}
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    }</div>
-
-                                <div className='box col-lg-8 col-md-8  ms-3 formBox p-3' >
-                                    {showLoader && <Loader />}
-                                    {/* {showAlert && <MyAlert item=" Tallying " />} */}
-                                    <div className='form-row'>
-                                        <form onSubmit={submitHndler} id="Form">
-                                            <div class="form-group row m-1">
-                                                <label htmlFor="inputName" class="col-sm-2 col-form-label">Name</label><div class="col-sm-10">
-                                                    <input type="text" name='item_name' required autoComplete='false' style={txtStyle} className="form-control" value={name} onChange={(e) => setName(e.target.value)} id="inputName" />
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group row m-1">
-                                                <label htmlFor="inputPhone" class="col-sm-2 col-form-label">Location</label><div class="col-sm-10">
-                                                    <input type="text" name='weight' required style={txtStyle} className="form-control" value={telephone} onChange={(e) => setTelephone(e.target.value)} id="inputPhone" />
-                                                </div>
-                                            </div>
-                                            <div class="form-group row m-1">
-                                                <label htmlFor="inputtin" class="col-sm-2 col-form-label">TIN</label><div class="col-sm-10">
-                                                    <input type="text" name='arriv_tallying' required autoComplete='false' style={txtStyle} className="form-control" value={tin} onChange={(e) => setTin(e.target.value)} id="inputtin" />
-                                                </div>
-                                            </div>
-                                            <div class="form-group row m-1">
-                                                <label htmlFor="inputAddress" class="col-sm-2 col-form-label">Seal Number</label><div class="col-sm-10">
-                                                    <input type="text" name='arriv_tallying' required autoComplete='false' style={txtStyle} className="form-control" value={address} onChange={(e) => setAddress(e.target.value)} id="inputAddress" />
-                                                </div>
-                                            </div>
-                                            <div className='container'>
-                                                <div className="row">
-                                                    <div className='col-6'>
-                                                        {clearBtn &&
-                                                            <button type='button' onClick={clearHandle} className='mt-4 btn btn-danger'>   <Icon style={{ color: '#fff', marginRight: "10px" }} icon={cancel} />  Cancel</button>
-                                                        }
-                                                    </div>
-                                                    <div className='col-6'>
-                                                        <button type="submit" className="mt-4     offset-6 col-6 float-right saveBtn " style={{ color: "#fff", fontWeight: "bolder" }} >  <Icon style={{ color: '#fff', marginRight: "10px" }} icon={save} />
-                                                            {changeSaveUpdateBtntxt()}</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
                                     </div>
+                                </AnimateHeight>
+
+                                <div className='container dataTableBox mt-2 d-none'>
+                                    <table className='table table-striped dataTable table-bordered'>
+                                        <TableHead>
+                                            <td>Arrival id </td>
+                                            <td>Client name </td>
+                                            <td>TIN </td>
+                                            <td>Arrival Date </td>
+                                            <td>Cargo (KG)</td>
+                                            <td>Last removal </td>
+                                        </TableHead>
+                                        <tbody>
+                                            {clients && clients.isArray && clients.map((client) => (
+                                                <tr key={client.id}>
+                                                    <td>{client?.name}</td>
+                                                    <td>{client?.surname}</td>
+                                                    <td>{client.tin_number}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
+                                {!dataLoad && <DataListLoading />}
 
-                            </div>
-                        </div>
-                    </div>
-                </AnimateHeight>
-
-                <div className='container dataTableBox mt-2 d-none'>
-
-                    <table className='table table-striped dataTable table-bordered'>
-                        <TableHead >
-                            <td>Arrival id </td>
-                            <td>Client name </td>
-                            <td>TIN </td>
-                            <td>Arrival Date </td>
-                            <td>Cargo (KG)</td>
-                            <td>Last removal </td>
-
-                            {/* <td className='delButton'>Option </td> */}
-                        </TableHead>
-                        <tbody>
-                            {clients && clients.map((client) => (
-                                <tr key={client.id}>
-                                    <td>{client?.name}</td>
-                                    <td>{client?.surname}</td>
-                                    <td>{client.tin_number}</td>
-                                </tr>
-                            ))}</tbody>
-                    </table>
-                </div>
-                {
-                    !dataLoad &&
-                    <DataListLoading />
-                }
-
-            </PagesWapper >
-        </ >
+                            </Tab>
+                        </Tabs>
+                    </Col>
+                </Row>
+            </PagesWapper>
+        </>
     )
-
 }

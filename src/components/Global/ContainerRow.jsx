@@ -28,7 +28,7 @@ import CommonLook from './CommonLook'
 export default function ContainerRow(props) {
     return (
         <div>
-            <div className={`container`}>
+            <div className={` ${props.full ? 'container-fluid' : 'container'} ${props.otherStyles}`} >
                 <div className="row">
                     {props.children}
 

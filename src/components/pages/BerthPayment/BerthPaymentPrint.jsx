@@ -31,7 +31,7 @@ export const BerthPaymentPrint = () => {
                 <PrintRow txt="Total Amount Paid" txtValue={obj.payment && `RWF ${(obj.payment).toLocaleString()}`} />
 
                 <h5 className="mt-5 text-underline"><u>INVOICE</u></h5>
-                <PrintRow txt="Amount" txtValue={obj.mdl_invoice.quay_amount && `RWF ${(obj.mdl_invoice.quay_amount).toLocaleString()}`} />
+                <PrintRow txt="Amount" txtValue={obj.mdl_invoice.quay_amount && `RWF ${(obj.mdl_invoice.quay_amount +obj.mdl_invoice.vessel_handling_charges   ).toLocaleString()}`} />
 
                 <h5 className="mt-5 text-underline"><u>VESSEL</u></h5>
                 <PrintRow txt="Vessel Name" txtValue={obj.mdl_invoice.mdl_vessel.name} />

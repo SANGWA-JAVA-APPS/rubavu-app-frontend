@@ -16,27 +16,35 @@ import { arrowRight as Mainpoint } from 'react-icons-kit/icomoon/arrowRight'
 import { calendar } from 'react-icons-kit/icomoon/calendar'
 import { Link } from 'react-router-dom'
 import AnimateHeight from 'react-animate-height'
-import { useAuthHeader } from 'react-auth-kit';
+import { useAuthHeader, useAuthUser } from 'react-auth-kit';
 
 import { Form } from 'react-bootstrap'
 import OtherStyles from '../Styles/OtherStyles'
 
-
 function ListToolBar(props) {
+
+    const auth = useAuthUser();
+    const user = auth();
+    const roless = user?.roles || [];
+    const hasPermission = (permission) => {
+        const result = Array.isArray(roless) && roless.includes(permission);
+        return result;
+    };
     return (
         <>
             <div className='col-12 '><h3 className='boldTitle'> {props.listTitle}  </h3></div>
             <div className='col-12'>
+
                 <div className='row'>
                     <div className='col-11 d-flex  '>
-                        {(localStorage.getItem('catname') == 'admin' || localStorage.getItem('catname') == 'store keeper') && !props.hideSaveBtn &&
-                            <button id='addREc' className='btn'
+                        {hasPermission(props.role) &&
+                            (<button id='addREc' className='btn'
                                 aria-expanded={props.height !== 0} aria-controls="animForm" onClick={props.changeFormHeightClick}
                                 style={{ marginRight: "15px", backgroundColor: OtherStyles.bg(), fontSize: "12px", color: '#fff', fontWeight: "bold" }}>
                                 <Icon size={11} style={{ marginRight: "8px", color: '#fff' }} icon={add} />
-                                {!props.defaultLabel  ? 'Add ' + props.entity : props.defaultLabel}
+                                {!props.defaultLabel ? 'Add ' + props.entity : props.defaultLabel}
 
-                            </button>
+                            </button>)
                         }
                         <button onClick={props.handlePrint} style={{ marginRight: "10px", fontSize: "12px" }} className='btn smallRound btn-dark ms-1'>
                             <Icon style={{ marginRight: "8px", color: '#fff' }} icon={printer} />
@@ -49,7 +57,7 @@ function ListToolBar(props) {
 
 
                         {/* these are the tools that appear on demand,  */}
-                        
+
                         {props.salesPurchaseFilters == true &&
                             <>
                                 <button className='btn btn-success ms-1 smallRound'>

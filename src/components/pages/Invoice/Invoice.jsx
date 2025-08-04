@@ -14,7 +14,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputOnlyReadOnly, InputReadOnl
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 import Commons from '../../services/Commons'
 
 import { ColItemContext } from '../../Global/GlobalDataContentx'
@@ -31,6 +31,7 @@ import CurrentDate from '../../Global/CurrentDate';
 
 import { FaPencilAlt, FaTrash } from 'react-icons/fa';
 import TruckVhNavBar from '../../Navbar/TruckVhNavBar'
+import AdditionalFees from './AdditionalFees';
 
 
 
@@ -142,17 +143,20 @@ function Invoice() {
 
   }, [refresh]);
 
-
+  const [itemToEdit, setItemToEdit] = useState()
   const getInvoiceById = (id) => {
-    StockRepository.findInvoiceById(id, authHeader).then((res) => {
-      setId(res.data.id)
-      setQuay_amount(res.data.quay_amount)
-      setEtd(res.data.etd)
-      setVessel_handling_charges(res.data.vessel_handling_charges)
 
-      setClearBtn(true)
-      showheight('auto')
-    })
+    setIsEditing(true)
+    setItemToEdit(id)
+    // StockRepository.findInvoiceById(id, authHeader).then((res) => {
+    //   setId(res.data.id)
+    //   setQuay_amount(res.data.quay_amount)
+    //   setEtd(res.data.etd)
+    //   setVessel_handling_charges(res.data.vessel_handling_charges)
+
+    //   setClearBtn(true)
+    //   showheight('auto')
+    // })
   }
   const delInvoiceById = (id) => {
     Utils.Submit(() => {
@@ -278,7 +282,7 @@ function Invoice() {
     setRefresh(!refresh)
   }
 
-let totBerthing=0.0, totWharfage=0.0
+  let totBerthing = 0.0, totWharfage = 0.0
 
   const [editingRowId, setEditingRowId] = useState(null);
   const [editFields, setEditFields] = useState({ quay_amount: '', vessel_handling_charges: '' });
@@ -321,6 +325,8 @@ let totBerthing=0.0, totWharfage=0.0
     }, () => { })
   }
 
+  const [amountAdded, setAmountAdded] = useState(0)
+
   return (
     <PagesWapper>
 
@@ -328,7 +334,7 @@ let totBerthing=0.0, totWharfage=0.0
         <ContainerRowBtwn clearBtn={clearBtn} form={'Payment Advices '} showLoader={showLoader}  >
           <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
           <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
-            
+
             {setSearchTableVisible && <SeaarchBytyping placeholder="Vessel to book, search vessel by operator name"
               labelName='  Operator' searchTableVisible={searchTableVisible} showSelected={showSelected} hideSelectorLink={hideSelectorLink}
               currentTypingVal={searchItemValue} ref={inputRef} sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)} />}
@@ -370,7 +376,7 @@ let totBerthing=0.0, totWharfage=0.0
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='Payment Advice' height={height} entity='Payment Advice' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='Payment Advice' role="addBerthInvoice" height={height} entity='Payment Advice' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -391,27 +397,49 @@ let totBerthing=0.0, totWharfage=0.0
               <td className="text-center">Berthing Charges </td>
               <td className="text-center">Wharfage Charges </td>
 
-              {userType == 'admin' && <td className='delButton '>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
               {invoices.map((invoice) => {
-                totBerthing+=invoice.quay_amount
-                totWharfage+=invoice.vessel_handling_charges
+                totBerthing += invoice.quay_amount
+                totWharfage += invoice.vessel_handling_charges
                 return (
-                <tr key={invoice.id}>
+                  <tr key={invoice.id}>
 
-                  <td>{invoice.id}   </td>
-                  <td>{invoice.name}   </td>
-                  <td className="text-center">{invoice.owner_operator}   </td>
-                  <td className="text-center">{(invoice.ata).split('T')[0] + ' ' + (invoice.ata).split('T')[1]}   </td>
-                  <td className="text-center">{(invoice.etd).split('T')[0] + ' ' + (invoice.etd).split('T')[1]}   </td>
-                  <td className="text-center">{invoice.number_days}   </td>
-                  <td className="text-center">{invoice.loa}   </td>
-                  <td className="text-center">{invoice.quay_amount && (Number(invoice.quay_amount)).toLocaleString()}   </td>
-                  <td className="text-center">{invoice.vessel_handling_charges && (invoice.vessel_handling_charges).toLocaleString()}   </td>
-                  {userType == 'admin' && <ListOptioncol print={true} printData={() => printData(invoice)} getEntityById={() => getInvoiceById(invoice.id)} delEntityById={() => delInvoiceById(invoice.id)} />}
-                   
-                  <td className="text-center">
+                    <td>{invoice.id}   </td>
+                    <td>{invoice.name}   </td>
+                    <td className="text-center">{invoice.owner_operator}   </td>
+                    <td className="text-center">{(invoice.ata).split('T')[0] + ' ' + (invoice.ata).split('T')[1]}   </td>
+                    <td className="text-center">{(invoice.etd).split('T')[0] + ' ' + (invoice.etd).split('T')[1]}   </td>
+                    <td className="text-center">{invoice.number_days}   </td>
+                    <td className="text-center">{invoice.loa}   </td>
+                    <td className="text-center">
+
+                      {Number(invoice.additionalFees) > 0
+                        ? (
+                          <>
+                            {invoice.quay_amount && Number(invoice.quay_amount).toLocaleString()}
+                            &nbsp;<span style={{ color: 'red', fontSize: '20px' }}>&rarr;</span> &nbsp;
+                            <span style={{ color: 'green' }}>{Number(invoice.additionalFees).toLocaleString()}</span>&nbsp;
+                            <p style={{ color: '#824b4a'}} className='m-0 p-0'> {invoice.additionFeeDescription}</p>
+                          </>
+                        ) : (invoice.quay_amount && Number(invoice.quay_amount).toLocaleString()
+                        )
+                      }
+
+
+                      {itemToEdit === invoice.id ?
+                        <AdditionalFees type="berthing" amountAdded={amountAdded} setAmountAdded={setAmountAdded} invId={invoice.id} setItemToEdit={setItemToEdit} 
+                        refresh={refresh} setRefresh={setRefresh}/>
+                        : ''}
+
+                    </td>
+                    <td className="text-center">{invoice.vessel_handling_charges && (invoice.vessel_handling_charges).toLocaleString()}   </td>
+                    {usertoEditprint(userType) &&
+                      <ListOptioncol editRole="updateBerthInvoice" deleteRole="deleteBerthInvoice"
+                        print={true} printData={() => printData(invoice)} getEntityById={() => getInvoiceById(invoice.id)} delEntityById={() => delInvoiceById(invoice.id)} />}
+
+                    {/* <td className="text-center">
                     {isEditing ? (
                       <input
                         type="number"
@@ -422,8 +450,8 @@ let totBerthing=0.0, totWharfage=0.0
                     ) : (
                       invoice.vessel_handling_charges && Number(invoice.vessel_handling_charges).toLocaleString()
                     )}
-                  </td>
-                  {userType == 'admin' && (
+                  </td> */}
+                    {/* {userType == 'admin' && (
                     <td className='delButton'>
                       {isEditing ? (
                         <>
@@ -441,12 +469,13 @@ let totBerthing=0.0, totWharfage=0.0
                         </>
                       )}
                     </td>
-                  )}
-                </tr>
-              )})}
+                  )} */}
+                  </tr>
+                )
+              })}
 
-              
-              </tbody>
+
+            </tbody>
           </TableOpen>
 
 
@@ -484,14 +513,14 @@ export const TableRows = ({ bookings, searchDone }) => {
     </> : <tr> <td colspan="6"> <p className="text-danger border">No Booking Found  </p></td></tr>)
 
 }
-export const ClientTableRows = ({  clients, searchDone }) => {
+export const ClientTableRows = ({ clients, searchDone }) => {
   return (
     <>
       {clients.map((client, index) => (<tr>
         <td>{client.id}   </td>
         <td>{client.name}   </td>
         <td>{client.tin_number}   </td>
-        
+
         <Event item={[client.id, client.name, client.tin_number]} searchDone={() => {
           searchDone(client.id, client.name, client.tin_number)
         }} />

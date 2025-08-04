@@ -15,7 +15,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputRowDateNoLabel, TimeInputR
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 import Commons from '../../services/Commons'
 
 import { ColItemContext } from '../../Global/GlobalDataContentx'
@@ -26,7 +26,7 @@ import SeaarchBytyping, { SearchTableResult } from '../../globalcomponents/Seaar
 import { TableRows } from '../Invoice/Invoice'
 import { useNavigate } from 'react-router-dom';
 import CurrentDate from '../../Global/CurrentDate';
-import  StockDelete   from '../../services/StockServices/StockDelete'
+import StockDelete from '../../services/StockServices/StockDelete'
 
 
 function Entry() {
@@ -70,6 +70,9 @@ function Entry() {
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
   const [type, setType] = useState('');
   const [truck_woodenboat, setTruck_woodenboat] = useState()
+
+  const [selectedTime, setSelectedTime] = useState('');
+
   const formatDateFn = (date) => {
     const selectedDate = new Date(date)
     // Ensure two-digit month and day (e.g., 2024-02-05)
@@ -79,6 +82,18 @@ function Entry() {
 
     return `${year}-${month}-${day}`;
   }
+
+  const isTimeInFuture = (timeStr) => {
+    if (!timeStr) return false;
+    const [inputHrs, inputMins] = timeStr.split(':').map(Number);
+    const now = new Date();
+    const currentHrs = now.getHours();
+    const currentMins = now.getMinutes();
+
+    return inputHrs > currentHrs || (inputHrs === currentHrs && inputMins > currentMins);
+  };
+
+
   var TruckEntryDTO = {}
   const [truckData, setTruckData] = useState({
     plate_number: '', truck_id: '',
@@ -123,7 +138,7 @@ function Entry() {
           seal_number: seal_number,
           full_vessel_truck_warehouse: full_vessel_truck_warehouse,
           get_in_time: formatDateFn(get_in_time) + ' ' + time + ':00',
-          cargo_owner: cargo_owner,truck_woodenboat:truck_woodenboat
+          cargo_owner: cargo_owner, truck_woodenboat: truck_woodenboat
         }
       ]
     }
@@ -133,12 +148,12 @@ function Entry() {
       if (id) {
         const truckData = initializeTruckData();
         const requiredFields = [
-          'plate_number',          'truck_id',
-          'cargo_owner',          'truck_type',
-          'cargo_type',          'get_in_time',
-          'driver_name',          'driver_contact',
-          'weight_of_truck',          'full_or_empty',
-          'full_vessel_truck_warehouse',          'seal_number',
+          'plate_number', 'truck_id',
+          'cargo_owner', 'truck_type',
+          'cargo_type', 'get_in_time',
+          'driver_name', 'driver_contact',
+          'weight_of_truck', 'full_or_empty',
+          'full_vessel_truck_warehouse', 'seal_number',
         ];
         const isValid = requiredFields.every((field) => truckData[field] !== '' && truckData[field] !== null && truckData[field] !== undefined);
         if (!isValid) {
@@ -146,11 +161,22 @@ function Entry() {
           alert('Please fill in all required fields.');
           return;
         }
+        // if (isTimeInFuture(time)) {
+        //   alert('Selected time cannot be in the future.');
+
+        // }
 
         StockCommons.updateTruck_entry(truckData, id, authHeader).then((res) => {
           resetAfterSave()
         })
-      } else {
+
+      } 
+      // else if (isTimeInFuture(time)) {
+      //   alert('Selected time cannot be in the future.');
+      //   return;
+      // } 
+      else {
+
         StockCommons.saveTruck_entry(TruckEntryDTO, authHeader).then((res) => {
           console.log(res.data)
           if (res.data != null) {
@@ -174,12 +200,16 @@ function Entry() {
       setDataLoad(true)
     });
   }
+  const [maxTime, setMaxTime] = useState('');
 
   useEffect(() => {
     getAllTruck_entrys(0, 20)
 
-    //Get Token and catname
     setUserType(localStorage.getItem('catname'))
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    setMaxTime(`${hours}:${minutes}`);
 
   }, [refresh]);
 
@@ -328,9 +358,17 @@ function Entry() {
   }
 
 
-  useEffect(() => {
 
-  }, [type])
+  const handleTime = (e) => {
+    const value = e.target.value;
+    setSelectedTime(value);
+    setTime(value)
+
+    // if (value > maxTime) {
+    //   alert('Selected time cannot be in the future.');
+    //   setSelectedTime(''); // reset invalid time
+    // }
+  }
   return (
     <PagesWapper>
       <AnimateHeight id="animForm" duration={300} animateOpacity={true} height={height}>
@@ -392,7 +430,7 @@ function Entry() {
                   </Col>
                   <Col className='ms-1 ps-3' sm={3}></Col>
                   <Col className='pe-4'>
-                    <TimeInputRow label="timeInput" val={time} handle={(e) => setTime(e.target.value)} />
+                    <TimeInputRow max={maxTime} label="timeInput" val={time} handle={(e) => handleTime(e)} />
                   </Col>
 
                 </Row>
@@ -405,7 +443,7 @@ function Entry() {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='Truck Entry List' height={height} entity='Truck Entry' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='Truck Entry List' role="addGateEntry" height={height} entity='Truck Entry' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate}
             options={[{ name: 'plate_number', value: 'plate_number', label: 'Plate number' }]} setType={setType} />
@@ -427,7 +465,7 @@ function Entry() {
               <td className="text-center">full/Empty </td>
               <td className="text-center">Source / Destination</td>
               <td className="text-center">seal Number </td>
-              {userType == 'admin' && <td className='delButton '>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
               {truck_entrys.map((truck_entry) => (
@@ -444,7 +482,9 @@ function Entry() {
                   <td className="text-center">{truck_entry.full_or_empty}   </td>
                   <td className="text-center">{truck_entry.full_vessel_truck_warehouse}   </td>
                   <td className="text-center">{truck_entry.seal_number}   </td>
-                  {userType == 'admin' && <ListOptioncol print={true} printData={() => printData(truck_entry)}
+                  {usertoEditprint(userType) && <ListOptioncol print={true} 
+                  editRole="updateGateEntry" deleteRole="deleteGateEntry"
+                   printData={() => printData(truck_entry)}
                     getEntityById={() => getTruck_entryById(truck_entry.id)} delEntityById={() => delTruck_entryById(truck_entry.id)} />}
                 </tr>
               ))}</tbody>

@@ -15,7 +15,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputReadOnly, TimeInputRow } f
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 
 
 import { ColItemContext } from '../../Global/GlobalDataContentx'
@@ -28,6 +28,7 @@ import { TableRows, TruckTableRows } from '../Invoice/Invoice'
 import CurrentDate from '../../Global/CurrentDate'
 import { useNavigate } from 'react-router-dom';
 import StockDelete from '../../services/StockServices/StockDelete'
+import AdditionalFees from '../Invoice/AdditionalFees';
 
 
 
@@ -68,8 +69,14 @@ function Truck_parking_invoice() {
   const [final12HoursBlokcs, setFinal12HoursBlokcs] = useState()
   const [price, setPrice] = useState()
   const [entryTime, setEntryTime] = useState()
+  const [allTruckInvoices, setAllTruckInvoices] = useState([])
 
   const authHeader = useAuthHeader()();
+
+
+  const [itemToEdit, setItemToEdit] = useState() // used to edit invoice for additional amount
+const [isEditing, setIsEditing] = useState(false) // used to edit invoice for additional amount
+const [amountAdded, setAmountAdded] = useState(0) // used to edit invoice for additional amount
 
   const { obj, setObj } = useContext(ColItemContext)
   const navigate = useNavigate()
@@ -118,9 +125,17 @@ function Truck_parking_invoice() {
     });
   }
 
+  const getListRecords = () => {// this is used onthe list only
+    StockRepository.findTrucksInvoicesNoGrp(authHeader, startDate, endDate).then((res) => {
+      setAllTruckInvoices(res.data);
+      setDataLoad(true)
+      
+    });
+  }
+
   useEffect(() => {
     getAllTruck_parking_invoices()
-
+    getListRecords()// this is used on the data table only, because other states change after receipting
     //Get Token and catname
     setUserType(localStorage.getItem('catname'))
 
@@ -128,14 +143,18 @@ function Truck_parking_invoice() {
 
 
   const getTruck_parking_invoiceById = (id) => {
-    StockRepository.findTruck_parking_invoiceById(id, authHeader).then((res) => {
-      setId(res.data.id)
-      setLicence_plate_number(res.data.licence_plate_number)
-      setGet_out_time(res.data.get_out_time)
+    setIsEditing(true)
+    setItemToEdit(id)
 
-      setClearBtn(true)
-      showheight('auto')
-    })
+
+    // StockRepository.findTruck_parking_invoiceById(id, authHeader).then((res) => {
+    //   setId(res.data.id)
+    //   setLicence_plate_number(res.data.licence_plate_number)
+    //   setGet_out_time(res.data.get_out_time)
+
+    //   setClearBtn(true)
+    //   showheight('auto')
+    // })
   }
   const delTruck_parking_invoiceById = (id) => {
     Utils.Submit(() => {
@@ -158,7 +177,7 @@ function Truck_parking_invoice() {
     setHeight(0)
     setId(null)
     setLicence_plate_number("")
-
+    setRefresh(!refresh)
 
   }
   const clearHandle = () => {
@@ -202,11 +221,19 @@ function Truck_parking_invoice() {
 
     });
   }
+
+  const findTruckWithEntryByOperator = (searchItemValue) => {
+    StockRepository.findTruckWithEntryByPlatenumber(searchItemValue, authHeader).then((res) => {
+      setItemssbyname(res.data);
+      setDataLoad(true)
+    });
+  }
   const searchOnThirdSecond = (e) => {
     setSearchTableVisible(true)
     const newVal = e.target.value
     setSearchItemValue(newVal)
-    findVesselByOperator(searchItemValue)
+    // Use the new method that includes entry_id
+    findTruckWithEntryByOperator(searchItemValue)
     if (searchItemValue) {//if the user has typed in something
       // setCompletedSearch(false)
       // setSearchProgress(true) // Go and show the progress bar,
@@ -302,7 +329,7 @@ function Truck_parking_invoice() {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='truck parking invoice List' height={height} entity='Truck parking invoice' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='truck parking invoice List' role="addGateEntry" height={height} entity='Truck parking invoice' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -322,26 +349,43 @@ function Truck_parking_invoice() {
               <td> totalMin   </td>
               <td> fee   </td>
 
-              {userType == 'admin' && <td className='delButton '>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
-              {truck_parking_invoices.map((truck_parking_invoice) => {
+              {allTruckInvoices.map((truck_parking_invoice) => {
                 totInvoices += truck_parking_invoice.amount
                 return (
                   <tr key={truck_parking_invoice.id}>
                     <td>{truck_parking_invoice.id}   </td>
                     <td>{truck_parking_invoice.licence_plate_number}   </td>
                     <td>{truck_parking_invoice.entryTime}   </td>
-                    <td>{(truck_parking_invoice.amount.toLocaleString())}   </td>
+                    <td>
+                      
+                       {Number(truck_parking_invoice.additionalamount) > 0
+                        ? ( 
+                          <>
+                            {truck_parking_invoice.amount && Number(truck_parking_invoice.amount).toLocaleString()}
+                            &nbsp;<span style={{ color: 'red', fontSize: '20px' }}>&rarr;</span> &nbsp;
+                            <span style={{ color: 'green' }}>{Number(truck_parking_invoice.additionalamount).toLocaleString()}</span>&nbsp;
+                            <p style={{ color: '#824b4a'}} className='m-0 p-0'> {truck_parking_invoice.description}</p>
+                          </>
+                        ) :   (   truck_parking_invoice.amount && Number(truck_parking_invoice.amount).toLocaleString())
+                      }
+                        {itemToEdit === truck_parking_invoice.id ?
+                          <AdditionalFees type="gate" amountAdded={amountAdded} setAmountAdded={setAmountAdded} invId={truck_parking_invoice.id}
+                           setItemToEdit={setItemToEdit} refresh={refresh} setRefresh={setRefresh}/>
+                          : ''}
+
+
+                         </td>
                     <td>{(truck_parking_invoice?.mdl_truck?.o_truck_entrys[0]?.cargo_owner)}   </td>
-
-
                     <td>{truck_parking_invoice.totalDays}   </td>
                     <td>{truck_parking_invoice.totalHours}   </td>
                     <td>{truck_parking_invoice.totalMin}   </td>
                     <td>{(truck_parking_invoice.fee).toLocaleString()}   </td>
 
-                    {userType == 'admin' && <ListOptioncol print={true}
+                    {usertoEditprint(userType) && <ListOptioncol print={true}
+                    editRole="updateGateInvoice" deleteRole="deleteGateInvoice"
                       printData={() => printData(truck_parking_invoice)}
                       getEntityById={() => getTruck_parking_invoiceById(truck_parking_invoice.id)} delEntityById={() => delTruck_parking_invoiceById(truck_parking_invoice.id)} />}
                   </tr>

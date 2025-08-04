@@ -15,7 +15,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputReadOnly, LongTextINputRow
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 import StockCommons from '../../services/StockServices/StockCommons'
@@ -55,13 +55,14 @@ function Gen_receipt() {
   const [endDate, setEndDate] = useState(CurrentDate.todaydate())
 
   const [showRecepted, setShowReceipted] = useState(false)
+  const [truck_parking_invoices,setTruck_parking_invoices]=useState([])
   /*#region ---------- SAVING DATA TO DB--------------------------------------*/
   const onSubmitHandler = (e) => {
     e.preventDefault()
     setShowLoader(true)
 
     var gen_receipt = {
-      id: id, date_time: date_time, amount: amount, invoice_id: invoice_id, description: description
+      id: id, date_time: date_time, amount: invoiceDetails[0]?.total_amount, invoice_id: invoice_id, description: description
     }
     if (id) {
       StockCommons.updateGen_receipt(gen_receipt, id, authHeader).then((res) => {
@@ -205,7 +206,8 @@ function Gen_receipt() {
       setInvoice_id(invoice_id)
       StockRepository.findGen_DetailedinvoiceById(invoice_id, authHeader).then((res) => {
         setTotalAmount(res.data.amount)
-        setAmount(res.data.amount)
+        setAmount(invoiceDetails[0]?.total_amount)
+        
         setInvoiceDetails(res.data)
       })
     }
@@ -227,14 +229,14 @@ function Gen_receipt() {
                 <option value={invoice.id} key={invoice.id} >   {invoice.id} ----------- RWF{(invoice.amount).toLocaleString()} --------- {(invoice.total_weight).toLocaleString()}KG </option>
               ))}
             </DropDownInput>
-            {userType == 'admin' &&
+            {usertoEditprint(userType) &&
               <Row>
                 <Col md={3}></Col>
                 <Col md={6}>
                   <input type="checkbox" id="receiptedInvoices" onChange={() => setShowReceipted(!showRecepted)} /> <label for="receiptedInvoices">Show receipted</label>
                 </Col>
               </Row>}
-            <InputRow name='Amount ' val={amount} handle={(e) => setAmount(e.target.value)} label='lblamount' />
+            {/* <InputRow name='Amount ' val={amount} handle={(e) => setAmount(e.target.value)} label='lblamount' /> */}
 
 
             <InputReadOnly name='Date Time' val={invoiceDetails[0]?.date_time} label='lblget_out_time' />
@@ -254,7 +256,7 @@ function Gen_receipt() {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='Receipt List' height={height} entity='receipt' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='Receipt List' role="addOpsReceipt" height={height} entity='receipt' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -268,20 +270,21 @@ function Gen_receipt() {
               <td>Invoice Id </td>
               <td>Invoice Date </td>
               <td>description</td>
-              {userType == 'admin' && <td className='delButton '>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
               {gen_receipts.map((gen_receipt) => (
                 <tr key={gen_receipt.id}>
                   <td>{gen_receipt.id}   </td>
-                  <td>{gen_receipt.date_time}   </td>
+                  <td>{gen_receipt.dateTime}   </td>
                   <td>RWF {gen_receipt.amount && (gen_receipt.amount).toLocaleString()}   </td>
-                  <td>{gen_receipt?.mdl_invoice?.id}   </td>
-                  <td>{gen_receipt?.mdl_invoice?.date_time}   </td>
+                  <td>{gen_receipt?.invoiceId}   </td>
+                  <td>{gen_receipt?.invDate_time}   </td>
                   <td>{gen_receipt?.description}   </td>
 
-                  {userType == 'admin'
-                    && <ListOptioncol print={true} printData={() => printReceipt(gen_receipt)} getEntityById={() => getGen_receiptById(gen_receipt.id)} delEntityById={() => delGen_receiptById(gen_receipt.id)} />}
+                  {usertoEditprint(userType)
+                    && <ListOptioncol editRole="updateOpsReceipt" deleteRole="deleteOpsReceipt"
+                     print={true} printData={() => printReceipt(gen_receipt)} getEntityById={() => getGen_receiptById(gen_receipt.id)} delEntityById={() => delGen_receiptById(gen_receipt.id)} />}
                 </tr>
               ))}</tbody>
           </TableOpen>

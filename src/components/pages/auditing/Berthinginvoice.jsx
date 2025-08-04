@@ -155,7 +155,7 @@ function Berthinginvoice() {
                                         <td>{berth.username}</td>
                                         <td>{berth.entityId}</td>
                                         <td>{new Date(berth.timestamp).toLocaleString()}</td>
-                                        <td style={{ backgroundColor: 'beige' }}>{berth.revisionType}</td>
+                                        <td style={{ backgroundColor: 'beige' }}>{'ADD'==berth.revisionType ?'INSERT':berth.revisionType}</td>
                                         <td>{berth.dateTime}</td>
                                         <td>{berth.amount}</td>
                                         <td>{berth.refId}</td>

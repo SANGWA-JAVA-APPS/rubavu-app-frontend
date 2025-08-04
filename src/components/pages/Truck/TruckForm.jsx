@@ -16,7 +16,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputOnly, InputRowDate, InputR
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 import Commons from '../../services/Commons'
 import Repository from '../../services/Repository'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
@@ -243,7 +243,7 @@ function TruckForm() {
                 <td>Driver Id</td>
                 <td>Truck type</td>
 
-                {userType == 'admin' && <td className='delButton d-none'>Option</td>}
+                {userType == usertoEditprint && <td className='delButton d-none'>Option</td>}
               </TableHead>
               <tbody>
                 {trucks && trucks.map((truck) => (
@@ -253,7 +253,7 @@ function TruckForm() {
                     <td>{truck.truck_type}   </td>
                     <td>{truck.driver_id}   </td>
 
-                    {userType == 'admin' && <ListOptioncol getEntityById={() => getTrucksById(truck.id)} delEntityById={() => deleteTruckById(truck.id)} />}
+                    {userType == usertoEditprint && <ListOptioncol getEntityById={() => getTrucksById(truck.id)} delEntityById={() => deleteTruckById(truck.id)} />}
                   </tr>
                 ))}</tbody>
             </TableOpen>

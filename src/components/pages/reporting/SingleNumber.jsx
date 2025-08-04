@@ -10,7 +10,7 @@ import { ColItemContext } from '../../Global/GlobalDataContentx'
 import { SmallSplitter, Splitter } from '../../globalcomponents/Splitter'
 import { TitleDesscNormal, TitleSmallDesc } from '../../globalcomponents/TitleSmallDesc'
 import { PdfItem, SummaryAndPrintPdf } from './SummaryAndPrintPdf'
-import { ChartComponent, SampleLineChartData } from '../Dashboard/ThreeCharts'
+import { ChartComponent } from '../Dashboard/ThreeCharts'
 export const SingleNumber = () => {
     const { cardIconShow, setIconShow,setColSizeTwo, cardBg} = useContext(ColItemContext)
     useEffect(() => {

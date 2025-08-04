@@ -52,5 +52,12 @@ class StockDelete {
     deleteTruck_exitById(id) {
         return axios.delete(StockConn.wholePath.name + "/truck_exit/" + id, { headers: StockRepository.getHeaders }).catch(() => { StockCommons.RedirectToLogin() })
     }
+    deletewhMovementById(id) {
+        return axios.delete(StockConn.wholePath.name + "/hwmovement/" + id, { headers: StockRepository.getHeaders }).catch(() => { StockCommons.RedirectToLogin() })
+    }
+
+    deleteRoleById(id) {
+        return axios.delete(StockConn.wholePath.name + "/usersroles/" + id,            { headers: StockRepository.getHeaders }).catch(() => StockCommons.RedirectToLogin());
+    }
 }
 export default new StockDelete()

@@ -6,9 +6,9 @@ import { Icon } from 'react-icons-kit'
 import { androidBoat as boat } from 'react-icons-kit/ionicons/androidBoat'
 import { truck } from 'react-icons-kit/icomoon/truck'
 import { ic_attach_money_outline as money } from 'react-icons-kit/md/ic_attach_money_outline'
-import { useState } from 'react'
-import { useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
+import { DateRangeContext } from '../../globalcomponents/ButtonContext'
 export const SingleNumberTop = ({ topRightTxt1, topRightTxt2, topRightTxt3, topRightTxt4, dataTodisplay ,
     bottomLeftTxt1, bottomLeftTxt2, bottomLeftTxt3, clickHandler
 }) => {
@@ -54,14 +54,24 @@ export const CustomCardRows = ({ topRightTxt1, topRightTxt2, bottomLeftTxt1, bot
 export const SingleNumCol = ({ topRightTxt1 = "Booking", topRightTxt2 = "281", bottomLeftTxt1 = "+55%", bottomLeftTxt2 = "than last week", bg, icon, clickHandler, dataTodisplay }) => {
 
     const { cardIconShow, cardBg, cardHeight, colSize, colWidth,showModal, setShowModal, modalTitle, setDataTodisplayInModal, setMOdalTitle } = useContext(ColItemContext)
+    const { setStartDate, setendDate, startDate, endDate } = useContext(DateRangeContext);
+    
+    // Set date range to current year (January 1st to December 31st)
+    useEffect(() => {
+        const currentYear = new Date().getFullYear();
+        const startOfYear = `${currentYear}-01-01`; // January 1st as string
+        const endOfYear = `${currentYear}-12-31`; // December 31st as string
+        
+        setStartDate(startOfYear);
+        setendDate(endOfYear);
+    }, [setStartDate, setendDate]);
+    
     const setupModal = () => {
 
         setShowModal(true)
-        
         setMOdalTitle(topRightTxt1)
-
-        
         // setDataTodisplayInModal(topRightTxt1)
+        
     }
     return (
         <Col className='' md={colSize} onClick={clickHandler}>

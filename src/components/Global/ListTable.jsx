@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 // Icons
 import { Icon } from 'react-icons-kit'
 import { printer } from 'react-icons-kit/icomoon/printer'
@@ -13,29 +13,47 @@ import { arrowRight as Mainpoint } from 'react-icons-kit/icomoon/arrowRight'
 import { ic_not_interested as disabled } from 'react-icons-kit/md/ic_not_interested'
 import { ic_play_arrow_outline as enabled } from 'react-icons-kit/md/ic_play_arrow_outline'
 import { Col } from 'react-bootstrap'
+import { useAuthUser } from 'react-auth-kit'
 function ListOptioncol(props) {
+    const [userType, setUserType] = useState()
+    const auth = useAuthUser();
+    const user = auth();
+    const roless = user?.roles || [];
+    const userEditRole = (permission) => {
+        return Array.isArray(roless) && roless.includes(permission)
+    }
+    const userDeleteRole = (permission) => {
+        return Array.isArray(roless) && roless.includes(permission)
+    }
+
+    useEffect(() => {
+        setUserType(localStorage.getItem('catname'))
+    }, [])
     return (
         <>
-            <td className='delButton optCol' style={{width:'auto'}} >
+            <td className='delButton optCol' style={{ width: 'auto' }} >
                 <div className='row d-flex justify-content-center align-items-center'>
-                    <Col md={3} className="d-flex justify-content-center">
-                        <button onClick={props.getEntityById} style={{ width: "40px", padding: "5px", cursor: "pointer" }} title="Update Record" className='btn'>
-                            <Icon size={16} style={{ color: '#0fd120' }} icon={edit} />
-                        </button>
-                    </Col>
-                    <Col md={3} className="d-flex justify-content-center">
-                        <button onClick={props.delEntityById} style={{ width: "40px", padding: "5px", cursor: "pointer" }} title="Delete Record" className='btn'>
-                            <Icon size={16} style={{ color: '#ff0000' }} icon={remove} />
-                        </button>
-                    </Col>
-                    <Col md={3} className="d-flex justify-content-center">
-                        {(props.print && !props.donwShowPrint) &&
-                            <button onClick={props.printData} style={{ width: "40px", padding: "5px", cursor: "pointer" }} title="Print" className='btn'>
-                                <Icon size={17} style={{ color: '#000' }} icon={printer} />
+                    {userEditRole(props.editRole) && 
+                        <Col md={3} className="d-flex justify-content-center">
+                            <button onClick={props.getEntityById} style={{ width: "40px", padding: "5px", cursor: "pointer" }} title="Update Record" className='btn'>
+                                <Icon size={16} style={{ color: '#0fd120' }} icon={edit} />
                             </button>
+                        </Col>}
+                        {userDeleteRole(props.deleteRole) &&  
+                            <Col md={3} className="d-flex justify-content-center">
+                                <button onClick={props.delEntityById} style={{ width: "40px", padding: "5px", cursor: "pointer" }} title="Delete Record" className='btn'>
+                                    <Icon size={16} style={{ color: '#ff0000' }} icon={remove} />
+                                </button>
+                            </Col> 
                         }
-                    </Col>
-                </div>
+                        <Col md={3} className="d-flex justify-content-center">
+                            {(props.print && !props.donwShowPrint) &&
+                                <button onClick={props.printData} style={{ width: "40px", padding: "5px", cursor: "pointer" }} title="Print" className='btn'>
+                                    <Icon size={17} style={{ color: '#000' }} icon={printer} />
+                                </button>
+                            }
+                        </Col>
+                    </div>
             </td>
         </>
     )
@@ -48,7 +66,8 @@ export default ListOptioncol
 export const TableOpen = (props) => {
     return (
         <div className='DataTableBox'>
-            <table style={{ backgroundColor: props.changedbgColor == 1 ? '#f7fdfa' : '#fff' }} className='table  table-responsive table-hover table-striped dataTable table-bordered'>
+            <table style={{ backgroundColor: props.changedbgColor == 1 ? '#f7fdfa' : '#fff' }} 
+            className={`table  table-responsive table-hover ${!props.noStripe ? ' table-striped' : ''} dataTable table-bordered`}>
                 {props.children}
 
             </table>

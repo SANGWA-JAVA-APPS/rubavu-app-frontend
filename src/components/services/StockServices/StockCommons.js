@@ -1,3 +1,4 @@
+
 import React, { Component } from 'react'
 import axios from "axios"
 
@@ -452,9 +453,9 @@ class StockCommons {
         ).catch((err) => StockCommons.RedirectToLogin());
     }
 
-    saveUnberthing(unberthing, vessel_id, authHeader) {
+    saveUnberthing(unberthing, vessel_id,pytId, authHeader) {
         return axios.post(
-            StockConn.wholePath.name + "/unberthing/" + vessel_id,
+            StockConn.wholePath.name + "/unberthing/" + vessel_id+'/'+pytId,
             unberthing,
             { headers: this.getHeaders(authHeader) }
         ).catch((err) => StockCommons.RedirectToLogin());
@@ -534,7 +535,7 @@ class StockCommons {
     }
 
     saveClient(client, authHeader) {
-        return axios.post(StockConn.wholePath.name + "/client/", client, { headers: this.getHeaders(authHeader) });
+        return axios.post(StockConn.wholePath.name + "/client/register", client, { headers: this.getHeaders(authHeader) });
     }
 
     updateClient(client, id, authHeader) {
@@ -616,15 +617,66 @@ class StockCommons {
             { headers: this.getHeaders(authHeader) }
         );
     }
-    updateWarehouse(itemId, arrivalId, quantity, newQuantity, userid,totalAmount,totalWeights,period ,authHeader) {
-        return axios.post(StockConn.wholePath.name + "/arrival_note/removefromwh/" + itemId + '/' + arrivalId + '/' + quantity + '/' + newQuantity + '/' + userid+'/'+totalAmount+'/'+totalWeights+'/'+period,
-            { headers: this.getHeaders(authHeader) }
+    updateWarehouse(quantity, newQuantity, userid, totalAmount, totalWeights, period,filteredByDate,paymentOption, authHeader) {
+        return axios.post(StockConn.wholePath.name + "/arrival_note/removefromwh/" + quantity + '/' + newQuantity +
+            '/' + userid + '/' + totalAmount + '/' + totalWeights + '/' + period+'/'+paymentOption, filteredByDate, { headers: this.getHeaders(authHeader) }
         );
     }
 
     /* #endregion */
+    saveWarehouseUpdates(newclients, totalAmount, totalWeights, period, authHeader) {
+        return axios.post(StockConn.wholePath.name + "/arrival_note/removefromwh/" + '/' + totalAmount + '/' + totalWeights + '/' + period, newclients,
+            { headers: this.getHeaders(authHeader) }
+        );
+    }
+    saveRole(role, authHeader) {
+        return axios.post(StockConn.wholePath.name + "/roles", role, { headers: this.getHeaders(authHeader) }
+        ).catch((err) => StockCommons.RedirectToLogin());
+    }
 
+
+    saveAccountCategory(accountCategory, authHeader) {
+        return axios
+            .post(
+                StockConn.wholePath.name + "/category/categoryRole", // NO 'codeguru/api' prefix
+                accountCategory,
+                { headers: { 'Content-Type': 'application/json', ...this.getHeaders(authHeader) } }
+            );
+    }
+
+    saveInvAdditionalFee(additionalFee, authHeader) {
+        return axios.post(StockConn.wholePath.name + "/invadditionalfees/add",
+            additionalFee, {
+                headers: { 'Content-Type': 'application/json', ...this.getHeaders(authHeader) }
+        } );
+
+    }
+
+      // Save Other Revenue Category
+    saveOtherRevCategory(categoryDTO) {
+        return axios.post(StockConn.wholePath.name + "/otherrevcats", categoryDTO, { headers: StockConn.GetToken }        )
+    }
+
+    updateOtherRevCategory(categoryDTO, id) {
+        return axios.put(StockConn.wholePath.name + `/otherrevcats/${id}`, categoryDTO, { headers: StockConn.GetToken }        )
+    }
+    deleteOtherRevCategory(id) {
+        return axios.delete(StockConn.wholePath.name + `/otherrevcats/${id}`, { headers: StockConn.GetToken }        )
+        /* #endregion */
+
+    }
+
+     saveOtherRevenue(dto)  {
+        return axios.post(StockConn.wholePath.name + '/otherrevenue/', dto, { headers: StockConn.GetToken })
+    }
+    updateOtherRevenue (dto, id)  {
+        return axios.put(StockConn.wholePath.name + `/otherrevenue/${id}`, dto, { headers: StockConn.GetToken  })
+    }
+
+    deleteOtherRevenueById (id, token)  {
+        return axios.delete(StockConn.wholePath.name + `/otherrevenue/${id}`, {
+            headers: token
+        })    }
 
 }
-
 export default new StockCommons()

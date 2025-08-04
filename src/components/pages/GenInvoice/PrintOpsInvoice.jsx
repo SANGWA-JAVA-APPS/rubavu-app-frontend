@@ -5,7 +5,7 @@ import Printtemplate from '../../globalcomponents/Printtemplate'
 import { Col, Row } from 'react-bootstrap'
 import { Splitter } from '../../globalcomponents/Splitter'
 import { TableOpen } from '../../Global/ListTable'
-import { InvoiceHeader, InvoiceRows } from './InvoiceRows'
+import { InvoiceHeader, InvoiceHeaderStorage, InvoiceRows } from './InvoiceRows'
 import { ButtonContext } from '../../globalcomponents/ButtonContext'
 import { TitleSmallDesc } from '../../globalcomponents/TitleSmallDesc'
 import { Pages } from '@mui/icons-material'
@@ -171,19 +171,23 @@ export const StorageInvoice = ({ obj, serviceName }) => {
                 <TitleSmallDesc title="BILL DETAILS" />
 
                 <TableOpen>
-                    <InvoiceHeader />
-                    {obj.storagePeriod && 'double period' === obj.storagePeriod ?
+                    {obj.storagePeriod && '30 days onwards' === obj.storagePeriod ?
+                    <InvoiceHeaderStorage/>:
+                    <InvoiceHeader />}
+                    {obj.storagePeriod && '30 days onwards' === obj.storagePeriod ?
                         <>
-                            <StorageRows rowNumber={1} serviceName={serviceName} obj={obj} unitPrice="0.6" amount={(obj.total_weight * 0.6).toLocaleString()} />
-                            <StorageRows rowNumber={2} serviceName={serviceName} obj={obj} unitPrice="1.2" amount={(obj.total_weight * 1.2).toLocaleString()} />
+                            <StorageRows rowNumber={1} serviceName={serviceName} obj={obj} unitPrice="0.6" amount={(Number(obj.total_weight * 0.6* 15)).toLocaleString()} total_weight ={obj.total_weight}   />
+                            <StorageRows rowNumber={2} serviceName={serviceName} obj={obj} unitPrice="1.2" amount={( Number(obj.total_amount)-   ( Number(obj.total_weight * 0.6 * 15))).toLocaleString()} total_weight={obj.total_weight} />
                         </> :
                         <StorageRows rowNumber={1} serviceName={serviceName} obj={obj} unitPrice="0.6" amount={(obj.total_amount).toLocaleString()} />
-                    }
+                                        
+                 }
 
                     <tr>
-                        <td colSpan="5" style={{ fontSize: '20px' }} className="  fw-bold text-end"> Total Amount: Rwf {(obj.total_amount).toLocaleString()}    </td>
+                        <td colSpan="6" style={{ fontSize: '20px' }} className="  fw-bold text-end"> Total Amount: Rwf {(obj.total_amount).toLocaleString()}    </td>
                     </tr>
                 </TableOpen>
+                 
 
             </Col>
             <Col md={11}>
@@ -195,7 +199,7 @@ export const StorageInvoice = ({ obj, serviceName }) => {
 
 }
 
-export const StorageRows = ({ rowNumber,serviceName,obj, unitPrice,amount }) => {// these will show detailed storage type when there have been charged double perio(15 to 30 days and 3o days onwards) at the same time
+export const StorageRows = ({ rowNumber,serviceName,obj, unitPrice,amount,total_weight }) => {// these will show detailed storage type when there have been charged double perio(15 to 30 days and 3o days onwards) at the same time
     return <tr className="  border border-bottom">
         <td className=" border border-down text-center">
             {rowNumber}
@@ -209,7 +213,15 @@ export const StorageRows = ({ rowNumber,serviceName,obj, unitPrice,amount }) => 
         <td className=" border border-down text-center">
             {unitPrice}
         </td>
+        {unitPrice==='0.6' ?
         <td className=" border border-down text-center">
+           {Number.parseFloat(amount.replace(/,/g, '')) / 0.6 /  total_weight} days
+        </td>: <td className=" border border-down text-center">
+            {Number.parseFloat(amount.replace(/,/g, '')) / 1.2 /  total_weight} days
+        </td>
+
+        }
+        <td  className=" border border-down text-center">
             {amount}
         </td>
         <td className=" border border-down  ">

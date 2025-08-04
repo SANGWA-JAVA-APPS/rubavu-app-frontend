@@ -5,7 +5,7 @@ import PagesWapper from '../../Global/PagesWapper'
 import { useReactToPrint } from "react-to-print"
 // import VertNavBar from '../../Navbar/VertNavBar'
 import AnimateHeight from 'react-animate-height'
-import { useAuthHeader } from 'react-auth-kit';
+import { useAuthHeader, useAuthUser } from 'react-auth-kit';
 // import UpdatedComponent from '../../Global/HOCForm'
 import PrintCompanyInfo from '../../Global/PrintCompanyInfo'
 import Loader, { DataListLoading } from '../../Global/Loader';
@@ -17,7 +17,7 @@ import InputRow, { DropDownInput, EmptyInputRow, InputReadOnly, LongTextINputRow
 import FormTools from '../../Global/Forms/PubFnx'
 import ListToolBar, { SearchformAnimation } from '../../Global/ListToolBar'
 import ListOptioncol, { TableOpen } from '../../Global/ListTable'
-import Utils from '../../Global/Utils'
+import Utils, { usertoEditprint } from '../../Global/Utils'
 import StockCommons from '../../services/StockServices/StockCommons'
 import StockRepository from '../../services/StockServices/StockRepository'
 import StockDelete from '../../services/StockServices/StockDelete'
@@ -30,7 +30,8 @@ import { TableRows, TruckTableRows } from '../Invoice/Invoice'
 import { useNavigate } from 'react-router-dom';
 import CurrentDate from '../../Global/CurrentDate';
 import { FaPencilAlt, FaTrash } from 'react-icons/fa';
-
+ 
+ 
 
 
 function TruckReceipt() {
@@ -100,14 +101,15 @@ function TruckReceipt() {
     setShowLoader(true)
 
     var mdl_truck_payment = {
-      payment_amount: payment_amount, description: description
+      payment_amount: invoiceDetails[0]?.amount, description: description
     }
     if (id) {
       StockCommons.updateTruck_parking_invoice(mdl_truck_payment, id, authHeader).then((res) => {
         resetAfterSave()
       })
     } else {
-      StockCommons.saveTruck_payment(mdl_truck_payment, truckParkingInvoice, authHeader).then((res) => {
+
+      StockCommons.saveTruck_payment(mdl_truck_payment, truckParkingInvoices[0].id, authHeader).then((res) => {
         console.log(res.data)
         if (res.data != null) {
           resetAfterSave()
@@ -118,6 +120,18 @@ function TruckReceipt() {
       })
     }
   }
+
+
+
+  const auth = useAuthUser();
+  const user = auth();
+  const roless = user?.roles || [];
+  const hasEditPermission = (permission) => {
+    const result = Array.isArray(roless) && roless.includes(permission);
+    return result;
+  };
+
+
   /*#endregion Listing data*/
 
   /*#region ------------All Records, Deleting and By Id------------------------*/
@@ -140,7 +154,7 @@ function TruckReceipt() {
   }
   useEffect(() => {
     getAllTruck_payments()
-     if (showRecepted) {
+    if (showRecepted) {
       findTruck_parking_invoice()
     } else {
       findTruck_parking_invoiceNoteReceipted()
@@ -272,12 +286,12 @@ function TruckReceipt() {
 
   useEffect(() => {
     if (id) {
-      
+
       navigate('/truckreceiptPrint')
     }
   }, [id])
   const printData = (obj) => {
-    
+
     setObj(obj)
     setId(obj.id)
     console.log(obj)
@@ -330,6 +344,23 @@ function TruckReceipt() {
     }
 
   }
+
+  useEffect(() => {
+    if (invoiceDetails.length > 0) {
+      const amt = invoiceDetails[0].amount
+      setPayment_amount(amt)
+      //  console.log('-------------payment_amount: '+payment_amount)
+    }
+  }, [invoiceDetails])
+
+  useEffect(() => {
+    if (invoiceDetails.length > 0) {
+
+
+      console.log('-------------payment_amount has changed: ' + payment_amount)
+    }
+  }, [payment_amount])
+
   return (
     <PagesWapper>
 
@@ -343,19 +374,21 @@ function TruckReceipt() {
                 <option value={invoice.id} key={invoice.id}> {invoice.id} {" \t  "} - {invoice.licence_plate_number} - {(invoice.amount).toLocaleString()} </option>
               ))}
             </DropDownInput>
-            {userType == 'admin' &&
+            {userType == usertoEditprint &&
               <Row>
                 <Col md={3}></Col>
                 <Col md={6}>
                   <input type="checkbox" id="receiptedInvoices" onChange={() => setShowReceipted(!showRecepted)} /> <label for="receiptedInvoices">Show receipted</label>
                 </Col>
               </Row>}
-                <InputReadOnly name='licence plate number' val={invoiceDetails[0]?.licence_plate_number} label='lblget_out_time' />
-                <InputReadOnly name='get Out Time' val={invoiceDetails[0]?.get_out_time} label='lblgetamount' />
-                <InputReadOnly name='Amount' val={invoiceDetails[0]?.amount} label='lblget_weight' />
-                <InputReadOnly name='Total 12-Hour blocks' val={invoiceDetails[0]?.totalHours} label='lblget_description' />
-                <InputReadOnly name='Driver Name' val={invoiceDetails[0]?.driverName} label='lblget_description' />
-            <InputRow num={true} name='Actual Amount Paid (Rwf) ' val={payment_amount} handle={(e) => setPayment_amount(e.target.value)} label='lblget_out_time' />
+            <InputReadOnly name='licence plate number' val={invoiceDetails[0]?.licence_plate_number} label='lblget_out_time' />
+            <InputReadOnly name='get Out Time' val={invoiceDetails[0]?.get_out_time} label='lblgetamount' />
+            <InputReadOnly name='Amount' val={invoiceDetails[0]?.amount} label='lblget_weight' />
+            <InputReadOnly name='Total 12-Hour blocks' val={invoiceDetails[0]?.totalHours} label='lblget_description' />
+            <InputReadOnly name='Driver Name' val={invoiceDetails[0]?.driverName} label='lblget_description' />
+
+            {/* <InputRow num={true} name='Actual Amount Paid (Rwf) ' val={payment_amount} handle={(e) => setPayment_amount(e.target.value)} label='lblget_out_time' /> */}
+
             <LongTextINputRow name='Description ' val={description} handle={(e) => setDescription(e.target.value)} label='lbldesc' />
             <SaveUpdateBtns clearBtn={clearBtn} clearHandle={clearHandle} saveOrUpdate={FormTools.BtnTxt(clearBtn)} />
           </FormInnerRightPane>
@@ -363,7 +396,7 @@ function TruckReceipt() {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='truck parking payment List' height={height} entity='Truck parking payment' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='truck parking payment List' role="addGateReceipt" height={height} entity='Truck parking payment' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -378,17 +411,16 @@ function TruckReceipt() {
               <td>Amount</td>
               <td> Date   </td>
               <td> description   </td>
-              {userType == 'admin' && <td className='delButton '>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
               {truck_payments.map((truck_payment) => (
                 <tr key={truck_payment.id}>
                   <td>{truck_payment.id}   </td>
                   <td>
-                    {editingRowId === truck_payment.id ? (
+                    {usertoEditprint(userType) && editingRowId === truck_payment.id ? (
                       <input
-                        type="number"
-                        value={editFields.payment_amount}
+                        type="number" value={editFields.payment_amount}
                         onChange={e => setEditFields(f => ({ ...f, payment_amount: e.target.value }))}
                         style={{ width: '100px' }}
                       />
@@ -398,14 +430,14 @@ function TruckReceipt() {
                   </td>
                   <td>{truck_payment.date_time}   </td>
                   <td>{truck_payment.description}</td>
-                  {userType == 'admin' && (
+                  {usertoEditprint(userType) && (
                     <td className='delButton'>
                       {editingRowId === truck_payment.id ? (
                         <>
                           <button className="btn btn-success btn-sm me-2" onClick={() => saveEditRow(truck_payment.id)}>Save</button>
                           <button className="btn btn-secondary btn-sm" onClick={cancelEditRow}>Cancel</button>
                         </>
-                      ) : (
+                      ) : hasEditPermission("updateGateReceipt") && (
                         <>
                           <button className="btn btn-success btn-sm me-2" onClick={() => startEditRow(truck_payment)} title="Edit Payment">
                             <FaPencilAlt />
@@ -413,12 +445,15 @@ function TruckReceipt() {
                           <button className="btn btn-danger btn-sm" onClick={() => delTruckPaymentById(truck_payment.id)} title="Delete Payment">
                             <FaTrash />
                           </button>
-                          <button onClick={() => printData(truck_payment)} style={{ width: "20px", marginLeft: "30px" }} title="Print" className=' ml-0 p-0 btn'>
-                            <Icon size={17} style={{ color: '#000', marginRight: "10px" }} icon={printer} />
-                          </button>
+                           
+                        
                         </>
                       )}
+                        {usertoEditprint(userType) && <button onClick={()=>printData(truck_payment)} style={{ width: "40px", padding: "5px", cursor: "pointer" }} title="Print" className='btn'>
+                            <Icon size={17} style={{ color: '#000' }} icon={printer} />
+                          </button>}
                     </td>
+
                   )}
                 </tr>
               ))}</tbody>

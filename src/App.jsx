@@ -81,6 +81,10 @@ import { Client } from './components/Client/Client';
 import RraRecords from './components/pages/reporting/RraRecords';
 import Berthinginvoice from './components/pages/auditing/Berthinginvoice';
 import AuditingTabs from './components/pages/auditing/AuditingTabs';
+import Clients from './components/pages/NewNav/NewProcesses/Clients';
+import UserRoles from './components/pages/Users/UserRoles';
+import { OtherRevenues } from './components/pages/OtherRevenues/OtherRevenues';
+import CargoSettings from './components/pages/settings/CargoSettings';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -142,7 +146,10 @@ function App() {
                 <Route path="/berthPaymentform" element={<RequireAuth loginPath="/login">
                   <BerthPayment /></RequireAuth>} />
                 <Route path="/commonreport" element={<RequireAuth loginPath="/login">
-                  <CommonReporting /></RequireAuth>} />
+                   <DateRangeProvider>
+                  <CommonReporting />
+                  </DateRangeProvider>
+                  </RequireAuth>} />
                 {/* -------------------- End of Forms  ----------  */}
 
                 <Route path="/ops" element={<RequireAuth loginPath="/login">
@@ -253,6 +260,18 @@ function App() {
                 </RequireAuth>} />
                 <Route path="/appauditing" element={<RequireAuth loginPath="/login">
                   <AuditingTabs />
+                </RequireAuth>} />
+                <Route path="/clients" element={<RequireAuth loginPath="/login">
+                  <Clients />
+                </RequireAuth>} />
+                <Route path="/userroles" element={<RequireAuth loginPath="/login">
+                  <UserRoles/>
+                </RequireAuth>} />
+                <Route path="/cargosettings" element={<RequireAuth loginPath="/login">
+                  <CargoSettings />
+                </RequireAuth>} />
+                <Route path="/otherrevenues" element={<RequireAuth loginPath="/login">
+                  <OtherRevenues  />
                 </RequireAuth>} />
               </Routes>
             </ToastDialogProvider>

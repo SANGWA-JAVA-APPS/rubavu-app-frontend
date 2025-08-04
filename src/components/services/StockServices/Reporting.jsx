@@ -1,6 +1,5 @@
 import axios from "axios";
 
-import StockRepository from "./StockRepository";
 import StockCommons from "./StockCommons";
 import StockConn from "./StockConn";
 
@@ -47,18 +46,33 @@ class Reporting {
   }
 
   cargoExitReport(startDate, endDate, authHeader) {
-    return axios.get(Reporting.server + "/arrival_note/1/7", {
-      headers: this.getHeaders(authHeader),
-      params: {
-        startDate: startDate,
-        endDate: endDate
-      }
+    // Try the hwmovement endpoint, fallback to empty data if it fails
+    return axios.get(Reporting.server + "/revenuereport/cargoExitBrief/", {
+      headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
     }).then(response => {
       console.log('Cargo exit API response:', response);
       return response;
-    }).catch((error) => { 
+    }).catch((error) => {
       console.error('Cargo exit report error:', error);
-      StockCommons.RedirectToLogin();
+      // Instead of redirecting to login, return empty data
+      return {
+        data: []
+      };
+    });
+  }
+  cargoExitDetailedReport(startDate, endDate, authHeader) {
+    // Try the hwmovement endpoint, fallback to empty data if it fails
+    return axios.get(Reporting.server + "/hwmovement/whmByType/out/", {
+      headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
+    }).then(response => {
+      console.log('Cargo exit API response:', response);
+      return response;
+    }).catch((error) => {
+      console.error('Cargo exit report error:', error);
+      // Instead of redirecting to login, return empty data
+      return {
+        data: []
+      };
     });
   }
 
@@ -68,7 +82,7 @@ class Reporting {
     }).then(response => {
       console.log('Inventory API response:', response);
       return response;
-    }).catch((error) => { 
+    }).catch((error) => {
       console.error('Inventory report error:', error);
       // StockCommons.RedirectToLogin();
     })

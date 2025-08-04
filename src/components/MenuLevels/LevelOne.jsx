@@ -127,13 +127,16 @@ function LevelOne({ visible }) {
         if (theusername) {
             setUsername(token)
         }
-        console.log('---------------token-----------------: ' + token)
-        if (theUserType) {
-            setUserType(localStorage.getItem('catname'))
-        }
+
+
+        setUserType(localStorage.getItem('catname'))
+
         document.body.style.backgroundColor = Utils.skinBg1();
         // alert(username)
     }, [])
+    useEffect(() => {
+        setUserType(localStorage.getItem('catname'))
+    }, [userAuthenticated])
 
     const sticked = {
 
@@ -234,7 +237,7 @@ function LevelOne({ visible }) {
     // const roles = authUser() ? authUser().roles : [];
 
 
-   
+
     const userRoles = userAuthenticated()?.roles ?? [];
     // const userRoles = userAuthenticated() ? userAuthenticated().roles : []; // ['admin', 'berthOfficer'] or empty array
     const userIsAdmin = ['addVessel', 'updateVessel', 'deleteVessel', 'viewVessel', 'addBooking', 'updateBooking', 'deleteBooking', 'viewBooking', 'addGate', 'updateGate', 'deleteGate', 'viewGate', 'addBerthInvoice', 'updateBerthInvoice', 'deleteBerthInvoice', 'viewBerthInvoice', 'addBerthReceipt', 'updateBerthReceipt', 'deleteBerthReceipt', 'viewBerthReceipt', 'addBerthExit', 'updateBerthExit', 'deleteBerthExit', 'viewBerthExit', 'addGateEntry', 'updateGateEntry', 'deleteGateEntry', 'viewGateEntry', 'addGateInvoice', 'updateGateInvoice', 'deleteGateInvoice', 'viewGateInvoice', 'addGateReceipt', 'updateGateReceipt', 'deleteGateReceipt', 'viewGateReceipt', 'addGateExit', 'updateGateExit', 'deleteGateExit', 'viewGateExit']
@@ -246,10 +249,11 @@ function LevelOne({ visible }) {
         .every(role => userRoles.includes(role))
     const userIsOpsOfficer = ["addOpsArrivalNote", "updateOpsArrivalNote", "deleteOpsArrivalNote", "viewOpsArrivalNote"]
         .every(role => userRoles.includes(role))
-    const userIsOpsSuperviser = ["addGateInvoice", "updateGateInvoice", "deleteGateInvoice", "viewGateInvoice",
-        "addGateReceipt", "updateGateReceipt", "deleteGateReceipt", "viewGateReceipt", "addGateExit", "updateGateExit", "deleteGateExit", "viewGateExit",
-        "addOpsInvoice", "updateOpsInvoice", "deleteOpsInvoice", "viewOpsInvoice", "addOpsReceipt", "updateOpsReceipt", "deleteOpsReceipt", "viewOpsReceipt",
-        "addOpsExit", "updateOpsExit", "deleteOpsExit", "viewOpsExit"]
+    const userIsOpsSuperviser = ["addVessel", "viewVessel", "addBooking", "viewBooking", "addGate", "viewGate",
+        "addBerthInvoice", "viewBerthInvoice", "addBerthReceipt", "viewBerthReceipt", "addBerthExit", "viewBerthExit",
+        "addGateEntry", "viewGateEntry", "addGateInvoice", "viewGateInvoice", "addGateReceipt", "viewGateReceipt",
+        "addGateExit", "viewGateExit", "addOpsArrivalNote", "viewOpsArrivalNote", "addOpsInvoice", "viewOpsInvoice",
+        "addOpsReceipt", "viewOpsReceipt", "addOpsExit", "viewOpsExit", "addUsers", "viewUsers"]
         .every(role => userRoles.includes(role))
     const userIsRtA = ["dashboard", "reports"]
         .every(role => userRoles.includes(role))
@@ -272,11 +276,7 @@ function LevelOne({ visible }) {
             <OffCancasMenu show={showcanvaOne} onHide={getof1} />
             <Navbar sticky="top" className={`navbar custom-navbar p-0 ${visible ? 'visible' : 'hidden'}`} collapseOnSelect expand="lg" style={nav_styles} >
                 <Container fluid >
-                    {/* <Button onClick={() => setshowcanvaOne(true)} className='CustomHumuberger'>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                    </Button> */}
+
                     <a href="/"  > <div className='logo'>       </div>     </a>
                     {(<Navbar.Brand className="nav-brand" style={companyBrand} href="/dashboard">
                         {brandName}
@@ -333,37 +333,41 @@ function LevelOne({ visible }) {
                                         </span>
                                     </Nav.Link>
                                 </NavDropdown> </>)
-                                : (userAuthenticated() && userIsBerthOfficer ? (<>
-                                    <SingleMenuItem onClick={berthChosenHandler} isChosen={berthChosen} to="/vessel" text="Berth" icon={boat} />
-                                    <NavDropdown className='menuDropdown d-none' style={{ marginTop: '10px' }} color='#fff' title={
-                                        <span style={navLinks} >
-                                            <Icon style={OtherStyles.iconStyles()} icon={money} size={24} />
-                                            Finance
-                                        </span>}>
-                                        <Nav.Link style={navLinks} as={Link} to="/closing">
-                                            <span style={{ color: '#824920', fontWeight: 'bolder' }}>
-                                                <Icon style={iconStyle} size={18} icon={struc} />
-                                                Closing
-                                            </span>
-                                        </Nav.Link>
-                                        <Nav.Link style={navLinks} as={Link} to="/funding">
-                                            <span style={{ color: '#824920', fontWeight: 'bolder' }}>
-                                                <Icon style={iconStyle} size={18} icon={struc} />
-                                                Funding
-                                            </span>
-                                        </Nav.Link>
-                                        <Nav.Link style={navLinks} as={Link} to="/expenses">
-                                            <span style={{ color: '#824920', fontWeight: 'bolder' }}>
-                                                <Icon style={iconStyle} size={18} icon={struc} />
-                                                Expenses
-                                            </span>
-                                        </Nav.Link>
-                                    </NavDropdown>  </>)
+                                : (userAuthenticated() && userIsBerthOfficer ? (
+                                    <>
+                                        <SingleMenuItem onClick={berthChosenHandler} isChosen={berthChosen} to="/vessel" text="Berth" icon={boat} />
+                                        <NavDropdown className='menuDropdown d-none' style={{ marginTop: '10px' }} color='#fff' title={
+                                            <span style={navLinks} >
+                                                <Icon style={OtherStyles.iconStyles()} icon={money} size={24} />
+                                                Finance
+                                            </span>}>
+                                            <Nav.Link style={navLinks} as={Link} to="/closing">
+                                                <span style={{ color: '#824920', fontWeight: 'bolder' }}>
+                                                    <Icon style={iconStyle} size={18} icon={struc} />
+                                                    Closing
+                                                </span>
+                                            </Nav.Link>
+                                            <Nav.Link style={navLinks} as={Link} to="/funding">
+                                                <span style={{ color: '#824920', fontWeight: 'bolder' }}>
+                                                    <Icon style={iconStyle} size={18} icon={struc} />
+                                                    Funding
+                                                </span>
+                                            </Nav.Link>
+                                            <Nav.Link style={navLinks} as={Link} to="/expenses">
+                                                <span style={{ color: '#824920', fontWeight: 'bolder' }}>
+                                                    <Icon style={iconStyle} size={18} icon={struc} />
+                                                    Expenses
+                                                </span>
+                                            </Nav.Link>
+                                        </NavDropdown>  </>
+                                )
                                     : (userAuthenticated() && (userIsGateOfficer) ? (
                                         <SingleMenuItem onClick={gateChosenHandler} isChosen={gateChosen} to="/gate" text="Gate" icon={truck} />)
-                                        : (userAuthenticated() && userIsOpsSuperviser ? (<>
+                                        : (userAuthenticated() && userType === 'Ops Supervisor' ? (<>
+                                            <SingleMenuItem onClick={berthChosenHandler} isChosen={berthChosen} to="/vessel" text="Berth" icon={boat} />
                                             <SingleMenuItem onClick={gateChosenHandler} isChosen={gateChosen} to="/gate" text="Gate" icon={truck} />
                                             <SingleMenuItem onClick={opsChosenHandler} isChosen={opsChosen} to="/ops" text="OPS" icon={truck} />
+
                                             <NavDropdown className='menuDropdown d-none' style={{ marginTop: '10px' }} color='#fff' title={
                                                 <span style={navLinks} >
                                                     <Icon style={OtherStyles.iconStyles()} icon={money} size={24} />
@@ -391,12 +395,6 @@ function LevelOne({ visible }) {
                                         </>)
                                             : ''
 
-                                            // (userAuthenticated() && userIsRtA ?
-                                            //     <>
-                                            //         <SingleMenuItem onClick={reportingChosenHandler} isChosen={reportingChosen} to="/commonreport" text="Report" icon={truck} />
-                                            //     </>
-                                            //     :''
-                                            // )
                                         )
                                     )
                                 )

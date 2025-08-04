@@ -14,30 +14,39 @@ function SettingsMenu() {
     <NavDropdown className='menuDropdown' style={{ marginTop: '10px' }} color='#fff' title={
       <span style={Utils.navLinks} >
         <Icon style={OtherStyles.iconStyles()} icon={settings} size={24} />
-        Settings
+        Utitlities
       </span>}>
-      {/* <Nav.Link style={Utils.navLinks} as={Link} to="/unitcosts">
-        <span style={{ color: '#824920', fontWeight: 'bolder' }}>
-          <Icon style={Utils.iconStyle} size={18} icon={struc} />
-          Sales U.Costs
-        </span>
-      </Nav.Link> */}
+     
       <Nav.Link style={Utils.navLinks} as={Link} to="/companyName">
         <span style={{ color: '#824920', fontWeight: 'bolder' }}>
           <Icon style={Utils.iconStyle} size={18} icon={struc} />
-        &nbsp;   Company name
+          &nbsp;   Company name
         </span>
       </Nav.Link>
       <Nav.Link style={Utils.navLinks} as={Link} to="/currency">
         <span style={{ color: '#824920', fontWeight: 'bolder' }}>
           <Icon style={Utils.iconStyle} size={18} icon={struc} />
-        &nbsp;   Currency
+          &nbsp;   Currency
         </span>
       </Nav.Link>
       <Nav.Link style={Utils.navLinks} as={Link} to="/anysetting">
         <span style={{ color: '#824920', fontWeight: 'bolder' }}>
           <Icon style={Utils.iconStyle} size={18} icon={struc} />
-         &nbsp;  OtrherSettings
+          &nbsp;  M. Settings
+        </span>
+      </Nav.Link>
+
+      <Nav.Link style={Utils.navLinks} as={Link} to="/userroles">
+        <span style={{ color: '#824920', fontWeight: 'bolder' }}>
+          <Icon style={Utils.iconStyle} size={18} icon={struc} />
+          &nbsp;  User roles
+        </span>
+      </Nav.Link>
+
+      <Nav.Link style={Utils.navLinks} as={Link} to="/otherrevenues">
+        <span style={{ color: '#824920', fontWeight: 'bolder' }}>
+          <Icon style={Utils.iconStyle} size={18} icon={struc} />
+          &nbsp; Other revenues
         </span>
       </Nav.Link>
 

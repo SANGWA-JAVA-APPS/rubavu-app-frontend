@@ -8,7 +8,7 @@ import { useAuthHeader } from 'react-auth-kit';
 
 import 'react-datepicker/dist/react-datepicker.css'
 
-import Utils from '../Global/Utils'
+import Utils, { usertoEditprint } from '../Global/Utils'
 import { ColItemContext } from '../Global/GlobalDataContentx'
 import StockCommons from '../services/StockServices/StockCommons'
 import StockRepository from '../services/StockServices/StockRepository'
@@ -252,7 +252,7 @@ function Truck_exit() {
         </ContainerRowBtwn>
       </AnimateHeight>
       <ContainerRow mt='3'>
-        <ListToolBar listTitle='truck exit List' height={height} entity='Truck exit' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
+        <ListToolBar listTitle='truck exit List' role="addGateReceipt" height={height} entity='Truck exit' changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)} handlePrint={handlePrint} searchHeight={searchHeight} />
         <SearchformAnimation searchHeight={searchHeight}>
           <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
         </SearchformAnimation>
@@ -265,7 +265,7 @@ function Truck_exit() {
               <td>Get Out Time </td>
               {/* <td>Truck Id </td> */}
 
-              {userType == 'admin' && <td className='delButton '>Option</td>}
+              {usertoEditprint(userType) && <td className='delButton '>Option</td>}
             </TableHead>
             <tbody>
               {truck_exits.map((truck_exit) => (
@@ -274,7 +274,9 @@ function Truck_exit() {
                   <td>{truck_exit.date_time}   </td>
                   {/* <td>{truck_exit.truck_id}   </td> */}
 
-                  {userType == 'admin' && <ListOptioncol print={true} printData={() => printData(truck_exit)}
+                  {usertoEditprint(userType)&& <ListOptioncol 
+                   editRole="updateGateExit" deleteRole="deleteGateExit"
+                   print={true} printData={() => printData(truck_exit)}
                     getEntityById={() => getTruck_exitById(truck_exit.id)} delEntityById={() => delTruck_exitById(truck_exit.id)} />}
                 </tr>
               ))}</tbody>

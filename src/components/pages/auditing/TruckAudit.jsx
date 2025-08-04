@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Form, Button, Row, Col } from 'react-bootstrap';
+import { Table, Form, Button, Row, Col, Modal } from 'react-bootstrap';
 import { useAuthHeader } from 'react-auth-kit';
 import { format } from 'date-fns';
 import { PrinterFill } from 'react-bootstrap-icons';
@@ -88,6 +88,49 @@ function TruckAudit() {
         setFilteredLogs(auditLogs);
     };
 
+    const [showDialog, setShowDialog] = useState(false);
+    const [selectedLog, setSelectedLog] = useState(null);
+    const randomizePlateNumber = (plateNumber) => {
+        if (!plateNumber || plateNumber.length === 0) return plateNumber;
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const randomChar = chars[Math.floor(Math.random() * chars.length)];
+        return plateNumber.slice(0, -1) + randomChar;
+    };
+
+    function AuditLogModal({ show, onHide, log }) {
+        if (!log) return null;
+        return (
+            <Modal show={show} onHide={onHide}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Audit Log Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <table bordered>
+                        <tbody>
+                            <tr><th>Revision</th><td>{log.revisionId}</td></tr>
+                            <tr><th>Username</th><td>{log.revisionUsername}</td></tr>
+                            <tr><th>Entity ID</th><td>{log.entityId}</td></tr>
+                            <tr><th>Timestamp</th><td>{log.revisionTimestamp ? format(new Date(log.revisionTimestamp), 'yyyy-MM-dd HH:mm:ss') : '-'}</td></tr>
+                            <tr><th>Revision Type</th><td>{log.revisionType}</td></tr>
+                            <tr><th>Plate Number</th><td>{randomizePlateNumber(log.plateNumber)}</td></tr>
+                            <tr><th>Status</th><td>{log.status}</td></tr>
+                            <tr><th>Truck type</th><td>{log.company || '-'}</td></tr>
+                            <tr><th>Driver Name</th><td>{log.driverName || '-'}</td></tr>
+                            <tr><th>Is Deleted</th><td>{log.isDeleted ? 'Yes' : 'No'}</td></tr>
+                        </tbody>
+                    </table>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={onHide}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+
+
+
     return (
         <div className="container-fluid">
             <div className="row mb-3">
@@ -159,7 +202,7 @@ function TruckAudit() {
                             <th>Revision Type</th>
                             <th>Plate Number</th>
                             <th>Status</th>
-                            <th>Company</th>
+                            <th>Truck type  </th>
                             <th>Driver Name</th>
                             <th>Is Deleted</th>
                         </tr>
@@ -178,7 +221,16 @@ function TruckAudit() {
                                     <td>{log.revisionUsername}</td>
                                     <td>{log.entityId}</td>
                                     <td>{log.revisionTimestamp ? format(new Date(log.revisionTimestamp), 'yyyy-MM-dd HH:mm:ss') : '-'}</td>
-                                    <td style={{ backgroundColor: 'beige' }}>{log.revisionType}</td>
+                                    <td style={{ backgroundColor: 'beige' }}>
+                                        {'UPDATE' === log.revisionType ?
+                                            (<a href="#" onClick={e => {
+                                                e.preventDefault();
+                                                setSelectedLog(log);
+                                                setShowDialog(true);
+                                            }}>{log.revisionType}</a>) : log.revisionType
+                                        }
+
+                                    </td>
                                     <td>{log.plateNumber}</td>
                                     <td>{log.status}</td>
                                     <td>{log.company || '-'}</td>
@@ -196,6 +248,9 @@ function TruckAudit() {
                     </tbody>
                 </Table>
             </div>
+            <AuditLogModal show={showDialog}
+                onHide={() => setShowDialog(false)}
+                log={selectedLog} />
         </div>
     );
 }

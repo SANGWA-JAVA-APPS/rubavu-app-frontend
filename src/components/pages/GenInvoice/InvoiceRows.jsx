@@ -45,6 +45,23 @@ export const InvoiceHeader = () => {
                 <td className="">Description</td>
                 <td className="text-center">Total Weight</td>
                 <td className="text-center">Unit Price (Rwf/Kg)</td>
+                <td className="text-center">No. of days</td>
+                <td className="text-center">Total Price</td>
+                <td className="">Observation</td>
+
+            </tr>
+        </thead>
+    )
+}
+export const InvoiceHeaderStorage = () => {
+    return (
+        <thead  >
+            <tr>
+                <td className="text-center">S/N</td>
+                <td className="">Description</td>
+                <td className="text-center">Total Weight</td>
+                <td className="text-center">Unit Price (Rwf/Kg)</td>
+                <td className="text-center">No. of days</td>
                 <td className="text-center">Total Price</td>
                 <td className="">Observation</td>
 

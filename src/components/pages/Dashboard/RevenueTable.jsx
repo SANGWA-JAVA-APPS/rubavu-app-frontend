@@ -75,6 +75,8 @@ const RevenueTable = () => {
       return 'Berthing';
     } else if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'TRUCK_PARKING') {
       return 'Truck';
+    } else if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'UNKNOWN') {
+      return 'Other Revenues'
     }
     return 'Ops';
   };
@@ -167,7 +169,7 @@ const RevenueTable = () => {
     const totals = {
       'Berthing': 0,
       'Truck': 0,
-      'Ops': 0
+      'Ops': 0, 'Other Revenues': 0
     };
     filteredRows.forEach(row => {
       const invoice = row.original;
@@ -176,6 +178,14 @@ const RevenueTable = () => {
     });
     return totals;
   }, [filteredRows]);
+
+  const grandTotal = Object.values(filteredSourceTotals).reduce((sum, val) => sum + val, 0);
+
+
+  const grandTotalWithoutOtherRevenues = Object.entries(filteredSourceTotals)
+    .filter(([source]) => source !== 'Other Revenues')
+    .reduce((sum, [, val]) => sum + val, 0);
+
 
   const csvData = invoices.map(invoice => ({
     'Date': formatDate(invoice.dateTime),
@@ -252,16 +262,15 @@ const RevenueTable = () => {
         </Col>
         <Col md={3} className="text-end">
           {userType === 'admin' ? (
-            <CSVLink
-              data={csvData}
-              filename="combined-invoices.csv"
-              className="btn btn-primary"
-            >
+            <>  <CSVLink data={csvData} filename="combined-invoices.csv" className="btn btn-primary"            >
               Export to CSV
-            </CSVLink>
+            </CSVLink><br /><br />
+              <Button variant="info" onClick={exportToPDF}            >
+                Export to PDF
+              </Button></>
           ) : (
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               onClick={exportToPDF}
             >
               Export to PDF
@@ -272,7 +281,7 @@ const RevenueTable = () => {
 
       {/* Source Totals */}
       <Row className="mb-3">
-        <Col md={12}>
+        <Col md={12} className="">
           <div className="d-flex justify-content-end gap-4">
             {Object.entries(filteredSourceTotals).map(([source, total]) => (
               <div key={source} className="text-end">
@@ -280,6 +289,15 @@ const RevenueTable = () => {
                 <h4>RWF {total.toLocaleString()}</h4>
               </div>
             ))}
+            <div className="text-end ms-5">
+              <h5>Grand Total (excluding Other Revenues)</h5>
+              <h4 style={{ color: 'blue' }}>RWF {grandTotalWithoutOtherRevenues.toLocaleString()}</h4>
+            </div>
+            <div className="text-end ms-5">
+              <h5>Grand Total</h5>
+              <h4 style={{ color: 'green' }}>RWF {grandTotal.toLocaleString()}</h4>
+            </div>
+
           </div>
         </Col>
       </Row>
@@ -290,7 +308,7 @@ const RevenueTable = () => {
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
-                  <th 
+                  <th
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
                     style={{ cursor: 'pointer' }}

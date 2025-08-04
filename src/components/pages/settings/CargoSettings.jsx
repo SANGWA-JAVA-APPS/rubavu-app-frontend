@@ -45,7 +45,7 @@ const CargoSettings = () => {
     setSelectedArrivalId(null);
   };
 
-  // Update stock handler (placeholder for now) added some comments even more comments
+  // Update stock handler (placeholder for now) added some comments removed some comments
   const handleUpdateStock = async () => {
     if (!selectedWHMovementId && !selectedInvoiceId && !selectedArrivalId) {
       alert('Please select at least one item to update stock.');

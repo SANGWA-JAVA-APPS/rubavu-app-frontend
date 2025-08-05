@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, Table, Button, Badge, Spinner } from 'react-bootstrap';
 import { useAuthHeader } from 'react-auth-kit';
 import PropTypes from 'prop-types';
@@ -10,44 +10,7 @@ const UnInvoicedWarehouseMovements = ({ onSelectMovement, selectedMovementId }) 
   const [error, setError] = useState(null);
   const authHeader = useAuthHeader();
 
-  useEffect(() => {
-    const fetchUnInvoicedMovements = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Using the same endpoint as CargoExitDetailedDeferred
-        const today = new Date();
-        const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-        const endDate = today.toISOString().split('T')[0];
-        
-        const response = await Reporting.cargoExitDetailedReport(startDate, endDate, authHeader());
-        
-        if (response && response.data) {
-          // Filter for movements that don't have invoices (remaining > 0 indicates uninvoiced)
-          const uninvoicedMovements = response.data.filter(movement => 
-            (movement.remaining && movement.remaining > 0) || 
-            !movement.invoiced || 
-            movement.paymentOption === "Exit and pay later"
-          );
-          setWhMovements(uninvoicedMovements);
-        }
-      } catch (err) {
-        console.error('Error fetching uninvoiced warehouse movements:', err);
-        setError('Failed to load warehouse movements');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchUnInvoicedMovements();
-  }, [authHeader]);
-
-  const handleRowClick = (movement) => {
-    onSelectMovement('wh_movement', movement.id);
-  };
-
-  const refetchData = async () => {
+  const fetchUnInvoicedMovements = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -60,13 +23,13 @@ const UnInvoicedWarehouseMovements = ({ onSelectMovement, selectedMovementId }) 
       const response = await Reporting.cargoExitDetailedReport(startDate, endDate, authHeader());
       
       if (response && response.data) {
-        // Filter for movements that don't have invoices (remaining > 0 indicates uninvoiced)
-        const uninvoicedMovements = response.data.filter(movement => 
-          (movement.remaining && movement.remaining > 0) || 
-          !movement.invoiced || 
-          movement.paymentOption === "Exit and pay later"
-        );
-        setWhMovements(uninvoicedMovements);
+        // Filter for movements that don't have invoices 
+        // const uninvoicedMovements = response.data.filter(movement => 
+        //   (movement.remaining && movement.remaining > 0) || 
+        //   !movement.invoiced || 
+        //   movement.paymentOption === "Exit and pay later"
+        // );
+        setWhMovements(response.data);
       }
     } catch (err) {
       console.error('Error fetching uninvoiced warehouse movements:', err);
@@ -74,6 +37,19 @@ const UnInvoicedWarehouseMovements = ({ onSelectMovement, selectedMovementId }) 
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - authHeader is called inside but not a dependency
+
+  useEffect(() => {
+    fetchUnInvoicedMovements();
+  }, [fetchUnInvoicedMovements]);
+
+  const handleRowClick = (movement) => {
+    onSelectMovement('wh_movement', movement.id);
+  };
+
+  const refetchData = () => {
+    fetchUnInvoicedMovements();
   };
 
   if (loading) {

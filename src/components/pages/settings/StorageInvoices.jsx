@@ -16,15 +16,18 @@ const StorageInvoices = ({ onSelectInvoice, selectedInvoiceId }) => {
         setLoading(true);
         setError(null);
         
-        // Using the general invoice endpoint and filtering for storage type
-        const response = await StockRepository.findGen_invoice(authHeader());
+        // Using the new storage-specific endpoint
+
+        const today = new Date();
+      const year = today.getFullYear();
+      const startDate = `${year}-01-01`; // January 1st of current year
+      const endDate = `${year}-12-31`; // December 31st of current year
+ 
+         
+        const response = await StockRepository.findStorageInvoices(authHeader(), startDate, endDate);
         
         if (response && response.data) {
-          // Filter for storage type invoices
-          const filtered = response.data.filter(invoice => 
-            invoice.type === 'storage' || invoice.invoiceType === 'storage'
-          );
-          setStorageInvoices(filtered);
+          setStorageInvoices(response.data);
         }
       } catch (err) {
         console.error('Error fetching storage invoices:', err);
@@ -35,22 +38,22 @@ const StorageInvoices = ({ onSelectInvoice, selectedInvoiceId }) => {
     };
     
     fetchStorageInvoices();
-  }, [authHeader]);
+  }, []);
 
   const refetchData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Using the general invoice endpoint and filtering for storage type
-      const response = await StockRepository.findGen_invoice(authHeader());
+      // Using the new storage-specific endpoint
+      const today = new Date();
+      const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+      const endDate = today.toISOString().split('T')[0];
+      
+      const response = await StockRepository.findStorageInvoices(authHeader(), startDate, endDate);
       
       if (response && response.data) {
-        // Filter for storage type invoices
-        const filtered = response.data.filter(invoice => 
-          invoice.type === 'storage' || invoice.invoiceType === 'storage'
-        );
-        setStorageInvoices(filtered);
+        setStorageInvoices(response.data);
       }
     } catch (err) {
       console.error('Error fetching storage invoices:', err);
@@ -61,7 +64,12 @@ const StorageInvoices = ({ onSelectInvoice, selectedInvoiceId }) => {
   };
 
   const handleRowClick = (invoice) => {
-    onSelectInvoice('gen_invoice', invoice.id);
+    onSelectInvoice('gen_invoice', invoice.id, invoice.total_weight, invoice.arrivalId);
+  };
+
+  const handleRadioSelect = (invoice, event) => {
+    event.stopPropagation(); // Prevent row click when radio is clicked
+    onSelectInvoice('gen_invoice', invoice.id, invoice.total_weight, invoice.arrivalId);
   };
 
   if (loading) {
@@ -102,8 +110,13 @@ const StorageInvoices = ({ onSelectInvoice, selectedInvoiceId }) => {
           <Table striped hover size="sm" className="mb-0">
             <thead>
               <tr>
+                <th>Select</th>
                 <th>ID</th>
+                <th>Client</th>
                 <th>Amount</th>
+                <th>Total Weight</th>
+                <th>Arrival ID</th>
+                <th>Storage Period</th>
                 <th>Date</th>
               </tr>
             </thead>
@@ -118,22 +131,49 @@ const StorageInvoices = ({ onSelectInvoice, selectedInvoiceId }) => {
                   }}
                   className={selectedInvoiceId === invoice.id ? 'table-active' : ''}
                 >
-                  <td>
-                    <Badge bg="info">{invoice.id}</Badge>
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="radio"
+                      name="selectedInvoice"
+                      checked={selectedInvoiceId === invoice.id}
+                      onChange={(e) => handleRadioSelect(invoice, e)}
+                      className="form-check-input"
+                    />
                   </td>
-                  <td className="text-end">
-                    {invoice.amount ? 
-                      `${invoice.amount.toLocaleString()} RWF` : 
-                      'N/A'
-                    }
+                  <td>
+                   {invoice.id}
                   </td>
                   <td>
-                    {invoice.date ? 
-                      new Date(invoice.date).toLocaleDateString() : 
-                      invoice.created_at ? 
-                      new Date(invoice.created_at).toLocaleDateString() :
-                      'N/A'
-                    }
+                    
+                      {invoice.clientName || invoice.name || 'N/A'}
+                    
+                  </td>
+                  <td className="text-left">
+                    <strong>
+                      {invoice.amount ? 
+                        `${invoice.amount.toLocaleString()} RWF` : 
+                        invoice.totalAmount ?
+                        `${invoice.totalAmount.toLocaleString()} RWF` :
+                        'N/A'
+                      }
+                    </strong>
+                  </td>
+                  <td>{invoice.total_weight.toLocaleString()} <small>KG</small> </td>
+                  <td>{invoice.arrivalId} </td>
+                  <td>
+                    
+                      {invoice.storagePeriod || invoice.storage_period || 'N/A'} days
+                    
+                  </td>
+                  <td>
+                    <small>
+                      {invoice.dateTime ? 
+                        new Date(invoice.dateTime).toLocaleDateString() : 
+                        invoice.date_time ? 
+                        new Date(invoice.date_time).toLocaleDateString() :
+                        'N/A'
+                      }
+                    </small>
                   </td>
                 </tr>
               ))}

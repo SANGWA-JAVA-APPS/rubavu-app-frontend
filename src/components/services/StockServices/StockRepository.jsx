@@ -340,6 +340,11 @@ class StockRepository {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
         }).catch(() => StockCommons.RedirectToLogin());
     }
+    findStorageArrivals(startDate, endDate,  authHeader) {
+        return axios.get(StockRepository.server + "/arrival_note/storage", {
+            headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
     findArrival_noteFilterByclient(startDate, endDate, userid, clientId, authHeader) {
         return axios.get(StockRepository.server + "/arrival_note/filterbyclient/" + userid + '/' + clientId, {
             headers: this.getHeaders(authHeader), params: { startDate: startDate, endDate: endDate }
@@ -725,6 +730,13 @@ class StockRepository {
             params: { startDate: startDate, endDate: endDate }
         });
     }
+
+    findStorageInvoices(authHeader, startDate, endDate) {
+        return axios.get(StockRepository.server + "/gen_invoice/storage", {
+            headers: this.getHeaders(authHeader),
+            params: { startDate: startDate, endDate: endDate }
+        });
+    }
     findGen_invoiceByArrivalId(authHeader, arrival_id) {
         return axios.get(StockRepository.server + "/gen_invoice/InvoiceByArrivalNoteid/"+arrival_id, {            headers: this.getHeaders(authHeader) 
         });
@@ -922,6 +934,13 @@ class StockRepository {
         }
         
         return axios.post(StockRepository.server + "/email/invoice-generated", params, {
+            headers: this.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+    // Update warehouse movement with invoice and arrival associations
+    updateWarehouseMovement(updateData, authHeader) {
+        return axios.post(StockRepository.server + "/hwmovement/updateMovement", updateData, {
             headers: this.getHeaders(authHeader)
         }).catch(() => StockCommons.RedirectToLogin());
     }

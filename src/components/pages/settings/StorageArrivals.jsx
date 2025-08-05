@@ -16,13 +16,16 @@ const StorageArrivals = ({ onSelectArrival, selectedArrivalId }) => {
         setLoading(true);
         setError(null);
         
-        // This will need to be a custom endpoint that joins arrivals with storage invoices
-        // For now, we'll fetch arrivals and then check for storage invoices
-        const response = await StockRepository.findArrival_note('', '', '', authHeader());
+        // Use full year date range instead of context dates
+        const today = new Date();
+        const year = today.getFullYear();
+        const yearStartDate = `${year}-01-01`; // January 1st of current year
+        const yearEndDate = `${year}-12-31`; // December 31st of current year
+        
+        // Use the new storage arrivals endpoint that joins with storage invoices
+        const response = await StockRepository.findStorageArrivals(yearStartDate, yearEndDate, authHeader());
         
         if (response && response.data) {
-          // We would typically filter these based on having storage invoices
-          // For now, showing all arrivals as the backend would handle the join
           setStorageArrivals(response.data);
         }
       } catch (err) {
@@ -34,20 +37,23 @@ const StorageArrivals = ({ onSelectArrival, selectedArrivalId }) => {
     };
     
     fetchStorageArrivals();
-  }, [authHeader]);
+  }, []); // Remove startDate, endDate dependencies
 
   const refetchData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // This will need to be a custom endpoint that joins arrivals with storage invoices
-      // For now, we'll fetch arrivals and then check for storage invoices
-      const response = await StockRepository.findArrival_note('', '', '', authHeader());
+      // Use full year date range instead of context dates
+      const today = new Date();
+      const year = today.getFullYear();
+      const yearStartDate = `${year}-01-01`; // January 1st of current year
+      const yearEndDate = `${year}-12-31`; // December 31st of current year
+      
+      // Use the new storage arrivals endpoint that joins with storage invoices
+      const response = await StockRepository.findStorageArrivals(yearStartDate, yearEndDate, authHeader());
       
       if (response && response.data) {
-        // We would typically filter these based on having storage invoices
-        // For now, showing all arrivals as the backend would handle the join
         setStorageArrivals(response.data);
       }
     } catch (err) {
@@ -59,7 +65,12 @@ const StorageArrivals = ({ onSelectArrival, selectedArrivalId }) => {
   };
 
   const handleRowClick = (arrival) => {
-    onSelectArrival('arrival', arrival.id);
+    onSelectArrival('arrival', arrival.id || arrival.tallyId);
+  };
+
+  const handleRadioSelect = (arrival, event) => {
+    event.stopPropagation(); // Prevent row click when radio is clicked
+    onSelectArrival('arrival', arrival.id || arrival.tallyId);
   };
 
   if (loading) {
@@ -100,29 +111,52 @@ const StorageArrivals = ({ onSelectArrival, selectedArrivalId }) => {
           <Table striped hover size="sm" className="mb-0">
             <thead>
               <tr>
-                <th>ID</th>
+                <th>Select</th>
+                <th>Arrival ID</th>
                 <th>Client</th>
+                <th>Cargo</th>
+                <th>Weight</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody>
               {storageArrivals.map((arrival) => (
                 <tr
-                  key={arrival.id}
+                  key={arrival.id || arrival.tallyId}
                   onClick={() => handleRowClick(arrival)}
                   style={{
                     cursor: 'pointer',
-                    backgroundColor: selectedArrivalId === arrival.id ? '#e3f2fd' : 'transparent'
+                    backgroundColor: selectedArrivalId === (arrival.id || arrival.tallyId) ? '#e3f2fd' : 'transparent'
                   }}
-                  className={selectedArrivalId === arrival.id ? 'table-active' : ''}
+                  className={selectedArrivalId === (arrival.id || arrival.tallyId) ? 'table-active' : ''}
                 >
-                  <td>
-                    <Badge bg="primary">{arrival.id}</Badge>
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="radio"
+                      name="selectedArrival"
+                      checked={selectedArrivalId === (arrival.id || arrival.tallyId)}
+                      onChange={(e) => handleRadioSelect(arrival, e)}
+                      className="form-check-input"
+                    />
                   </td>
                   <td>
-                    {arrival.clientName || 
+                    <Badge bg="primary">{arrival.id || arrival.tallyId}</Badge>
+                  </td>
+                  <td>
+                    {arrival.name || 
+                     arrival.clientName || 
                      arrival.client?.name || 
                      arrival.profile?.name ||
                      'N/A'}
+                  </td>
+                  <td>
+                    {arrival.cargo || 'N/A'}
+                  </td>
+                  <td>
+                    {arrival.weight ? `${arrival.weight} ${arrival.weighttype || ''}` : 'N/A'}
+                  </td>
+                  <td>
+                    {arrival.date_time ? new Date(arrival.date_time).toLocaleDateString() : 'N/A'}
                   </td>
                 </tr>
               ))}

@@ -1,39 +1,46 @@
-import { useState } from 'react';
-import { Container, Row, Col, Card, Nav, Alert } from 'react-bootstrap';
-import PagesWapper from '../../Global/PagesWapper';
-import { ItemsContainer } from '../../globalcomponents/ItemsContainer';
-import { TitleSmallDesc } from '../../globalcomponents/TitleSmallDesc';
-import { SmallSplitter } from '../../globalcomponents/Splitter';
-import UnInvoicedWarehouseMovements from './UnInvoicedWarehouseMovements';
-import StorageInvoices from './StorageInvoices';
-import StorageArrivals from './StorageArrivals';
+import { useState } from "react";
+import { Container, Row, Col, Card, Nav, Alert } from "react-bootstrap";
+import { useAuthHeader } from 'react-auth-kit';
+import PagesWapper from "../../Global/PagesWapper";
+import { ItemsContainer } from "../../globalcomponents/ItemsContainer";
+import { TitleSmallDesc } from "../../globalcomponents/TitleSmallDesc";
+import { SmallSplitter } from "../../globalcomponents/Splitter";
+import UnInvoicedWarehouseMovements from "./UnInvoicedWarehouseMovements";
+import StorageInvoices from "./StorageInvoices";
+import StorageArrivals from "./StorageArrivals";
+import StockRepository from "../../services/StockServices/StockRepository";
 
 const CargoSettings = () => {
-  const [activeTab, setActiveTab] = useState('warehouse');
-  
+  const [activeTab, setActiveTab] = useState("warehouse");
+  const authHeader = useAuthHeader();
+
   // Selection states
   const [selectedWHMovementId, setSelectedWHMovementId] = useState(null);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
+  const [selectedInvoiceWeight, setSelectedInvoiceWeight] = useState(null);
+  const [selectedInvoiceArrivalId, setSelectedInvoiceArrivalId] = useState(null);
   const [selectedArrivalId, setSelectedArrivalId] = useState(null);
-  
+
   // Loading state for update operation
   const [updateLoading, setUpdateLoading] = useState(false);
 
   // Selection handlers
   const handleSelectMovement = (type, id) => {
-    if (type === 'wh_movement') {
+    if (type === "wh_movement") {
       setSelectedWHMovementId(id);
     }
   };
 
-  const handleSelectInvoice = (type, id) => {
-    if (type === 'gen_invoice') {
+  const handleSelectInvoice = (type, id, weight, arrivalId) => {
+    if (type === "gen_invoice") {
       setSelectedInvoiceId(id);
+      setSelectedInvoiceWeight(weight);
+      setSelectedInvoiceArrivalId(arrivalId);
     }
   };
 
   const handleSelectArrival = (type, id) => {
-    if (type === 'arrival') {
+    if (type === "arrival") {
       setSelectedArrivalId(id);
     }
   };
@@ -42,35 +49,43 @@ const CargoSettings = () => {
   const clearSelections = () => {
     setSelectedWHMovementId(null);
     setSelectedInvoiceId(null);
+    setSelectedInvoiceWeight(null);
+    setSelectedInvoiceArrivalId(null);
     setSelectedArrivalId(null);
   };
 
   // Update stock handler (placeholder for now) added some comments removed some comments
   const handleUpdateStock = async () => {
     if (!selectedWHMovementId && !selectedInvoiceId && !selectedArrivalId) {
-      alert('Please select at least one item to update stock.');
+      alert("Please select at least one item to update stock.");
       return;
     }
 
     setUpdateLoading(true);
-    
+
     try {
-      // Placeholder for actual update logic
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      
-      alert('Stock update will be implemented soon!');
-      console.log('Update Stock clicked with selections:', {
-        wh_movement_id: selectedWHMovementId,
-        invoice_id: selectedInvoiceId,
-        arrival_id: selectedArrivalId
-      });
-      
-      // Clear selections after successful update
-      clearSelections();
-      
+      // Prepare the data to send to backend
+      const updateData = {
+        selectedWHMovementId: selectedWHMovementId,
+        selectedInvoiceId: selectedInvoiceId,
+        selectedArrivalId: selectedArrivalId,
+      };
+
+      // Call the backend API to update warehouse movement
+      const response = await StockRepository.updateWarehouseMovement(updateData, authHeader());
+
+      if (response && response.data && response.data.success) {
+        alert("Stock updated successfully!");
+        console.log("Update Stock completed:", response.data);
+        
+        // Clear selections after successful update
+        clearSelections();
+      } else {
+        throw new Error(response.data?.message || "Failed to update stock");
+      }
     } catch (error) {
-      console.error('Error updating stock:', error);
-      alert('Failed to update stock. Please try again.');
+      console.error("Error updating stock:", error);
+      alert("Failed to update stock. Please try again.");
     } finally {
       setUpdateLoading(false);
     }
@@ -78,26 +93,34 @@ const CargoSettings = () => {
 
   const renderActiveComponent = () => {
     switch (activeTab) {
-      case 'warehouse':
-        return <UnInvoicedWarehouseMovements 
-          onSelectMovement={handleSelectMovement}
-          selectedMovementId={selectedWHMovementId}
-        />;
-      case 'invoices':
-        return <StorageInvoices 
-          onSelectInvoice={handleSelectInvoice}
-          selectedInvoiceId={selectedInvoiceId}
-        />;
-      case 'arrivals':
-        return <StorageArrivals 
-          onSelectArrival={handleSelectArrival}
-          selectedArrivalId={selectedArrivalId}
-        />;
+      case "warehouse":
+        return (
+          <UnInvoicedWarehouseMovements
+            onSelectMovement={handleSelectMovement}
+            selectedMovementId={selectedWHMovementId}
+          />
+        );
+      case "invoices":
+        return (
+          <StorageInvoices
+            onSelectInvoice={handleSelectInvoice}
+            selectedInvoiceId={selectedInvoiceId}
+          />
+        );
+      case "arrivals":
+        return (
+          <StorageArrivals
+            onSelectArrival={handleSelectArrival}
+            selectedArrivalId={selectedArrivalId}
+          />
+        );
       default:
-        return <UnInvoicedWarehouseMovements 
-          onSelectMovement={handleSelectMovement}
-          selectedMovementId={selectedWHMovementId}
-        />;
+        return (
+          <UnInvoicedWarehouseMovements
+            onSelectMovement={handleSelectMovement}
+            selectedMovementId={selectedWHMovementId}
+          />
+        );
     }
   };
 
@@ -106,48 +129,39 @@ const CargoSettings = () => {
       <ItemsContainer>
         <TitleSmallDesc title="Cargo Management Settings" />
         <SmallSplitter />
-        
+
         <Card className="shadow-sm">
           <Card.Header className="bg-light">
             <Nav variant="tabs" className="card-header-tabs">
               <Nav.Item>
-                <Nav.Link 
-                  active={activeTab === 'warehouse'} 
-                  onClick={() => setActiveTab('warehouse')}
-                  style={{ cursor: 'pointer' }}
-                >
+                <Nav.Link
+                  active={activeTab === "warehouse"}
+                  onClick={() => setActiveTab("warehouse")}
+                  style={{ cursor: "pointer" }}>
                   � Warehouse Movements
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link 
-                  active={activeTab === 'invoices'} 
-                  onClick={() => setActiveTab('invoices')}
-                  style={{ cursor: 'pointer' }}
-                >
+                <Nav.Link
+                  active={activeTab === "invoices"}
+                  onClick={() => setActiveTab("invoices")}
+                  style={{ cursor: "pointer" }}>
                   🏪 Storage Invoices
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link 
-                  active={activeTab === 'arrivals'} 
-                  onClick={() => setActiveTab('arrivals')}
-                  style={{ cursor: 'pointer' }}
-                >
+                <Nav.Link
+                  active={activeTab === "arrivals"}
+                  onClick={() => setActiveTab("arrivals")}
+                  style={{ cursor: "pointer" }}>
                   � Storage Arrivals
                 </Nav.Link>
               </Nav.Item>
             </Nav>
           </Card.Header>
-          
+
           <Card.Body>
             <Container fluid>
-              <Row>
-                <Col>
-                  {renderActiveComponent()}
-                </Col>
-              </Row>
-              
               {/* Selection Display and Update Stock Section */}
               <Row className="mt-4">
                 <Col>
@@ -157,89 +171,146 @@ const CargoSettings = () => {
                     </Card.Header>
                     <Card.Body>
                       <Row className="mb-3">
-                        <Col md={4}>
-                          <div className="p-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
-                            <strong>Warehouse Movement ID:</strong>
+                        <Col md={3}>
+                          <div
+                            className="p-3"
+                            style={{
+                              backgroundColor: "#f8f9fa",
+                              borderRadius: "5px",
+                            }}>
+                            <strong>WH MVT ID:</strong>
                             <div className="mt-1">
                               {selectedWHMovementId ? (
-                                <span className="badge bg-primary fs-6">{selectedWHMovementId}</span>
+                                <span className="badge bg-primary fs-6">
+                                  {selectedWHMovementId}
+                                </span>
                               ) : (
                                 <span className="text-muted">Not selected</span>
                               )}
                             </div>
                           </div>
                         </Col>
-                        <Col md={4}>
-                          <div className="p-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+                        <Col md={3}>
+                          <div
+                            className="p-3"
+                            style={{
+                              backgroundColor: "#f8f9fa",
+                              borderRadius: "5px",
+                            }}>
                             <strong>Storage Invoice ID:</strong>
                             <div className="mt-1">
                               {selectedInvoiceId ? (
-                                <span className="badge bg-success fs-6">{selectedInvoiceId}</span>
+                                <div>
+                                  <span className="badge bg-success fs-6">
+                                    {selectedInvoiceId}
+                                  </span>
+                                  {selectedInvoiceWeight && (
+                                    <div className="mt-1">
+                                      <small className="text-muted">
+                                        Weight: <strong>{selectedInvoiceWeight.toLocaleString()} KG</strong>
+                                      </small>
+                                    </div>
+                                  )}
+                                  {selectedInvoiceArrivalId && (
+                                    <div className="mt-1">
+                                      <small className="text-muted">
+                                        Arrival ID: <strong>{selectedInvoiceArrivalId}</strong>
+                                      </small>
+                                    </div>
+                                  )}
+                                </div>
                               ) : (
                                 <span className="text-muted">Not selected</span>
                               )}
                             </div>
                           </div>
                         </Col>
-                        <Col md={4}>
-                          <div className="p-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+                        <Col md={3}>
+                          <div
+                            className="p-3"
+                            style={{
+                              backgroundColor: "#f8f9fa",
+                              borderRadius: "5px",
+                            }}>
                             <strong>Arrival ID:</strong>
                             <div className="mt-1">
                               {selectedArrivalId ? (
-                                <span className="badge bg-info fs-6">{selectedArrivalId}</span>
+                                <span className="badge bg-info fs-6">
+                                  {selectedArrivalId}
+                                </span>
                               ) : (
                                 <span className="text-muted">Not selected</span>
                               )}
                             </div>
                           </div>
                         </Col>
+                        <Col md={3}>
+                          {(selectedWHMovementId ||
+                            selectedInvoiceId ||
+                            selectedArrivalId) && (
+                            <Alert variant="info" className="mb-3">
+                              <strong>Selection Summary:</strong>
+                              <ul className="mb-0 mt-2">
+                                {selectedWHMovementId && (
+                                  <li>
+                                    WH MVT: {selectedWHMovementId}
+                                  </li>
+                                )}
+                                {selectedInvoiceId && (
+                                  <li>
+                                    Storage Invoice: {selectedInvoiceId}
+                                    {selectedInvoiceWeight && (
+                                      <span className="text-muted"> ({selectedInvoiceWeight.toLocaleString()} KG)</span>
+                                    )}
+                                    {selectedInvoiceArrivalId && (
+                                      <span className="text-muted"> - Arrival: {selectedInvoiceArrivalId}</span>
+                                    )}
+                                  </li>
+                                )}
+                                {selectedArrivalId && (
+                                  <li>Arrival Note: {selectedArrivalId}</li>
+                                )}
+                              </ul>
+                            </Alert>
+                          )}
+                        </Col>
                       </Row>
 
-                      {(selectedWHMovementId || selectedInvoiceId || selectedArrivalId) && (
-                        <Alert variant="info" className="mb-3">
-                          <strong>Selection Summary:</strong>
-                          <ul className="mb-0 mt-2">
-                            {selectedWHMovementId && <li>Warehouse Movement: {selectedWHMovementId}</li>}
-                            {selectedInvoiceId && <li>Storage Invoice: {selectedInvoiceId}</li>}
-                            {selectedArrivalId && <li>Arrival Note: {selectedArrivalId}</li>}
-                          </ul>
-                        </Alert>
-                      )}
-
                       <div className="d-flex gap-2">
-                        <button 
-                          className="btn btn-success"
-                          onClick={handleUpdateStock}
-                          disabled={updateLoading || (!selectedWHMovementId && !selectedInvoiceId && !selectedArrivalId)}
-                        >
+                        <button
+                          className="btn btn-success" onClick={handleUpdateStock}
+                          disabled={
+                            updateLoading ||
+                            (!selectedWHMovementId &&
+                              !selectedInvoiceId &&
+                              !selectedArrivalId)
+                          }>
                           {updateLoading ? (
                             <>
-                              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                              Updating...
+                              <span
+                                className="spinner-border spinner-border-sm me-2"
+                                role="status"
+                                aria-hidden="true"></span>
+                                Updating...
                             </>
                           ) : (
-                            '📈 Update Stock'
+                            "📈 Update Stock"
                           )}
                         </button>
-                        
-                        <button 
+
+                        <button
                           className="btn btn-outline-secondary"
                           onClick={clearSelections}
-                          disabled={updateLoading}
-                        >
+                          disabled={updateLoading}>
                           🗑️ Clear Selections
                         </button>
-                      </div>
-
-                      <div className="mt-3">
-                        <small className="text-muted">
-                          <strong>Note:</strong> The &quot;Update Stock&quot; button is currently a placeholder. 
-                          Backend integration will be implemented as requested.
-                        </small>
                       </div>
                     </Card.Body>
                   </Card>
                 </Col>
+              </Row>
+              <Row>
+                <Col>{renderActiveComponent()}</Col>
               </Row>
             </Container>
           </Card.Body>

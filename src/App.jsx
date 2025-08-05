@@ -268,7 +268,9 @@ function App() {
                   <UserRoles/>
                 </RequireAuth>} />
                 <Route path="/cargosettings" element={<RequireAuth loginPath="/login">
-                  <CargoSettings />
+                  <DateRangeProvider>
+                    <CargoSettings />
+                  </DateRangeProvider>
                 </RequireAuth>} />
                 <Route path="/otherrevenues" element={<RequireAuth loginPath="/login">
                   <OtherRevenues  />

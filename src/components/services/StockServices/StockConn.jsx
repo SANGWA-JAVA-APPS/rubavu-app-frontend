@@ -8,13 +8,13 @@ export default class StockConn {
         // name:'//nyakarambi.codeguru-pro.com:'
         // name: 'http://test_stockdjuma.megisha.com:'
         // name: 'http://192.168.92.6:'
-        name: 'http://localhost:',
-        // 'name':'https://rubavuport.codeguru-pro.com:'
+        // name: 'http://localhost:',
+        'name':'https://rubavuport.codeguru-pro.com:'
     };
     static port = {
         /*the below hosted to Djuma Nyabugogo and djuma town, the both have the same port bcz they are on different servers*/
-        val: '8101/'  // this is offline
-        // val: '8097/'  // this is online
+        // val: '8101/'  // this is offline
+        val: '8097/'  // this is online
     }
     static basicPath = {
         val: 'codeguru/api',

@@ -45,51 +45,75 @@ function Login() {
   })
   const loginHandler = async (e) => {
     e.preventDefault();
+    console.log('Login button clicked!'); // Debug log
+    
     const AuthRequest = {
       userName: userName,
       password: password
     };
+    console.log('Auth request:', AuthRequest); // Debug log
 
     try {
+      console.log('Making login request...'); // Debug log
       const res = await StockRepository.Login(AuthRequest); // Use await for cleaner async handling
       setLoginClick(true);
 
-      if (res.data.stat !== 'fail') {
-        console.log('Login successful, token:', res.data.token);
+     //-  ------------------LEFT CODE
+      if (res && res.data) {
+        console.log('Login response received:', res.data);
+        if (res.data.stat === 'OK') {
+          // Validate that required data is present
+          console.log('Logni has been successful')
+          if (res.data.token && res.data.userDetails && res.data.userDetailsAndProfile) {
+            console.log('Login successful, token:', res.data.token);
 
-        // Store additional user details if needed, but avoid duplicating token
-        localStorage.setItem('userid', res.data.userDetails.id);
-        localStorage.setItem('catname', res.data.userDetails.accountCategory);
-        localStorage.setItem('name', res.data.userDetailsAndProfile.name);
-        localStorage.setItem('surname', res.data.userDetailsAndProfile.surname);
-        localStorage.setItem('token', res.data.token);
+          //   // Store additional user details if needed, but avoid duplicating token
+            localStorage.setItem('userid', res.data.userDetails.id);
+            localStorage.setItem('catname', res.data.userDetails.accountCategory);
+            localStorage.setItem('name', res.data.userDetailsAndProfile.name);
+            localStorage.setItem('surname', res.data.userDetailsAndProfile.surname);
+            localStorage.setItem('token', res.data.token);
 
-        // Use useSignIn correctly
-        const signInSuccess = signIn({
-          token: res.data.token, // Just the token string
-          expiresIn: 3600,       // 60 minutes
-          tokenType: "Bearer",
-          authState: {
-            userid: res.data.userDetails.id,
-            username: res.data.userDetails.username,
-            roles: res.data.userDetails.roles,
-            accountCategory: res.data.userDetails.accountCategory
+          //   // Use useSignIn correctly
+            const signInSuccess = signIn({
+              token: res.data.token, // Just the token string
+              expiresIn: 3600,       // 60 minutes
+              tokenType: "Bearer",
+              authState: {
+                userid: res.data.userDetails.id,
+                username: res.data.userDetails.username,
+                roles: res.data.userDetails.roles,
+                accountCategory: res.data.userDetails.accountCategory
+              }
+            });
+
+            if (signInSuccess) {
+              setLoginStatus(true);
+              console.log('Authentication successful, redirecting to dashboard...');
+              navigate('/dashboard'); // Use navigate instead of window.location
+            } else {
+              setLoginStatus(false);
+              console.error('React-auth-kit sign-in failed');
+            }
+          } else {
+            setLoginStatus(false);
+            console.error('Login response missing required data:', {
+              hasToken: !!res.data.token,
+              hasUserDetails: !!res.data.userDetails,
+              hasUserProfile: !!res.data.userDetailsAndProfile
+            });
           }
-        });
-
-        if (signInSuccess) {
-          setLoginStatus(true);
-          navigate('/dashboard'); // Use navigate instead of window.location
+        } else if (res.data.stat === 'fail') {
+          setLoginStatus(false);
+          console.error('Login failed: Invalid credentials');
         } else {
           setLoginStatus(false);
-          console.error('Sign-in failed');
+          console.error('Login failed: Unknown status -', res.data.stat);
         }
-      } else {
-        setLoginStatus(false);
       }
     } catch (err) {
       setLoginStatus(false);
-      console.error('Login error:', err);
+      console.error('Login error:', err.response?.data || err.message || err);
     }
   }
 
@@ -145,14 +169,20 @@ function Login() {
             <TitleSmallDesc title="Login" />
             <Row>
               <Col md={8} style={{ width: '30rem' }}>
-                {!loginStatus && loginClick &&
+                {loginClick && !loginStatus && (
                   <Alert variant='danger'>
                     Login Failed
                   </Alert>
-                }
+                )}
+                {loginClick && loginStatus && (
+                  <Alert variant='success'>
+                    Login Successful!
+                  </Alert>
+                )}
               </Col>
+              
             </Row>
-            <Form >
+            <Form onSubmit={loginHandler}>
               <Form.Label htmlFor="username">Username</Form.Label>
 
               <Form.Control
@@ -170,7 +200,7 @@ function Login() {
                   </Row>
                 </Col>
                 <Col md={12} className='  d-flex justify-content-end pt-5'>
-                  <button type="submit" className="btn btn-primary  align-self-right" onClick={loginHandler} style={{ color: 'white' }}  >Login</button>
+                  <button type="button" className="btn btn-primary  align-self-right" onClick={loginHandler} style={{ color: 'white' }}  >Login</button>
                 </Col>
               </Row>
             </Form>

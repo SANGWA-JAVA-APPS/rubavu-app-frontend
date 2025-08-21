@@ -582,11 +582,11 @@ function Dashboard() {
               alloutgoingTrucks={alloutgoingTrucks}
               allAvailableAtPort={allAvailableAtPort}
               totalTruckAtPort={totalTruckAtPort} totIncomingWoodedboats={totIncomingWoodedboats} totOutgoingWoodedboats={totOutgoingWoodedboats} totBerthedWoodedboats={totBerthedWoodedboats} />
-            <ThreeCharts 
+            {/* <ThreeCharts 
               dataOne={berthReportGrpByhour} 
               dataTwo={berthReportGrpByWeek} 
               dataThree={berthReportGrpByMonth} 
-            />
+            /> */}
             <Row className="  m-5 mt-0  p-4   ">
 
               {/* <span className="mt-2 mb-5" /> */}

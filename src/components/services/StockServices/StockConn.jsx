@@ -14,7 +14,7 @@ export default class StockConn {
     static port = {
         /*the below hosted to Djuma Nyabugogo and djuma town, the both have the same port bcz they are on different servers*/
         // val: '8101/'  // this is offline
-        val: '8097/'  // this is online
+        val: '8097/'  // this is online added some comments
     }
     static basicPath = {
         val: 'codeguru/api',

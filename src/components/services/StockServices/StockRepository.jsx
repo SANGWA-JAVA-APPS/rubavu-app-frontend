@@ -4,6 +4,9 @@ import StockConn from './StockConn';
 import StockCommons from './StockCommons';
 import { useAuthHeader } from 'react-auth-kit';
 
+// Configure axios defaults (removed incorrect CORS header)
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
 class StockRepository {
     static page = (StockRepository.page < 1 || StockRepository.page == undefined) ? 1 : StockRepository.page;
     static size = (StockRepository.size < 1) ? 50 : StockRepository.size;
@@ -27,9 +30,42 @@ class StockRepository {
     }
 
     Login(authRequest) {
-        return axios.post( "/codeguru/authenticate", authRequest, { headers: StockRepository.headers }
-        // return axios.post(StockConn.server.name +StockConn.port.val+ "codeguru/authenticate", authRequest, { headers: StockRepository.headers }
-        )
+        // Construct the correct authentication URL
+        const authUrl = StockConn.server.name + "/codeguru/authenticate";
+        
+        // Headers for authentication request (no Authorization header needed for login)
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        
+        console.log("Login URL:", authUrl);
+        console.log("Login Headers:", headers);
+        console.log("Login Request:", authRequest);
+        
+        // Create axios config with timeout and error handling
+        const config = {
+            method: 'POST',
+            url: authUrl,
+            data: authRequest,
+            headers: headers,
+            timeout: 30000, // 30 second timeout
+            withCredentials: false
+        };
+        
+        console.log("Axios config:", config);
+        
+        return axios(config)
+            .then(response => {
+                console.log("Login response:", response);
+                return response;
+            })
+            .catch(error => {
+                console.error("Login error details:", error);
+                console.error("Error response:", error.response);
+                console.error("Error message:", error.message);
+                console.error("Error config:", error.config);
+                throw error;
+            });
     }
     findCategoriesCount() {
         return axios.get(StockRepository.server + "/count/",

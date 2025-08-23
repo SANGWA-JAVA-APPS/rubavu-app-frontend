@@ -3,6 +3,7 @@ import { Doughnut } from 'react-chartjs-2';
 import { Card, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuthHeader } from 'react-auth-kit';
+import StockConn from '../../services/StockServices/StockConn';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -42,12 +43,11 @@ export const ArrivalTypesDoughnutChart = () => {
       
       try {
         const token = authHeader();
-        const response = await axios.get('/api/arrival-reports/arrival-types-summary', {
+        const response = await axios.get(StockConn.wholePath.name + '/arrival-reports/arrival-types-summary', {
           params: { startDate, endDate },
           headers: { 
             Authorization: token,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Content-Type': 'application/json'
           }
         });
 

@@ -3,7 +3,7 @@ name: Email on Push
 on:
   push:
     branches:
-      - main        # change to your branch
+      - localversion-to-https        # change to your branch
     paths-ignore:
       - 'README.md' # optional: avoid spam on trivial edits
 

@@ -17,8 +17,16 @@ jobs:
       - name: Collect commit info
         id: info
         run: |
-          echo "SUBJECT=Repo $GITHUB_REPOSITORY push on $GITHUB_REF_NAME by $GITHUB_ACTOR" >> $GITHUB_OUTPUT
-          echo "BODY=$(git log -1 --pretty=format:'%an pushed %h%n%n%s%n%n%b')" >> $GITHUB_OUTPUT
+          SUBJECT="Repo $GITHUB_REPOSITORY push on $GITHUB_REF_NAME by $GITHUB_ACTOR"
+          BODY="$(git log -1 --pretty=format:'%an pushed %h%n%n%s%n%n%b')"
+          {
+            echo "subject<<EOF"
+            echo "$SUBJECT"
+            echo "EOF"
+            echo "body<<EOF"
+            echo "$BODY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Send email
         uses: dawidd6/action-send-mail@v3

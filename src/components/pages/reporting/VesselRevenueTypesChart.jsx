@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import StockConn from '../../services/StockServices/StockConn';
 
 // Register Chart.js components
 ChartJS.register(
@@ -34,12 +35,11 @@ export const VesselRevenueTypesChart = () => {
       
       try {
         const token = authHeader();
-        const response = await axios.get('/codeguru/api/vessel/analytics/revenue-by-types', {
+        const response = await axios.get(StockConn.wholePath.name + '/vessel/analytics/revenue-by-types', {
           params: { year: currentYear },
           headers: { 
             Authorization: token,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Content-Type': 'application/json'
           }
         });
 

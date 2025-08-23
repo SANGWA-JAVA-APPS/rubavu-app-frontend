@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Debug Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #ffe6e6; border: 1px solid #ff0000; }
+        .success { background: #e6ffe6; border: 1px solid #00ff00; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { white-space: pre-wrap; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <h1>CORS Debug Tool</h1>
+    <p><strong>Current Origin:</strong> <span id="origin"></span></p>
+    <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+    
+    <h2>Test Authentication Endpoint</h2>
+    <button onclick="testPreflight()">Test Preflight (OPTIONS)</button>
+    <button onclick="testLogin()">Test Login (POST)</button>
+    <button onclick="testWithFetch()">Test with Fetch</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('origin').textContent = window.location.origin;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+        
+        const resultsDiv = document.getElementById('results');
+        const authUrl = 'https://rubavuport.codeguru-pro.com/codeguru/authenticate';
+        
+        function addResult(title, content, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'result ' + (isError ? 'error' : 'success');
+            div.innerHTML = `<h3>${title}</h3><pre>${content}</pre>`;
+            resultsDiv.appendChild(div);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        // Test OPTIONS preflight request
+        function testPreflight() {
+            fetch(authUrl, {
+                method: 'OPTIONS',
+                headers: {
+                    'Origin': window.location.origin,
+                    'Access-Control-Request-Method': 'POST',
+                    'Access-Control-Request-Headers': 'Content-Type'
+                }
+            })
+            .then(response => {
+                const headers = {};
+                for (let [key, value] of response.headers.entries()) {
+                    headers[key] = value;
+                }
+                
+                addResult('Preflight Response', JSON.stringify({
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: headers,
+                    origin: window.location.origin
+                }, null, 2), response.status >= 400);
+            })
+            .catch(error => {
+                addResult('Preflight Error', JSON.stringify({
+                    message: error.message,
+                    name: error.name,
+                    origin: window.location.origin
+                }, null, 2), true);
+            });
+        }
+        
+        // Test actual login request
+        function testLogin() {
+            const loginData = {
+                username: 'admin',
+                password: 'mgr@2025'
+            };
+            
+            fetch(authUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Origin': window.location.origin
+                },
+                body: JSON.stringify(loginData)
+            })
+            .then(response => response.text().then(text => ({
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries()),
+                body: text,
+                origin: window.location.origin
+            })))
+            .then(result => {
+                addResult('Login Response', JSON.stringify(result, null, 2), result.status >= 400);
+            })
+            .catch(error => {
+                addResult('Login Error', JSON.stringify({
+                    message: error.message,
+                    name: error.name,
+                    origin: window.location.origin,
+                    stack: error.stack
+                }, null, 2), true);
+            });
+        }
+        
+        // Test with XMLHttpRequest (like axios does)
+        function testWithFetch() {
+            const xhr = new XMLHttpRequest();
+            
+            xhr.addEventListener('load', function() {
+                addResult('XHR Response', JSON.stringify({
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseHeaders: xhr.getAllResponseHeaders(),
+                    response: xhr.response,
+                    origin: window.location.origin
+                }, null, 2), xhr.status >= 400);
+            });
+            
+            xhr.addEventListener('error', function() {
+                addResult('XHR Error', JSON.stringify({
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseHeaders: xhr.getAllResponseHeaders(),
+                    origin: window.location.origin
+                }, null, 2), true);
+            });
+            
+            xhr.open('POST', authUrl);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                username: 'admin',
+                password: 'mgr@2025'
+            }));
+        }
+        
+        // Log all request details
+        console.log('CORS Debug Tool loaded');
+        console.log('Origin:', window.location.origin);
+        console.log('Auth URL:', authUrl);
+    </script>
+</body>
+</html>

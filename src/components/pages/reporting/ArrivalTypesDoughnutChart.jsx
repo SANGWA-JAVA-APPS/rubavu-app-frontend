@@ -33,7 +33,7 @@ export const ArrivalTypesDoughnutChart = () => {
 
     const fetchArrivalTypesData = async () => {
       if (!startDate || !endDate) {
-        console.log('Missing dates, skipping fetch');
+        console.log('Missing dates, skipping fetch ....');
         return;
       }
       

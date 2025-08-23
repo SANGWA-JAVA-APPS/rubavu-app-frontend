@@ -1,0 +1,44 @@
+name: Email on Push
+
+on:
+  push:
+    branches:
+      - main        # change to your branch
+    paths-ignore:
+      - 'README.md' # optional: avoid spam on trivial edits
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (optional, not required to send email)
+        uses: actions/checkout@v4
+
+      - name: Collect commit info
+        id: info
+        run: |
+          echo "SUBJECT=Repo $GITHUB_REPOSITORY push on $GITHUB_REF_NAME by $GITHUB_ACTOR" >> $GITHUB_OUTPUT
+          echo "BODY=$(git log -1 --pretty=format:'%an pushed %h%n%n%s%n%n%b')" >> $GITHUB_OUTPUT
+
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: ${{ steps.info.outputs.SUBJECT }}
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+          content_type: text/plain
+          body: |
+            Repository: ${{ github.repository }}
+            Branch:     ${{ github.ref_name }}
+            Pusher:     ${{ github.actor }}
+            Commit:     ${{ github.sha }}
+
+            Latest commit:
+            ${{ steps.info.outputs.BODY }}
+
+            Compare:
+            https://github.com/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.sha }}

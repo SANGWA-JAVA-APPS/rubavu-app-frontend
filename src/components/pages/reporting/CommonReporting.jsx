@@ -31,10 +31,11 @@ export default function ReportingTabs() {
       <PagesWapper>
         <div className="container">
           <Tabs
-            defaultActiveKey="commonReporting"
+            defaultActiveKey="Cargo"
             id="reporting-tabs"
             className="bg-light my-3 mx-auto"
             mountOnEnter
+
             unmountOnExit
             transition={true}
           >

@@ -3,6 +3,7 @@ import { Form } from "react-bootstrap"
 import ReportTable from "../SharedTabComponents/ReportTable"
 import { motion, AnimatePresence } from "framer-motion"
 import TabHeader from "../SharedTabComponents/TabHeader"
+import RadioGroup from "../SharedTabComponents/RadioButtons"
 
 export default function CargoTab() {
   const [view, setView] = useState("brief") // default view
@@ -12,35 +13,17 @@ export default function CargoTab() {
       <TabHeader onSearch={() => {}} title="Cargo" />
 
       {/* Radio Buttons */}
-      <Form className="d-flex gap-4 mb-3">
-        <Form.Check
-          inline
-          type="radio"
-          label="Brief"
-          name="cargoView"
-          value="brief"
-          checked={view === "brief"}
-          onChange={(e) => setView(e.target.value)}
-        />
-        <Form.Check
-          inline
-          type="radio"
-          label="Summarized"
-          name="cargoView"
-          value="summarized"
-          checked={view === "summarized"}
-          onChange={(e) => setView(e.target.value)}
-        />
-        <Form.Check
-          inline
-          type="radio"
-          label="Details"
-          name="cargoView"
-          value="details"
-          checked={view === "details"}
-          onChange={(e) => setView(e.target.value)}
-        />
-      </Form>
+      <RadioGroup
+        name="cargoView"
+        options={[
+          { label: "Brief", value: "brief" },
+          { label: "Summarized", value: "summarized" },
+          { label: "Details", value: "details" },
+        ]}
+        selected={view}
+        onChange={setView}
+      />
+      
 
       {/* Dynamic Table with animation */}
       <AnimatePresence mode="wait">

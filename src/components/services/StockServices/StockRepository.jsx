@@ -204,8 +204,11 @@ class StockRepository {
         return axios.post(StockRepository.server + "/dailyreport/getTodayReport", SearchByDateOnly, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
     }
     
+    // findMonthlyReport(searchByDateRange, authHeader) {
+    //     return axios.post(StockRepository.server + "/dailyreport/getMonthlyReport", searchByDateRange, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
+    // }
     findMonthlyReport(searchByDateRange, authHeader) {
-        return axios.post(StockRepository.server + "/dailyreport/getMonthlyReport", searchByDateRange, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
+        return axios.post(StockRepository.server + "/dailyreport/getMonthlyReport", searchByDateRange, { headers: this.getHeaders(authHeader) }).catch((err) => console.error(err))// 
     }
     findExpenses(authHeader) {
         return axios.get(StockRepository.server + "/expenses/", { headers: this.getHeaders(authHeader) })

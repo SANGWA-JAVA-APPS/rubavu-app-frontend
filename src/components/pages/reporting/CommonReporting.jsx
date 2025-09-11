@@ -14,7 +14,7 @@ import MiscTab from "./ReportTabs/MiscTab"
 export default function ReportingTabs() {
   const { setModalSize, showModal, setShowModal, modalTitle, setupBycolor } =
     useContext(ColItemContext)
-
+  const [activeTab, setActiveTab] = React.useState("Cargo")
   useEffect(() => {
     setupBycolor()
     setModalSize("custom-modal_97")
@@ -35,20 +35,20 @@ export default function ReportingTabs() {
             id="reporting-tabs"
             className="bg-light my-3 mx-auto"
             mountOnEnter
-
+            onSelect={(k) => setActiveTab(k)}
             unmountOnExit
             transition={true}
           >
             <Tab eventKey="Cargo" title="Cargo" tabClassName="px-4">
-              <CargoTab />
+              <CargoTab isActive={activeTab === "Cargo"} />
             </Tab>
 
             <Tab eventKey="Vessel" title="Vessel" tabClassName="px-4">
-              <VesselTab />
+              <VesselTab isActive={activeTab === "Vessel"} />
             </Tab>
 
             <Tab eventKey="Client" title="Client" tabClassName="px-4">
-              <ClientTab />
+              <ClientTab isActive={activeTab === "Client"} />
             </Tab>
 
             <Tab
@@ -56,7 +56,7 @@ export default function ReportingTabs() {
               tabClassName="ml-2 px-4"
               title="Misc"
             >
-              <MiscTab />
+              <MiscTab isActive={activeTab === "Misc"} />
             </Tab>
           </Tabs>
         </div>

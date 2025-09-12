@@ -1,61 +1,62 @@
-import { Table } from "react-bootstrap"
-import { motion, AnimatePresence } from "framer-motion"
-import { GraphUpArrow, GraphDownArrow } from 'react-bootstrap-icons'
+import { Table, Pagination } from "react-bootstrap";
+import { motion, AnimatePresence } from "framer-motion";
+import { GraphUpArrow, GraphDownArrow } from "react-bootstrap-icons";
+import { useState } from "react";
 
-export default function ReportTable({ view, data, columns }) {
-  if (!data || !columns) return null
+export default function ReportTable({ view, data, columns, itemsPerPage = 50 }) {
+  if (!data || !columns) return null;
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = data.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const renderCell = (row, column) => {
-    const value = row[column.accessor]
+    const value = row[column.accessor];
     
-    // Handle monetary values
+    // monetary
     if (column.accessor === 'totalPurchaseInvoiceAmount' || 
         column.accessor === 'totalSalesInvoiceAmount') {
-      return `RWF ${Number(value).toLocaleString()}`
+      return `RWF ${Number(value).toLocaleString()}`;
     }
 
-    // Handle weight and quantity columns
-    if (column.accessor === 'weightIn' || 
-        column.accessor === 'weightOut' || 
-        column.accessor === 'transQty') {
-      const repeatedCargo = column.accessor === 'weightIn' ? row.repeatedIn : row.repeatedOut
+    // weight / quantity
+    if (['weightIn', 'weightOut', 'transQty'].includes(column.accessor)) {
+      const repeatedCargo = column.accessor === 'weightIn' ? row.repeatedIn : row.repeatedOut;
 
       return (
         <div className="d-flex align-items-center gap-2">
           <span>{Number(value).toLocaleString()} Kg</span>
           {(column.accessor === 'weightIn' || column.accessor === 'weightOut') && repeatedCargo && (
             <div className="d-flex align-items-center text-muted" style={{ fontSize: '0.85rem' }}>
-              {column.accessor === 'weightIn' ? (
-                <GraphUpArrow size={16} color="#007bff" />
-              ) : (
-                <GraphDownArrow size={16} color="#28a745" />
-              )}
+              {column.accessor === 'weightIn' ? <GraphUpArrow size={16} color="#007bff" /> :
+                <GraphDownArrow size={16} color="#28a745" />}
               <span className="ms-1">{repeatedCargo}</span>
             </div>
           )}
         </div>
-      )
+      );
     }
 
-    // Handle total arrival notes
-    if (column.accessor === 'totalArrivalNotes') {
-      return Number(value).toLocaleString()
-    }
+    // totalArrivalNotes
+    if (column.accessor === 'totalArrivalNotes') return Number(value).toLocaleString();
 
-    // Handle year + month combination
-    if (column.accessor === 'month' && row.year) {
-      return `${value} ${row.year}`
-    }
+    // month + year
+    if (column.accessor === 'month' && row.year) return `${value} ${row.year}`;
 
-    // Default return
-    return value
-  }
+    return value;
+  };
 
   return (
     <div className="mt-3">
       <AnimatePresence mode="wait">
         <motion.div
-          key={view}
+          key={view + currentPage} // re-animate when page changes
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
@@ -70,25 +71,41 @@ export default function ReportTable({ view, data, columns }) {
               </tr>
             </thead>
             <tbody>
-              {data.map((row, rowIndex) => (
+              {currentData.map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   {columns.map((column, colIndex) => (
-                    <td key={colIndex}>
-                      {renderCell(row, column)}
-                    </td>
+                    <td key={colIndex}>{renderCell(row, column)}</td>
                   ))}
                 </tr>
               ))}
             </tbody>
           </Table>
+
+          {totalPages > 1 && (
+            <Pagination className="justify-content-center ">
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <Pagination.Item
+                activeClassName=" text-white rounded"
+                  key={i}
+                  active={i + 1 === currentPage}
+                  onClick={() => handlePageChange(i + 1)}
+                  className="bg-white rounded"
+                  // linkClassName="bg-white"
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+            </Pagination>
+          )}
         </motion.div>
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 ReportTable.defaultProps = {
   data: [],
   columns: [],
-  view: 'brief'
-}
+  view: 'brief',
+  itemsPerPage: 50
+};

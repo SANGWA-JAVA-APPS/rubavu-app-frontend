@@ -29,15 +29,15 @@ import { Nav } from "react-bootstrap";
 import useMonthlyReport from "../../Global/useMonthlyReport";
 import StockRepository from "../../services/StockServices/StockRepository";
 import InventoryBrief from "./InventoryBrief";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import InventorySummary from "./InventorySummary";
 import InventoryDetailed from "./InventoryDetailed";
-import { 
-  CargoSearchBox, 
-  CargoClientSelector, 
-  useCargoFilters, 
+import {
+  CargoSearchBox,
+  CargoClientSelector,
+  useCargoFilters,
   useClientSelection,
-  convertKgToTons 
+  convertKgToTons,
 } from "./CargoFilters";
 
 function BerthingRevenue({ invoiceReport }) {
@@ -437,21 +437,34 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   const recordsPerPage = 10;
 
   // 2. Calculate filtered data and total pages for each list (with client filtering applied)
-  const finalFilteredTally = React.useMemo(() => 
-    applyCargoClientFilter(filteredTally, 'clientName', selectedCargoClients), 
+  const finalFilteredTally = React.useMemo(
+    () =>
+      applyCargoClientFilter(filteredTally, "clientName", selectedCargoClients),
     [filteredTally, applyCargoClientFilter, selectedCargoClients]
   );
-  const finalFilteredTallyIn = React.useMemo(() => 
-    applyCargoClientFilter(filteredTallyIn, 'user_name', selectedCargoClients), 
+  const finalFilteredTallyIn = React.useMemo(
+    () =>
+      applyCargoClientFilter(
+        filteredTallyIn,
+        "user_name",
+        selectedCargoClients
+      ),
     [filteredTallyIn, applyCargoClientFilter, selectedCargoClients]
   );
-  const finalFilteredTallyOut = React.useMemo(() => 
-    applyCargoClientFilter(filteredTallyOut, 'user_name', selectedCargoClients), 
+  const finalFilteredTallyOut = React.useMemo(
+    () =>
+      applyCargoClientFilter(
+        filteredTallyOut,
+        "user_name",
+        selectedCargoClients
+      ),
     [filteredTallyOut, applyCargoClientFilter, selectedCargoClients]
   );
-  
+
   const tallyTotalPages = Math.ceil(finalFilteredTally.length / recordsPerPage);
-  const tallyInTotalPages = Math.ceil(finalFilteredTallyIn.length / recordsPerPage);
+  const tallyInTotalPages = Math.ceil(
+    finalFilteredTallyIn.length / recordsPerPage
+  );
   const tallyOutTotalPages = Math.ceil(
     finalFilteredTallyOut.length / recordsPerPage
   );
@@ -484,7 +497,10 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-    XLSX.writeFile(workbook, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(
+      workbook,
+      `${filename}_${new Date().toISOString().split("T")[0]}.xlsx`
+    );
   };
 
   const getCommonSearchByDate = (date1, date2) => {
@@ -548,27 +564,29 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   // Extract available clients when inventory data changes
   useEffect(() => {
     if (inventoryData.length > 0) {
-      const clients = [...new Set(inventoryData.map(record => record.name))].sort();
+      const clients = [
+        ...new Set(inventoryData.map((record) => record.name)),
+      ].sort();
       setAvailableClients(clients);
     }
   }, [inventoryData]);
-  
+
   const [grandTotalState, setGrandTotalState] = useState(0);
-  
+
   // Calculate grand total whenever filtered data changes
   useEffect(() => {
     const tallyTotal = finalFilteredTally.reduce((total, record) => {
       return total + (Number(record.invoiceAmount) || 0);
     }, 0);
-    
+
     const tallyInTotal = finalFilteredTallyIn.reduce((total, record) => {
       return total + (Number(record.invoiceAmount) || 0);
     }, 0);
-    
+
     const tallyOutTotal = finalFilteredTallyOut.reduce((total, record) => {
       return total + (Number(record.amount_paid) || 0);
     }, 0);
-    
+
     setGrandTotalState(tallyTotal + tallyInTotal + tallyOutTotal);
   }, [finalFilteredTally, finalFilteredTallyIn, finalFilteredTallyOut]);
 
@@ -622,7 +640,7 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
         <Col md={2}>
           Cargo From W/H: <strong>{sumSaless().toLocaleString()}</strong> KG
         </Col>
-        <Col md={2} style={{backgroundColor:'#d6ffd6'}}>
+        <Col md={2} style={{ backgroundColor: "#d6ffd6" }}>
           RWF <strong> {grandTotalState.toLocaleString()}</strong>{" "}
         </Col>
         {/* <Col className="text-end"><p className="m-0 p-0" style={{fontSize:'12px'}}>Date Range <span style={{color:"#6e3000"}}> { startDate} - {endDate}</span></p></Col> */}
@@ -1032,7 +1050,13 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                     >
                       RWF {purchaseAmount.toLocaleString()}
                     </td>
-                    <td                      style={{                        textAlign: "right",                        fontWeight: "bold",                        color: salesAmount > 0 ? "#007bff" : "#6c757d",                        fontSize: "0.9em",                      }}
+                    <td
+                      style={{
+                        textAlign: "right",
+                        fontWeight: "bold",
+                        color: salesAmount > 0 ? "#007bff" : "#6c757d",
+                        fontSize: "0.9em",
+                      }}
                     >
                       RWF {salesAmount.toLocaleString()}
                     </td>
@@ -1159,7 +1183,11 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                       </td>
                       <td
                         style={{
-                          textAlign: "right",                         fontWeight: "bold",                          color: "#000",                          backgroundColor: "#e8f5e8",                          fontSize: "0.9em",
+                          textAlign: "right",
+                          fontWeight: "bold",
+                          color: "#000",
+                          backgroundColor: "#e8f5e8",
+                          fontSize: "0.9em",
                         }}
                       >
                         RWF {totals.totalPurchaseAmount.toLocaleString()}
@@ -1179,92 +1207,119 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                   );
                 })()}
               {/* OPS Row - Handling Fees + Storage Fees */}
-              {monthlyData.length > 0 && (() => {
-                const opsTotal = monthlyData.reduce((acc, row) => {
-                  const purchaseAmount = parseFloat(row.totalPurchaseInvoiceAmount) || 0;
-                  const salesAmount = parseFloat(row.totalSalesInvoiceAmount) || 0;
-                  
-                  acc.totalOpsAmount += purchaseAmount + salesAmount;
-                  
-                  return acc;
-                }, {
-                  totalOpsAmount: 0
-                });
+              {monthlyData.length > 0 &&
+                (() => {
+                  const opsTotal = monthlyData.reduce(
+                    (acc, row) => {
+                      const purchaseAmount =
+                        parseFloat(row.totalPurchaseInvoiceAmount) || 0;
+                      const salesAmount =
+                        parseFloat(row.totalSalesInvoiceAmount) || 0;
 
-                return (
-                  <tr style={{ 
-                    backgroundColor: '#fff3e0', 
-                    borderTop: '1px solid #ffa726',
-                    fontWeight: 'bold'
-                  }}>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                   GRAND TOTAL   OPS
-                    </td>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                      -
-                    </td>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                      -
-                    </td>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                      -
-                    </td>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                      -
-                    </td>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                      -
-                    </td>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                      -
-                    </td>
-                    <td style={{ 
-                      fontWeight: 'bold', 
-                      color: '#e65100',
-                      fontSize: '0.9em'
-                    }}>
-                      -
-                    </td>
-                    <td colSpan={2} style={{ 
-                      textAlign: 'center', 
-                      fontWeight: 'bold',
-                      color: '#000',
-                      backgroundColor: '#ffcc80',
-                      fontSize: '1.0em'
-                    }}>
-                      RWF {opsTotal.totalOpsAmount.toLocaleString()}
-                    </td>
-                  </tr>
-                );
-              })()}
+                      acc.totalOpsAmount += purchaseAmount + salesAmount;
+
+                      return acc;
+                    },
+                    {
+                      totalOpsAmount: 0,
+                    }
+                  );
+
+                  return (
+                    <tr
+                      style={{
+                        backgroundColor: "#fff3e0",
+                        borderTop: "1px solid #ffa726",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        GRAND TOTAL OPS
+                      </td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        -
+                      </td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        -
+                      </td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        -
+                      </td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        -
+                      </td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        -
+                      </td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        -
+                      </td>
+                      <td
+                        style={{
+                          fontWeight: "bold",
+                          color: "#e65100",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        -
+                      </td>
+                      <td
+                        colSpan={2}
+                        style={{
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          color: "#000",
+                          backgroundColor: "#ffcc80",
+                          fontSize: "1.0em",
+                        }}
+                      >
+                        RWF {opsTotal.totalOpsAmount.toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })()}
             </>
           )}
         </tbody>
@@ -1624,22 +1679,25 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
               {monthlyLoading ? "⟳ Refreshing..." : "🔄 Refresh Data"}
             </button>
           )}
-           {/* Checkbox to show/hide client filters for detailed view */}
+          {/* Checkbox to show/hide client filters for detailed view */}
           {cargoView === "detailed" && (
-            <label style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "4px",
-              fontSize: "0.9em",
-              cursor: "pointer"
-            }}>
-              <input className="btn"
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "0.9em",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                className="btn"
                 type="checkbox"
                 checked={showClientFilters}
                 onChange={(e) => setShowClientFilters(e.target.checked)}
                 style={{ marginRight: "4px" }}
               />
-              Show  Filters
+              Show Filters
             </label>
           )}
           {/* Excel download button for detailed view */}
@@ -1647,31 +1705,39 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
             <button
               onClick={() => {
                 const detailedData = [
-                  ...finalFilteredTally.map(record => ({
+                  ...finalFilteredTally.map((record) => ({
                     refNo: record.id,
                     cargoOwner: record.clientName,
                     cargo: record.cargo,
                     movement: record.destinationName,
                     entryDate: record.entry_date,
                     exitDate: record.invDate,
-                    totalWeight: record.cargoAssorted === "Assorted" ? record.weight : record.weight * record.unit,
-                    importExport: record.tarifftype === "1" ? "Export" : "Import",
+                    totalWeight:
+                      record.cargoAssorted === "Assorted"
+                        ? record.weight
+                        : record.weight * record.unit,
+                    importExport:
+                      record.tarifftype === "1" ? "Export" : "Import",
                     handlingFees: record.invoiceAmount,
-                    type: "Transhipment"
+                    type: "Transhipment",
                   })),
-                  ...finalFilteredTallyIn.map(record => ({
+                  ...finalFilteredTallyIn.map((record) => ({
                     refNo: record.id,
                     cargoOwner: record.user_name,
                     cargo: record.itemName,
                     movement: record.destName,
                     entryDate: record.date_time,
                     exitDate: record.invDate,
-                    totalWeight: record.cargoAssorted === "Assorted" ? record.weight : record.weight * record.purchased_qty,
-                    importExport: record.importExport === "1" ? "Export" : "Import",
+                    totalWeight:
+                      record.cargoAssorted === "Assorted"
+                        ? record.weight
+                        : record.weight * record.purchased_qty,
+                    importExport:
+                      record.importExport === "1" ? "Export" : "Import",
                     handlingFees: record.invoiceAmount,
-                    type: "To Warehouse"
+                    type: "To Warehouse",
                   })),
-                  ...finalFilteredTallyOut.map(record => ({
+                  ...finalFilteredTallyOut.map((record) => ({
                     refNo: record.id,
                     cargoOwner: record.user_name,
                     cargo: record.itemName,
@@ -1681,14 +1747,14 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                     totalWeight: record.weight,
                     importExport: "Import",
                     handlingFees: record.amount_paid,
-                    type: "From Warehouse"
-                  }))
+                    type: "From Warehouse",
+                  })),
                 ];
-                
+
                 if (detailedData.length > 0) {
-                  exportToExcel(detailedData, 'Detailed_Cargo_Report');
+                  exportToExcel(detailedData, "Detailed_Cargo_Report");
                 } else {
-                  alert('No detailed data available to export');
+                  alert("No detailed data available to export");
                 }
               }}
               style={{
@@ -1701,13 +1767,12 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: "4px"
+                gap: "4px",
               }}
             >
               📊 Export Excel
             </button>
           )}
-         
 
           {/* Date Range Display - shown for all views */}
           <p className="m-0 p-0" style={{ fontSize: "12px" }}>
@@ -1725,7 +1790,7 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
     return (
       <>
         <CargoRadioSwitcher />
-        <CargoClientSelector 
+        <CargoClientSelector
           selectedClients={selectedCargoClients}
           availableClients={availableCargoClients}
           onClientToggle={handleCargoClientToggle}
@@ -1743,9 +1808,9 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   // Client selection component for inventory
   function InventoryClientSelector() {
     const handleClientToggle = (clientName) => {
-      setSelectedClients(prev => {
+      setSelectedClients((prev) => {
         if (prev.includes(clientName)) {
-          return prev.filter(name => name !== clientName);
+          return prev.filter((name) => name !== clientName);
         } else {
           return [...prev, clientName];
         }
@@ -1761,100 +1826,137 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
     };
 
     return (
-      <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+      <div
+        style={{
+          marginBottom: "15px",
+          padding: "10px",
+          backgroundColor: "#f8f9fa",
+          borderRadius: "5px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "10px",
+          }}
+        >
           <strong>Select Clients:</strong>
           <div>
-            <button 
+            <button
               onClick={handleSelectAll}
-              style={{ 
-                marginRight: '8px', 
-                padding: '4px 8px', 
-                fontSize: '0.8em',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer'
+              style={{
+                marginRight: "8px",
+                padding: "4px 8px",
+                fontSize: "0.8em",
+                backgroundColor: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: "3px",
+                cursor: "pointer",
               }}
             >
               Select All
             </button>
-            <button 
+            <button
               onClick={handleClearAll}
-              style={{ 
-                padding: '4px 8px', 
-                fontSize: '0.8em',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer'
+              style={{
+                padding: "4px 8px",
+                fontSize: "0.8em",
+                backgroundColor: "#6c757d",
+                color: "white",
+                border: "none",
+                borderRadius: "3px",
+                cursor: "pointer",
               }}
             >
               Clear All
             </button>
           </div>
         </div>
-        
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '120px', overflowY: 'auto' }}>
-          {availableClients.map(client => (
-            <label 
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px",
+            maxHeight: "120px",
+            overflowY: "auto",
+          }}
+        >
+          {availableClients.map((client) => (
+            <label
               key={client}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '4px 8px',
-                backgroundColor: selectedClients.includes(client) ? '#e3f2fd' : '#fff',
-                border: `1px solid ${selectedClients.includes(client) ? '#007bff' : '#dee2e6'}`,
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.9em',
-                minWidth: '120px'
+                display: "flex",
+                alignItems: "center",
+                padding: "4px 8px",
+                backgroundColor: selectedClients.includes(client)
+                  ? "#e3f2fd"
+                  : "#fff",
+                border: `1px solid ${
+                  selectedClients.includes(client) ? "#007bff" : "#dee2e6"
+                }`,
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "0.9em",
+                minWidth: "120px",
               }}
             >
               <input
                 type="checkbox"
                 checked={selectedClients.includes(client)}
                 onChange={() => handleClientToggle(client)}
-                style={{ marginRight: '6px' }}
+                style={{ marginRight: "6px" }}
               />
               {client}
             </label>
           ))}
         </div>
-        
+
         {selectedClients.length > 0 && (
-          <div style={{ marginTop: '8px', fontSize: '0.9em', color: '#007bff' }}>
+          <div
+            style={{ marginTop: "8px", fontSize: "0.9em", color: "#007bff" }}
+          >
             <strong>{selectedClients.length}</strong> client(s) selected
           </div>
         )}
-        
+
         {/* Excel Download Button */}
-        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
-          <button 
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <button
             onClick={() => {
-              const filteredInventoryData = selectedClients.length > 0 
-                ? inventoryData.filter(item => selectedClients.includes(item.name))
-                : inventoryData;
-              
+              const filteredInventoryData =
+                selectedClients.length > 0
+                  ? inventoryData.filter((item) =>
+                      selectedClients.includes(item.name)
+                    )
+                  : inventoryData;
+
               if (filteredInventoryData.length > 0) {
-                exportToExcel(filteredInventoryData, 'Inventory_Report');
+                exportToExcel(filteredInventoryData, "Inventory_Report");
               } else {
-                alert('No data available to export');
+                alert("No data available to export");
               }
             }}
-            style={{ 
-              padding: '8px 16px', 
-              fontSize: '0.9em',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
+            style={{
+              padding: "8px 16px",
+              fontSize: "0.9em",
+              backgroundColor: "#28a745",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
             }}
           >
             📊 Download Excel
@@ -1867,7 +1969,14 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   // Radio button switcher for inventory views
   function InventoryRadioSwitcher() {
     return (
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+      <div
+        style={{
+          marginBottom: "16px",
+          display: "flex",
+          gap: "16px",
+          alignItems: "center",
+        }}
+      >
         <label style={{ marginRight: 16 }}>
           <input
             type="radio"
@@ -1907,25 +2016,25 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
       <div>
         <InventoryRadioSwitcher />
         <InventoryClientSelector />
-        
+
         {inventoryView === "brief" && (
-          <InventoryBrief 
-            selectedClients={selectedClients} 
-            inventoryData={inventoryData} 
+          <InventoryBrief
+            selectedClients={selectedClients}
+            inventoryData={inventoryData}
           />
         )}
-        
+
         {inventoryView === "summary" && (
-          <InventorySummary 
-            selectedClients={selectedClients} 
-            inventoryData={inventoryData} 
+          <InventorySummary
+            selectedClients={selectedClients}
+            inventoryData={inventoryData}
           />
         )}
-        
+
         {inventoryView === "detailed" && (
-          <InventoryDetailed 
-            selectedClients={selectedClients} 
-            inventoryData={inventoryData} 
+          <InventoryDetailed
+            selectedClients={selectedClients}
+            inventoryData={inventoryData}
           />
         )}
       </div>

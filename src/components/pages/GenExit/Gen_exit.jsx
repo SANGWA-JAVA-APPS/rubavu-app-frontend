@@ -32,6 +32,7 @@ function Gen_exit() {
   const [id, setId] = useState()
   const [date_time, setDate_time] = useState()
   const [receipt_id, setReceipt_id] = useState()
+  const [genReceiptId, setGenReceiptId] = useState()
 
   /*#endregion ENTITY FIELDS DECLARATION */
 
@@ -61,7 +62,7 @@ function Gen_exit() {
     setShowLoader(true)
 
     var gen_exit = {
-      id: id, date_time: date_time, receipt_id: receipt_id
+      id: id, date_time: date_time, receipt_id: receipt_id, genReceiptId: genReceiptId
     }
     if (id) {
       StockCommons.updateGen_exit(gen_exit, id, authHeader).then((res) => {
@@ -111,6 +112,7 @@ function Gen_exit() {
       setId(res.data.id)
       setDate_time(res.data.date_time)
       setReceipt_id(res.data.receipt_id)
+      setGenReceiptId(res.data.genReceiptId)
 
       setClearBtn(true)
       showheight('auto')
@@ -138,12 +140,14 @@ function Gen_exit() {
     setId(null)
     setDate_time("")
     setReceipt_id("")
+    setGenReceiptId("")
 
   }
   const clearHandle = () => {
     setId(null)
     setDate_time("")
     setReceipt_id("")
+    setGenReceiptId("")
 
     setClearBtn(false)
   }
@@ -181,7 +185,7 @@ function Gen_exit() {
           <ClearBtnSaveStatus height={height} showLoader={showLoader} showAlert={showAlert} />
           <FormInnerRightPane onSubmitHandler={onSubmitHandler}>
             {/* <InputRow name='Date Time ' val={date_time} handle={(e) => setDate_time(e.target.value)} label='lbldate_time' /> */}
-            <DropDownInput handle={(e) => setReceipt_id(e.target.value)} name='Receipt' label='REceipt' >
+            <DropDownInput handle={(e) => {setReceipt_id(e.target.value); setGenReceiptId(e.target.value)}} name='Receipt' label='REceipt' >
               {gen_receipts.map((rec) => (
                 <option value={rec.id} key={rec.id}>   {rec.id} - RWF {rec.amount.toLocaleString()} -  DOC ID {rec.description}</option>
               ))}

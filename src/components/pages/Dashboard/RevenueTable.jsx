@@ -75,7 +75,9 @@ const RevenueTable = () => {
       return 'Berthing';
     } else if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'TRUCK_PARKING') {
       return 'Truck';
-    } else if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'UNKNOWN') {
+    } else if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'ADDITIONAL_FEES') {
+      return 'ADDITIONAL CHARGES'
+    }else if (invoice.invoiceType && invoice.invoiceType.toUpperCase() === 'UNKNOWN') {
       return 'Other Revenues'
     }
     return 'Ops';
@@ -169,7 +171,7 @@ const RevenueTable = () => {
     const totals = {
       'Berthing': 0,
       'Truck': 0,
-      'Ops': 0, 'Other Revenues': 0
+      'Ops': 0, 'Other Revenues': 0,'ADDITIONAL CHARGES':0
     };
     filteredRows.forEach(row => {
       const invoice = row.original;
@@ -180,8 +182,6 @@ const RevenueTable = () => {
   }, [filteredRows]);
 
   const grandTotal = Object.values(filteredSourceTotals).reduce((sum, val) => sum + val, 0);
-
-
   const grandTotalWithoutOtherRevenues = Object.entries(filteredSourceTotals)
     .filter(([source]) => source !== 'Other Revenues')
     .reduce((sum, [, val]) => sum + val, 0);
@@ -247,9 +247,7 @@ const RevenueTable = () => {
             className="mb-2"
           />
           <Form.Select
-            multiple
-            value={selectedClients}
-            onChange={e => {
+            multiple            value={selectedClients}            onChange={e => {
               const options = Array.from(e.target.selectedOptions).map(opt => opt.value);
               setSelectedClients(options);
             }}

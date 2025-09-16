@@ -9,6 +9,7 @@ import { ic_attach_money_outline as money } from 'react-icons-kit/md/ic_attach_m
 import { useState, useContext, useEffect } from 'react'
 import { ColItemContext } from '../../Global/GlobalDataContentx'
 import { DateRangeContext } from '../../globalcomponents/ButtonContext'
+import CurrentDate from '../../Global/CurrentDate'
 export const SingleNumberTop = ({ topRightTxt1, topRightTxt2, topRightTxt3, topRightTxt4, dataTodisplay ,
     bottomLeftTxt1, bottomLeftTxt2, bottomLeftTxt3, clickHandler
 }) => {
@@ -51,19 +52,17 @@ export const CustomCardRows = ({ topRightTxt1, topRightTxt2, bottomLeftTxt1, bot
     </Row>
 }
 
-export const SingleNumCol = ({ topRightTxt1 = "Booking", topRightTxt2 = "281", bottomLeftTxt1 = "+55%", bottomLeftTxt2 = "than last week", bg, icon, clickHandler, dataTodisplay }) => {
+export const  SingleNumCol = ({ topRightTxt1 = "Booking", topRightTxt2 = "281", bottomLeftTxt1 = "+55%", bottomLeftTxt2 = "than last week", bg, icon, clickHandler, dataTodisplay }) => {
 
     const { cardIconShow, cardBg, cardHeight, colSize, colWidth,showModal, setShowModal, modalTitle, setDataTodisplayInModal, setMOdalTitle } = useContext(ColItemContext)
     const { setStartDate, setendDate, startDate, endDate } = useContext(DateRangeContext);
     
-    // Set date range to current year (January 1st to December 31st)
+    // Set date range to today's date only
     useEffect(() => {
-        const currentYear = new Date().getFullYear();
-        const startOfYear = `${currentYear}-01-01`; // January 1st as string
-        const endOfYear = `${currentYear}-12-31`; // December 31st as string
+        const todayDate = CurrentDate.todaydate();
         
-        setStartDate(startOfYear);
-        setendDate(endOfYear);
+        setStartDate(todayDate);
+        setendDate(todayDate);
     }, [setStartDate, setendDate]);
     
     const setupModal = () => {

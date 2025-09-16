@@ -49,6 +49,7 @@ import { ArrivalDetailsPopup, MediumPopup } from "./ArrivalDetailsPopup";
 import { ArrivalDetailsContent } from "./ArrivalClientDetails";
 import { TitleSmallDesc } from "../../globalcomponents/TitleSmallDesc";
 import { SmallSplitter, Splitter } from "../../globalcomponents/Splitter";
+import ClientSearch from "./ClientSearch";
 import { arrowRight } from "react-icons-kit/icomoon/arrowRight";
 import { arrowLeft } from "react-icons-kit/icomoon/arrowLeft";
 import MultipleInputs from "./MultipleInputs";
@@ -96,45 +97,18 @@ function Arrival_note() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [smallModalOpen, setSmallModalOpen] = useState(false);
+  const [showClientForm, setShowClientForm] = useState(false); // State to control client form visibility
+
+  const {    step,    setStep,    arrivalNote,    setArrivalNote,
+    updateArrivalNote,    inputs,    serviceName,    setInputs,    setServiceName,  } = useContext(ButtonContext);
 
   const {
-    step,
-    setStep,
-    arrivalNote,
-    setArrivalNote,
-    updateArrivalNote,
-    inputs,
-    serviceName,
-    setInputs,
-    setServiceName,
-  } = useContext(ButtonContext);
-
-  const {
-    chosenProcess,
-    chosenProcessId,
-    chosenProcessCategory,
-    sourceId,
-    setSourceId,
-    destId,
-    setdestId,
-    arrival_id,
-    setArrival_id,
-    obj,
-    setObj,
-    arrivalInvModal,
-    setArrivalInvModal,
-    checkAll,
-    setcheckAll,
-    myRecords,
-    setMyRecords,
-    process,
-    setProcess,
-    commonsDate,
-    commonArray,
-    setCommonSDate,
-    commoneDate,
-    setCommoneDate,
-  } = useContext(ColItemContext);
+    chosenProcess,    chosenProcessId,    chosenProcessCategory,    sourceId,
+    setSourceId,    destId,    setdestId,    arrival_id,
+    setArrival_id,    obj,    setObj,    arrivalInvModal,
+    setArrivalInvModal,    checkAll,    setcheckAll,    myRecords,
+    setMyRecords,    process,    setProcess,    commonsDate,
+    commonArray,    setCommonSDate,    commoneDate,    setCommoneDate,  } = useContext(ColItemContext);
 
   const { showToast } = useContext(ToastContext);
   /* #region -----------------sOURCE AND DESTINATION ID -------------------------------- */
@@ -181,6 +155,53 @@ function Arrival_note() {
       setDataLoad(true);
     });
   };
+
+  const handleClientSearch = async (tinNumber) => {
+    try {
+      console.log('Searching for client with TIN:', tinNumber);
+      const response = await StockRepository.searchClientByTin(tinNumber, authHeader);
+      
+      if (response.data.found) {
+        // Client found - populate form with client data and show client form
+        const client = response.data.client;
+        const profile = client.mdl_client; // This is the profile relationship
+        
+        // Update arrival note with client information
+        updateArrivalNote("client_id", client.id);
+        if (profile) {
+          updateArrivalNote("name", profile.name);
+          updateArrivalNote("surname", profile.surname);
+          updateArrivalNote("telephone", profile.telephone);
+          updateArrivalNote("gender", profile.gender);
+        }
+        
+        // Show the client form sections
+        setShowClientForm(true);
+        
+        console.log('Client found and form populated:', client);
+        return { success: true, message: "Client found and details loaded" };
+      } else {
+        // Client not found - hide client form sections
+        setShowClientForm(false);
+        console.log('Client not found:', response.data.message);
+        return { success: false, message: "The client is not found, please contact the administrator" };
+      }
+    } catch (error) {
+      console.error('Error searching for client:', error);
+      // Hide client form sections on error
+      setShowClientForm(false);
+      return { success: false, message: "The client is not found, please contact the administrator" };
+    }
+  };
+
+  const handleTinChange = (e) => {
+    updateArrivalNote("tin_number", e.target.value);
+    // Reset form visibility when TIN number changes
+    if (e.target.value.trim() === '') {
+      setShowClientForm(true); // Show form when TIN is empty
+    }
+  };
+
   useEffect(() => {
     getAllVessels();
     getOnlyTrucks();
@@ -531,14 +552,7 @@ function Arrival_note() {
   useEffect(() => {
     //just details
     if (modalOpen) {
-      StockRepository.truckarrival(
-        destIName,
-        source_id,
-        dest_id,
-        destCat,
-        arrival_id,
-        authHeader
-      ).then((res) => {
+      StockRepository.truckarrival(        destIName,        source_id,        dest_id,        destCat,        arrival_id,        authHeader      ).then((res) => {
         if (destIName === "Truck Truck") {
           setTrucksByArrival(res.data.truck1);
           setTrucksByArrivalTwo(res.data.truck2);
@@ -568,13 +582,7 @@ function Arrival_note() {
   }, [modalOpen]);
 
   const ArrivalDetails = (
-    destIName,
-    source_id,
-    dest_id,
-    destCat,
-    arrivalId,
-    small
-  ) => {
+    destIName,    source_id,    dest_id,    destCat,    arrivalId,    small  ) => {
     const _sourceId = source_id ? source_id : 0; // the zero means warehouse
     const _destId = dest_id ? dest_id : 0; // the zero means warehouse
 
@@ -1140,34 +1148,22 @@ function Arrival_note() {
           ) : (
             ""
           )
-        }
-      />
-      <TitleSmallDesc
+        }  />
+    
+      {/* <Container> */}
+          <TitleSmallDesc
         title={` Next arrival: ${nextArrival + 1}  (${chosenProcess} )     `}
       />
-      <AnimateHeight
-        id="animForm"
-        duration={300}
-        animateOpacity={true}
-        height={height}
+      <AnimateHeight  id="animForm"  duration={300}    animateOpacity={true}        height={height}
       >
-        <ContainerRowBtwn
-          full={true}
-          clearBtn={clearBtn}
-          noTitle={true}
-          nocaps={true}
-          customTitle={
-            <Col md={12}>
+        <ContainerRowBtwn    full={true}  clearBtn={clearBtn}   noTitle={true} nocaps={true}          customTitle={            <Col md={12}>
               {" "}
               <ArrivalToolBar />
             </Col>
           }
           showLoader={showLoader}
         >
-          <ClearBtnSaveStatus
-            height={height}
-            showLoader={showLoader}
-            showAlert={showAlert}
+          <ClearBtnSaveStatus            height={height} showLoader={showLoader}   showAlert={showAlert}
           />
           <FormInnerRightPaneFull onSubmitHandler={onSubmitHandler}>
             {chosenProcess && chosenProcess.split(" ")[0] === "nWarehouse" && (
@@ -1175,9 +1171,7 @@ function Arrival_note() {
                 {" "}
                 {step === 1 && (
                   <>
-                    <DropDownInput
-                      handle={(e) => handleArrivalDetails(e)}
-                      name="Select Arrival Note"
+                    <DropDownInput                      handle={(e) => handleArrivalDetails(e)}  name="Select Arrival Note"
                       label="arrivalnote"
                     >
                       {arrival_notesNoDestination.map((an) => (
@@ -1198,143 +1192,101 @@ function Arrival_note() {
               {step === 1 &&
                 chosenProcess &&
                 chosenProcess.split(" ")[0] !== "Warehouse" && (
-                  <>
-                    <Row>
-                      <Col md={12}>
-                        <Row>
-                          <Col className="ms-2 ps-4" sm={3}>
-                            Option{" "}
-                          </Col>
-                          <Col className=" pe-4">
-                            <DropDownInputNoLabel
-                              val={arrivalNote.tarifftype}
-                              handle={(e) =>
-                                updateArrivalNote("tarifftype", e.target.value)
-                              }
-                              name="Select Option"
-                              label="arrivalnote"
-                            >
-                              <option value={2}>
-                                {" "}
-                                From Abroad - (Import){" "}
-                              </option>
-                              <option value={1}>
-                                {" "}
-                                From Rwanda - (Export){" "}
-                              </option>
-                            </DropDownInputNoLabel>
-                          </Col>
-                          <Col className=" ">Collection Type</Col>
-                          <Col className=" pe-4 me-1">
-                            <DropDownInputNoLabel
-                              val={arrivalNote.collect_type}
-                              handle={(e) =>
-                                updateArrivalNote(
-                                  "collect_type",
-                                  e.target.value
-                                )
-                              }
-                              name="Select Option"
-                              label="arrivalnote"
-                            >
-                              <option selected={collect_type === "Assorted"}>
-                                Assorted
-                              </option>
-                              <option
-                                selected={collect_type === "Not Assorted"}
-                              >
-                                Not Assorted
-                              </option>
-                            </DropDownInputNoLabel>
-                          </Col>
-                        </Row>
-                        <Row className="mt-2">
-                          <Col className="ms-2 ps-4" sm={3}>
-                            DDCOM{" "}
-                          </Col>
-                          <Col className=" pe-4">
-                            <InputOnlyEditable
-                              moreclass="w-100 "
-                              val={arrivalNote.ddcom}
-                              handle={(e) =>
-                                updateArrivalNote("ddcom", e.target.value)
-                              }
-                              label="ddcom"
-                            />
-                          </Col>
-                          <Col className=""> Exporter name,TIN </Col>
-                          <Col className=" pe-4 me-1">
-                            <InputOnlyEditable
-                              moreclass="w-100"
-                              val={arrivalNote.exporter}
-                              handle={(e) =>
-                                updateArrivalNote("exporter", e.target.value)
-                              }
-                              label="exporter"
-                            />
-                          </Col>
-                        </Row>
-                        <Row className="mt-2">
-                          <Col className="ms-2 ps-4" sm={3}>
-                            Clearing Agent name,TIN{" "}
-                          </Col>
-                          <Col className=" pe-4  me-1">
-                            <InputOnlyEditable
-                              moreclass="w-100"
-                              val={arrivalNote.clearingAgent}
-                              handle={(e) =>
-                                updateArrivalNote(
-                                  "clearingAgent",
-                                  e.target.value
-                                )
-                              }
-                              label="clearingAgent"
-                            />
-                          </Col>
 
-                          <Col>Client TIN </Col>
-                          <Col className=" pe-4 me-1">
-                            <InputOnlyEditable
-                              moreclass="w-100 "
-                              num={true}
-                              val={arrivalNote.tin_number}
-                              handle={(e) =>
-                                updateArrivalNote("tin_number", e.target.value)
-                              }
-                              label="tin_number"
-                            />
-                          </Col>
-                        </Row>
-                        <Row className="mt-2">
-                          <Col className="ms-2 ps-4" sm={3}>
-                            Client Name (Consignee){" "}
-                          </Col>
-                          <Col className=" pe-4  me-1">
-                            <InputOnlyEditable
-                              moreclass="w-100 "
-                              name="Client (Consignee)"
-                              val={arrivalNote.name}
-                              handle={(e) =>
-                                updateArrivalNote("name", e.target.value)
-                              }
-                              label="lblname"
-                            />
-                          </Col>
-                          <Col>Client Telephone </Col>
-                          <Col className=" pe-4 me-1">
-                            <InputOnlyEditable
-                              num={true}
-                              name=" Client Telephone"
-                              val={arrivalNote.telephone}
-                              handle={(e) =>
-                                updateArrivalNote("telephone", e.target.value)
-                              }
-                              label="telephone"
-                            />
-                          </Col>
-                        </Row>
-                      </Col>
-                    </Row>
+                  <>
+                  <Row>  <Col md={12}>
+                                      <ClientSearch 
+                                        tinNumber={arrivalNote.tin_number}  
+                                        onTinChange={handleTinChange}        
+                                        onSearchClick={handleClientSearch}                        
+                                        placeholder="Enter clients TIN number"
+                                        buttonText="Search"  /></Col> </Row>
+                  
+                  {showClientForm && ( <>
+                    <Row>
+                             
+                                  
+                                         
+                                            <Row>
+                                              <Col className="ms-2 ps-4" sm={3}>
+                                                Option{" "}
+                                              </Col>
+                                              <Col className=" pe-4">
+                                                <DropDownInputNoLabel    val={arrivalNote.tarifftype}
+                                                  handle={(e) =>   updateArrivalNote("tarifftype", e.target.value) }
+                                                  name="Select Option"  label="arrivalnote">
+                                                  <option value={2}> {" "}From Abroad - (Import){" "}  </option>
+                                                  <option value={1}>   {" "} From Rwanda - (Export){" "} </option>
+                                                </DropDownInputNoLabel>
+                                              </Col>
+                                              <Col className=" ">Collection Type</Col>
+                                              <Col className=" pe-4 me-1">
+                                                <DropDownInputNoLabel     val={arrivalNote.collect_type}
+                                                  handle={(e) =>  updateArrivalNote(  "collect_type",  e.target.value)}
+                                                  name="Select Option"   label="arrivalnote" >
+                                                  <option selected={collect_type === "Assorted"}>
+                                                    Assorted
+                                                  </option>
+                                                  <option
+                                                    selected={collect_type === "Not Assorted"}
+                                                  >
+                                                    Not Assorted
+                                                  </option>
+                                                </DropDownInputNoLabel>
+                                              </Col>
+                                            </Row>
+                                            <Row className="mt-2">
+                                              <Col className="ms-2 ps-4" sm={3}>
+                                                DDCOM{" "}
+                                              </Col>
+                                              <Col className=" pe-4">
+                                                <InputOnlyEditable
+                                                  moreclass="w-100 "
+                                                  val={arrivalNote.ddcom}
+                                                  handle={(e) =>
+                                                    updateArrivalNote("ddcom", e.target.value)
+                                                  }
+                                                  label="ddcom"
+                                                />
+                                              </Col>
+                                              <Col className=""> Exporter name,TIN </Col>
+                                              <Col className=" pe-4 me-1">
+                                                <InputOnlyEditable
+                                                  moreclass="w-100"  val={arrivalNote.exporter}           handle={(e) =>
+                                                    updateArrivalNote("exporter", e.target.value)
+                                                  }
+                                                  label="exporter"
+                                                />
+                                              </Col>
+                                            </Row>
+                                            <Row className="mt-2 ">
+                                              <Col className="ms-2 ps-4" sm={3}>  Clearing Agent name,TIN{" "} </Col>
+                                              <Col className=" pe-4  me-1">
+                                                <InputOnlyEditable moreclass="w-100"   val={arrivalNote.clearingAgent}   handle={(e) => updateArrivalNote(  "clearingAgent", e.target.value  )   }                              label="clearingAgent" />
+                                              </Col>
+
+                                              <Col>Client TIN </Col>
+                                              <Col className=" pe-4 me-1">
+                                                <InputOnlyReadOnly   moreclass="w-100 "  num={true}  val={arrivalNote.tin_number} handle={(e) =>      updateArrivalNote("tin_number", e.target.value)    }
+                                                  label="tin_number"                  />
+                                              </Col>
+                                            </Row>
+                                            <Row className="mt-2">
+                                              <Col className="ms-2 ps-4" sm={3}> Client Name (Consignee){" "}   </Col>
+                                              <Col className=" pe-4  me-1">  <InputOnlyReadOnly  moreclass="w-100 "    name="Client (Consignee)" val={arrivalNote.name}
+                                                  handle={(e) =>  updateArrivalNote("name", e.target.value)               }                              label="lblname"                            />
+                                              </Col>
+                                              <Col>Client Telephone </Col>
+                                              <Col className=" pe-4 me-1">
+                                                <InputOnlyReadOnly moreclass="w-100 "   num={true}
+                                                  name=" Client Telephone" val={arrivalNote.telephone}
+                                                  handle={(e) =>    updateArrivalNote("telephone", e.target.value)                                                  }
+                                                  label="telephone"                                                />
+                                              </Col>
+                                            </Row>
+                                           
+                              
+                    </Row>  
                     <Row>
                       <Col md={12}>
                         <Row className="mt-2">
@@ -1448,14 +1400,11 @@ function Arrival_note() {
                         </Row>
                       </Col>
                     </Row>
-                    <SaveUpdateBtns
-                      clearHandle={clearHandle}
-                      saveOrUpdate={clearBtn ? " " : "  "}
-                      customEvent={customSaveEvent}
-                      normalbtn={true}
-                      noCustomIcon={true}
-                      customIcon={<Icon size={"32"} icon={arrowRight} />}
-                    />
+                       </>   )}
+                      
+                    <SaveUpdateBtns saveOrUpdate={clearBtn ? " " : "  "}  customEvent={customSaveEvent} normalbtn={true}  noCustomIcon={true}  customIcon={<Icon size={"32"} icon={arrowRight} />}     
+                   />
+
                   </>
                 )}
               {step === 2 && (
@@ -1492,7 +1441,7 @@ function Arrival_note() {
           {/* <FormSidePane /> */}
         </ContainerRowBtwn>
       </AnimateHeight>
-
+    {/* </Container>  */}
       <Container fluid className=" ">
         <Row>
           <ListToolBar

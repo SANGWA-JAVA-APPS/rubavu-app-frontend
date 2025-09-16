@@ -394,13 +394,11 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
   const { setStartDate, setendDate, startDate, endDate } =
     useContext(DateRangeContext);
 
-  // Function to set date range to current year (January to December)
+  // Function to set date range to today's date
   const setCurrentYearDateRange = () => {
-    const currentYear = new Date().getFullYear();
-    const startOfYear = `${currentYear}-01-01`;
-    const endOfYear = `${currentYear}-12-31`;
-    setStartDate(startOfYear);
-    setendDate(endOfYear);
+    const todayDate = CurrentDate.todaydate();
+    setStartDate(todayDate);
+    setendDate(todayDate);
   };
 
   // Add monthly report hook with new optimized version
@@ -1971,13 +1969,13 @@ export const CargoRevenue = ({ cargoAmountReport }) => {
                 eventKey="cargo-report"
                 onClick={() => {
                   setActiveTab("cargo-report");
-                  setCurrentYearDateRange();
-                  // Trigger refresh with current year data after setting the date range
+                  // setCurrentYearDateRange();
+                  // Trigger refresh with today's date after setting the date range
                   setTimeout(() => {
-                    const currentYear = new Date().getFullYear();
+                    const todayDate = CurrentDate.todaydate();
                     refreshMonthlyReport(
-                      `${currentYear}-01-01`,
-                      `${currentYear}-12-31`
+                      todayDate,
+                      todayDate
                     );
                   }, 100); // Small delay to ensure date range is set first
                 }}
@@ -2028,9 +2026,7 @@ export const AllRevenue = () => {
 };
 
 export const LocalReportAddress = ({
-  reportTitle,
-  leftAddress = "MAGERWA",
-  rightSideAddress,
+  reportTitle,  leftAddress = "MAGERWA",  rightSideAddress,
 }) => {
   return (
     <>

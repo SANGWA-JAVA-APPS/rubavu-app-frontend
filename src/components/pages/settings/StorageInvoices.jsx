@@ -3,6 +3,7 @@ import { Card, Table, Button, Badge, Spinner } from 'react-bootstrap';
 import { useAuthHeader } from 'react-auth-kit';
 import PropTypes from 'prop-types';
 import StockRepository from '../../services/StockServices/StockRepository';
+import CurrentDate from '../../Global/CurrentDate';
 
 const StorageInvoices = ({ onSelectInvoice, selectedInvoiceId }) => {
   const [storageInvoices, setStorageInvoices] = useState([]);
@@ -16,15 +17,11 @@ const StorageInvoices = ({ onSelectInvoice, selectedInvoiceId }) => {
         setLoading(true);
         setError(null);
         
-        // Using the new storage-specific endpoint
-
-        const today = new Date();
-      const year = today.getFullYear();
-      const startDate = `${year}-01-01`; // January 1st of current year
-      const endDate = `${year}-12-31`; // December 31st of current year
+        // Using today's date for current data only
+        const todayDate = CurrentDate.todaydate();
  
          
-        const response = await StockRepository.findStorageInvoices(authHeader(), startDate, endDate);
+        const response = await StockRepository.findStorageInvoices(authHeader(), todayDate, todayDate);
         
         if (response && response.data) {
           setStorageInvoices(response.data);

@@ -129,7 +129,7 @@ function Unberthing() {
   const [svessel_handling_charges, setSvessel_handling_charges] = useState()
 
   //Payment (receipt)
-  const [pytId, setPytId] = useState()
+  const [pytId, setPytId] = useState(null)
   const [spytDate_time, setSPytDate_time] = useState()
 
   const [spayment, setSpayment] = useState()
@@ -197,8 +197,18 @@ function Unberthing() {
     e.preventDefault()
     setShowLoader(true)
 
+    // Ensure pytId is a valid number
+    const validPytId = pytId && pytId !== "" ? (typeof pytId === 'string' ? parseInt(pytId) : pytId) : null;
+    
+    // Validate that we have a valid payment ID
+    if (!validPytId || validPytId === 0 || isNaN(validPytId)) {
+      alert('Please select a valid payment before creating unberthing.');
+      setShowLoader(false);
+      return;
+    }
+
     var unberthing = {
-      id: id, vessel_id: vessel_id, atd: atd, departure_draft: departure_draft, desc: desc
+      id: id, vessel_id: vessel_id, atd: atd, departure_draft: departure_draft, desc: desc, paymentId: validPytId
     }
     if (id) {
       StockCommons.updateUnberthing(unberthing, id, authHeader).then((res) => {
@@ -271,6 +281,7 @@ function Unberthing() {
     setAtd("")
     setDeparture_draft("")
     setDesc("")
+    setPytId(null)
 
   }
   const clearHandle = () => {
@@ -278,6 +289,8 @@ function Unberthing() {
     setVessel_id("")
     setAtd("")
     setDeparture_draft("")
+    setDesc("")
+    setPytId(null)
     setDesc("")
 
     setClearBtn(false)

@@ -33,6 +33,7 @@ function Gen_receipt() {
   const [date_time, setDate_time] = useState()
   const [amount, setAmount] = useState()
   const [invoice_id, setInvoice_id] = useState()
+  const [genInvoiceId, setGenInvoiceId] = useState()
 
   /*#endregion ENTITY FIELDS DECLARATION */
 
@@ -62,7 +63,7 @@ function Gen_receipt() {
     setShowLoader(true)
 
     var gen_receipt = {
-      id: id, date_time: date_time, amount: invoiceDetails[0]?.total_amount, invoice_id: invoice_id, description: description
+      id: id, date_time: date_time, amount: invoiceDetails[0]?.total_amount, invoice_id: invoice_id, description: description, genInvoiceId: genInvoiceId
     }
     if (id) {
       StockCommons.updateGen_receipt(gen_receipt, id, authHeader).then((res) => {
@@ -140,6 +141,7 @@ function Gen_receipt() {
       setDate_time(res.data.date_time)
       setAmount(res.data.amount)
       setInvoice_id(res.data.invoice_id)
+      setGenInvoiceId(res.data.genInvoiceId)
 
       setClearBtn(true)
       showheight('auto')
@@ -168,6 +170,7 @@ function Gen_receipt() {
     setDate_time("")
     setAmount("")
     setInvoice_id("")
+    setGenInvoiceId("")
 
   }
   const clearHandle = () => {
@@ -175,6 +178,7 @@ function Gen_receipt() {
     setDate_time("")
     setAmount("")
     setInvoice_id("")
+    setGenInvoiceId("")
 
     setClearBtn(false)
   }
@@ -204,6 +208,7 @@ function Gen_receipt() {
   const getInvoiceById = (invoice_id) => {
     if (invoice_id) {
       setInvoice_id(invoice_id)
+      setGenInvoiceId(invoice_id)
       StockRepository.findGen_DetailedinvoiceById(invoice_id, authHeader).then((res) => {
         setTotalAmount(res.data.amount)
         setAmount(invoiceDetails[0]?.total_amount)

@@ -41,6 +41,7 @@ function Truck_parking_invoice() {
   const [get_out_time, setGet_out_time] = useState(CurrentDate.CurrentDateTime())
   const [amount, setAmount] = useState(0)
   const [truck_id, setTruckId] = useState()
+  const [truckEntryId, setTruckEntryId] = useState(null)
   /*#endregion ENTITY FIELDS DECLARATION */
 
   const [showLoader, setShowLoader] = useState(false)
@@ -89,12 +90,37 @@ const [amountAdded, setAmountAdded] = useState(0) // used to edit invoice for ad
     e.preventDefault()
     setShowLoader(true)
 
+    console.log('onSubmitHandler - truckEntryId state value:', truckEntryId);
+    console.log('onSubmitHandler - truckEntryId type:', typeof truckEntryId);
+
+    // Ensure truckEntryId is a valid number - handle both string and number inputs
+    let validTruckEntryId = null;
+    if (truckEntryId !== null && truckEntryId !== undefined && truckEntryId !== "") {
+      validTruckEntryId = typeof truckEntryId === 'string' ? parseInt(truckEntryId) : truckEntryId;
+    }
+    
+    console.log('onSubmitHandler - validTruckEntryId after conversion:', validTruckEntryId);
+    console.log('onSubmitHandler - validation check:', {
+      isNull: !validTruckEntryId,
+      isZero: validTruckEntryId === 0,
+      isNaN: isNaN(validTruckEntryId)
+    });
+    
+    // Validate that we have a valid truck entry ID
+    if (!validTruckEntryId || validTruckEntryId === 0 || isNaN(validTruckEntryId)) {
+      alert('Please select a valid truck entry before creating invoice.');
+      setShowLoader(false);
+      return;
+    }
+
     var truck_parking_invoice = {
       id: id, licence_plate_number: licence_plate_number, get_out_time: get_out_time, amount: convertToInt(amount),
       //truck tariff charges variables
       totalDays: total12HourBlocks, totalHours: totalRemainingHours,
-      totalMin: totalRemainingSeconds, fee: fee, entryTime: entryTime
+      totalMin: totalRemainingSeconds, fee: fee, entryTime: entryTime, truckEntryId: validTruckEntryId
     }
+    
+    console.log('onSubmitHandler - truck_parking_invoice object:', truck_parking_invoice);
     if (id) {
       StockCommons.updateTruck_parking_invoice(truck_parking_invoice, id, authHeader).then((res) => {
         resetAfterSave()
@@ -147,14 +173,6 @@ const [amountAdded, setAmountAdded] = useState(0) // used to edit invoice for ad
     setItemToEdit(id)
 
 
-    // StockRepository.findTruck_parking_invoiceById(id, authHeader).then((res) => {
-    //   setId(res.data.id)
-    //   setLicence_plate_number(res.data.licence_plate_number)
-    //   setGet_out_time(res.data.get_out_time)
-
-    //   setClearBtn(true)
-    //   showheight('auto')
-    // })
   }
   const delTruck_parking_invoiceById = (id) => {
     Utils.Submit(() => {
@@ -177,13 +195,14 @@ const [amountAdded, setAmountAdded] = useState(0) // used to edit invoice for ad
     setHeight(0)
     setId(null)
     setLicence_plate_number("")
+    setTruckEntryId(null)
     setRefresh(!refresh)
 
   }
   const clearHandle = () => {
     setId(null)
     setLicence_plate_number("")
-
+    setTruckEntryId(null)
 
     setClearBtn(false)
   }
@@ -198,7 +217,7 @@ const [amountAdded, setAmountAdded] = useState(0) // used to edit invoice for ad
   });
   /*#endregion Listing data*/
 
-  /* #region ------------------SEARCH VESSEL BY TYPING ------------------------------------------------- */
+  /* #region ------------------SEARCH truck BY TYPING ------------------------------------------------- */
   const { searchTableVisible, setSearchTableVisible } = useContext(ColItemContext)
   const { showSelected, setShowSelected } = useContext(ColItemContext)
   const { searchItemValue, setSearchItemValue } = useContext(ColItemContext)
@@ -239,9 +258,17 @@ const [amountAdded, setAmountAdded] = useState(0) // used to edit invoice for ad
       // setSearchProgress(true) // Go and show the progress bar,
     }
   }
-  const searchDone = (id, name, platenumber, status) => {
+  const searchDone = (id, name, platenumber, status, entryId) => {
+    console.log('searchDone called with:', { id, name, platenumber, status, entryId });
+    
     setSearchTableVisible(false)
     setTruckId(id)
+    
+    // Ensure entryId is properly converted to a number before setting
+    const validEntryId = entryId ? (typeof entryId === 'string' ? parseInt(entryId) : entryId) : null;
+    console.log('validEntryId after conversion:', validEntryId);
+    setTruckEntryId(validEntryId)
+    
     setLicence_plate_number(platenumber)
     setSearchItemValue(name)
     setShowSelected(true)

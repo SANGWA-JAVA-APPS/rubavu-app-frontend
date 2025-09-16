@@ -31,8 +31,8 @@ class StockRepository {
 
     Login(authRequest) {
         // Construct the correct authentication URL
-        const authUrl = StockConn.server.name + "/codeguru/authenticate";
-        
+        const authUrl = StockConn.server.name + StockConn.port.val + "/codeguru/authenticate";
+
         // Headers for authentication request (no Authorization header needed for login)
         const headers = {
             'Content-Type': 'application/json',
@@ -667,7 +667,7 @@ class StockRepository {
         return axios.get(StockRepository.server + "/truck_parking_invoice/allInvoicesNoGrp", {
             headers: this.getHeaders(authHeader),
             params: { startDate: startDate, endDate: endDate }
-        });
+        }) .catch(() => StockCommons.RedirectToLogin());
     }
     finNongroupedinvoicesbydate(authHeader, startDate, endDate) {
         return axios.get(StockRepository.server + "/truck_parking_invoice/allInvoicesNoGrp", {
@@ -897,6 +897,13 @@ class StockRepository {
         return axios.get(StockRepository.server + "/client/clientByNameLike/" + clientName, { headers: this.getHeaders(authHeader) })
             .catch(() => StockCommons.RedirectToLogin());
     }
+
+    // Search client by TIN number
+    searchClientByTin(tinNumber, authHeader) {
+        return axios.get(StockRepository.server + "/client/searchByTin/" + tinNumber, { headers: this.getHeaders(authHeader) })
+            .catch(() => StockCommons.RedirectToLogin());
+    }
+
     findAuditingBerthingInvoice(username, authHeader) {
         return axios.get(StockRepository.server + "/auditing/berthInvoices", { headers: this.getHeaders(authHeader), params: { username: username } })
         // .catch(() => StockCommons.RedirectToLogin());
@@ -928,6 +935,19 @@ class StockRepository {
     // Email Service Methods
     sendTestEmail(authHeader) {
         return axios.get(StockRepository.server + "/email/test", {
+            headers: this.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+    sendDailyRevenueSummary(startDate, endDate, authHeader) {
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        
+        const url = StockRepository.server + "/email/daily-revenue-summary" + 
+                   (params.toString() ? "?" + params.toString() : "");
+        
+        return axios.get(url, {
             headers: this.getHeaders(authHeader)
         }).catch(() => StockCommons.RedirectToLogin());
     }

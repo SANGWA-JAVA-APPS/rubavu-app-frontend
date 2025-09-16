@@ -47,6 +47,7 @@ export const Bollards = () => {
   const [vessel_arr_draft, setVessel_arr_draft] = useState()
   const [description, setDescription] = useState()
   const [vessel_or_bollard_refId, setVessel_or_bollard_refId] = useState()
+  const [bookingId, setBookingId] = useState(null)
 
   /*#endregion ENTITY FIELDS DECLARATION */
 
@@ -142,13 +143,23 @@ export const Bollards = () => {
 
     /* #endregion */
 
+    // Ensure bookingId is a valid number
+    const validBookingId = bookingId && bookingId !== "" ? parseInt(bookingId) : null;
+    
+    // Validate that we have a valid booking ID for berthing
+    if (!validBookingId || validBookingId === 0) {
+      alert('Please select a vessel with a valid booking before berthing.');
+      setShowLoader(false);
+      return;
+    }
+
     var berthing = {
       id: id, vessel_id: vessel_id,
       ata: `${fdOne} ${updating ? reformattedTimeOne : `${time}:00`}`,
       etd: `${fdTwo} ${updating ? reformattedTimeTwo : `${time2}:00`}`,
       bollard_or_vessel: bollard_or_vessel, vessel_arr_draft: vessel_arr_draft, description: description,
       vessel_or_bollard_refId: vessel_or_bollard_refId + ' - ' + referenceIdTwo, berthing_side: berthing_side,
-      vessel_one: vessel_one, vessel_two: vessel_two
+      vessel_one: vessel_one, vessel_two: vessel_two, bookingId: validBookingId
     }
     if (!(vessel_id === vessel_or_bollard_refId && bollard_or_vessel === 'Vessel')) {
       if (vessel_id) {
@@ -229,6 +240,7 @@ export const Bollards = () => {
 
       setVessel_arr_draft(res.data.vessel_arr_draft)
       setDescription(res.data.description)
+      setBookingId(res.data.bookingId)
 
       setClearBtn(true)
 
@@ -271,6 +283,7 @@ export const Bollards = () => {
     setVessel_arr_draft("")
     setDescription("")
     setVessel_or_bollard_refId("")
+    setBookingId(null)
 
   }
   const clearHandle = () => {
@@ -281,6 +294,7 @@ export const Bollards = () => {
     setBollard_or_vessel("")
     setVessel_arr_draft("")
     setDescription("")
+    setBookingId(null)
     // setVessel_or_bollard_refId("")
 
     setClearBtn(false)
@@ -338,11 +352,12 @@ export const Bollards = () => {
   }
 
   const inputRef = useRef(null);
-  const searchDone = (id, name) => {
+  const searchDone = (id, name, operator, bookingId) => {
     setSearchTableVisible(false)
     setVessel_id(id)
     setSearchItemValue(name)
     setShowSelected(true)
+    setBookingId(bookingId) // Set the booking_id from vessel response
 
     let refid = id
     StockRepository.findVesselById(refid, authHeader).then((res) => {
@@ -351,7 +366,7 @@ export const Bollards = () => {
     })
   }
 
-  const searchDone2 = (id, name) => {
+  const searchDone2 = (id, name, operator, bookingId) => {
     setSearchTableVisible2(false)
 
     setShowSelectedTwo(true)
@@ -359,6 +374,10 @@ export const Bollards = () => {
     //set the reference id which may be the vessel id or the bollard id
     setVessel_or_bollard_refId(id)
     setReferenceIdTwo(id)
+    // Also set booking_id if provided for second vessel
+    if (bookingId) {
+      setBookingId(bookingId)
+    }
 
     let refidTwo = id
     setReferenceIdTwo((refidTwo))

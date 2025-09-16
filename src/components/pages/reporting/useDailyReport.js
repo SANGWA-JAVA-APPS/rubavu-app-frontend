@@ -3,6 +3,7 @@ import { useAuthHeader } from 'react-auth-kit';
 import StockRepository from '../../services/StockServices/StockRepository';
 import { DateRangeContext } from '../../globalcomponents/ButtonContext';
 import DateUtils from '../../Global/DateUtils';
+import CurrentDate from '../../Global/CurrentDate';
 
 export const useDailyReport = () => {
   const [dailyReportData, setDailyReportData] = useState(null);
@@ -23,8 +24,10 @@ export const useDailyReport = () => {
       const formattedEndDate = DateUtils.validateAndFormat(endDate);
       
       const searchByDateOnly = {
-        startDate: formattedStartDate,
-        endDate: formattedEndDate
+        // startDate: formattedStartDate,
+        // endDate: formattedEndDate
+        startDate: CurrentDate.todaydate(),
+        endDate:  CurrentDate.todaydate()
       };
       
       console.log('Daily report hook - formatted dates:', searchByDateOnly);

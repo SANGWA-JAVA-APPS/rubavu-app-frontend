@@ -247,23 +247,16 @@ function Dashboard() {
         getAllREvenue(startDate, endDate);
         setDataLoad(true);
         
-        // Send test email notification on dashboard load
-        try {
-          await StockRepository.sendTestEmail(authHeader);
-          console.log('Test email sent successfully on dashboard load');
-        } catch (error) {
-          console.error('Failed to send test email on dashboard load:', error);
-          // Don't break the dashboard load if email fails
-        }
-        
         // setShowModal(true)
       } catch (error) {
         console.error('Error loading daily report:', error);
       }
     }
     
-    loadDailyReport()
-  }, [])
+    if (startDate && endDate && authHeader) {
+      loadDailyReport()
+    }
+  }, [startDate, endDate, authHeader])
 
   let totalBerthing = 0.0
   let totBerthingNumber = 0.0
@@ -511,10 +504,8 @@ function Dashboard() {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
     XLSX.writeFile(workbook, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
-
   return (
     <>
-
       <DetailedReportLoaderModal show={showModal} onHide={() => setShowModal(false)} />
       <VesselStatsModal show={showVesselStats} onHide={() => setShowVesselStats(false)} />
       <TruckStatsModal show={showTruckStats} onHide={() => setShowTruckStats(false)} />
@@ -616,10 +607,6 @@ function Dashboard() {
               <Splitter />
               <SmallerSplitter /> */}
 
-              
-              
-             
-             
               
               <Row>
                 <Col md={4} className="offset-md-4 my-4" >

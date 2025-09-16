@@ -37,10 +37,11 @@ function Truck_exit() {
   /*#region ---------- ENTITY FIELDS DECLARATIONS ---------------------------*/
   const [id, setId] = useState()
   const [weight, setWeight] = useState()
-  const [get_out_time, setGet_out_time] = useState()
+  const [get_out_time, setGet_out_time] = useState("")
   const [truck_id, setTruck_id] = useState()
   const [plate_number, setPlate_number] = useState()
   const [amount, setAmount] = useState()
+  const [truckPaymentId, setTruckPaymentId] = useState(null)
 
   /*#endregion ENTITY FIELDS DECLARATION */
   const [showLoader, setShowLoader] = useState(false)
@@ -64,9 +65,36 @@ function Truck_exit() {
   const onSubmitHandler = (e) => {
     e.preventDefault()
     setShowLoader(true)
-    var truck_exit = {
-      id: id, get_out_time: get_out_time
+
+    console.log('TruckExit Submit - truckPaymentId:', truckPaymentId);
+    console.log('TruckExit Submit - get_out_time:', get_out_time);
+
+    // Validate that we have a get-out time
+    if (!get_out_time || get_out_time.trim() === "") {
+      alert('Please enter the get-out time before creating exit record.');
+      setShowLoader(false);
+      return;
     }
+
+    // Ensure truckPaymentId is a valid number
+    const validTruckPaymentId = truckPaymentId && truckPaymentId !== "" ? 
+      (typeof truckPaymentId === 'string' ? parseInt(truckPaymentId) : truckPaymentId) : null;
+    
+    console.log('TruckExit Submit - validTruckPaymentId:', validTruckPaymentId);
+    
+    // Validate that we have a valid truck payment ID (now required)
+    if (!validTruckPaymentId || validTruckPaymentId === 0 || isNaN(validTruckPaymentId)) {
+      alert('Please select a valid truck payment before creating exit record.');
+      setShowLoader(false);
+      return;
+    }
+
+    var truck_exit = {
+      id: id, get_out_time: get_out_time, truckPaymentId: validTruckPaymentId
+    }
+
+    console.log('TruckExit Submit - truck_exit object:', truck_exit);
+
     if (id) {
       StockCommons.updateTruck_exit(truck_exit, id, authHeader).then((res) => {
         resetAfterSave()
@@ -106,6 +134,7 @@ function Truck_exit() {
       setWeight(res.data.weight)
       setGet_out_time(res.data.get_out_time)
       setTruck_id(res.data.truck_id)
+      setTruckPaymentId(res.data.truckPaymentId)
       setClearBtn(true)
       showheight('auto')
     })
@@ -132,6 +161,7 @@ function Truck_exit() {
     setWeight("")
     setGet_out_time("")
     setTruck_id("")
+    setTruckPaymentId(null)
 
   }
   const clearHandle = () => {
@@ -139,6 +169,7 @@ function Truck_exit() {
     setWeight("")
     setGet_out_time("")
     setTruck_id("")
+    setTruckPaymentId(null)
     setClearBtn(false)
   }
   /*#endregion Listing data*/
@@ -194,6 +225,14 @@ function Truck_exit() {
       StockRepository.findAmountDue(platenumber, authHeader).then((res) => {
         setAmount(res.data.price)
       })
+      
+      // For now, set a default truck payment ID or make it derivable from truck_id
+      // This assumes that each truck has one active payment that can be used for exit
+      setTruckPaymentId(id) // Use truck_id as a temporary solution
+      console.log('Using truck ID as payment reference:', id)
+      
+      // Set current date and time as default get-out time
+      setGet_out_time(CurrentDate.CurrentDateTime())
     }
   }
   /* #endregion */

@@ -45,6 +45,7 @@ function Invoice() {
   const [isEditing, setIsEditing] = useState(false)
 
   const [vessel_id, setVessel_id] = useState()
+  const [berthingId, setBerthingId] = useState(null)
   const { searchItemValue, setSearchItemValue, obj, setObj } = useContext(ColItemContext)
   /*#endregion ENTITY FIELDS DECLARATION */
   const [vessel_handling_charges, setVessel_handling_charges] = useState({
@@ -96,10 +97,20 @@ function Invoice() {
     e.preventDefault()
     setShowLoader(true)
 
+    // Ensure berthingId is a valid number
+    const validBerthingId = berthingId && berthingId !== "" ? (typeof berthingId === 'string' ? parseInt(berthingId) : berthingId) : null;
+    
+    // Validate that we have a valid berthing ID
+    if (!validBerthingId || validBerthingId === 0 || isNaN(validBerthingId)) {
+      alert('Please select a valid berthing before creating invoice.');
+      setShowLoader(false);
+      return;
+    }
+
     var mdl_invoice = {
       id: id, quay_amount: vessel_handling_charges.berthing_amount, etd: formatDateFn(date_time) + ' ' + time + ':00',
       vessel_handling_charges: vessel_handling_charges.mooring_amount,
-      vessel_id: vessel_id, number_days: number_days
+      vessel_id: vessel_id, number_days: number_days, berthingId: validBerthingId
     }
     if (id) {
       StockCommons.updateInvoice(mdl_invoice, id, authHeader).then((res) => {
@@ -211,6 +222,9 @@ function Invoice() {
     //find the berth charges
     StockRepository.findVesselByVesselId(id, authHeader).then((res) => {
       setVessel_handling_charges(res.data)
+      if (res.data && res.data.id) {
+        setBerthingId(res.data.id)
+      }
     })
     inputRef.current.focus();
 
@@ -537,7 +551,7 @@ export const TruckTableRows = ({ trucks, searchDone }) => {
         <td>{truck.plate_number}   </td>
         <td>{truck.status}   </td>
         <Event item={[truck.id, truck.truck_type, truck.plate_number, truck.status]} searchDone={() => {
-          searchDone(truck.id, truck.truck_type, truck.plate_number, truck.status)
+          searchDone(truck.id, truck.truck_type, truck.plate_number, truck.status, truck.entry_id)
         }} />
       </tr>)
       )}

@@ -9,7 +9,25 @@ import { VesselRevenueTypesChart } from "../VesselRevenueTypesChart"
 import { VesselTopPaymentChart } from "../VesselTopPaymentChart"
 import { VesselTopFrequencyChart } from "../VesselTopFrequencyChart"
 
+
+import { toPng } from "html-to-image";
+import { useRef } from "react";
+ 
+
+
 export default function MiscTab() {
+  const ref = useRef();
+
+  const getScreenShot = () => {
+    if (ref.current) {
+      toPng(ref.current).then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = "screenshot.png";
+        link.href = dataUrl;
+        link.click();
+      });
+    }
+  };
   return (
     <div>
       <Row>
@@ -26,6 +44,13 @@ export default function MiscTab() {
         <Col>
           <a href="http://192.168.92.6/upload_form" className="btn btn-dark">
             Upload Form
+          </a>
+        </Col>
+        <Col>
+
+        <div ref={ref}  style={{width:'200px', height:'200px',padding:'20px', backgroundColor:'red'}}>Some content</div>
+          <a href="#" onClick={getScreenShot} className="btn btn-dark">
+            Capture screen
           </a>
         </Col>
       </Row>

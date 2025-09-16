@@ -4,6 +4,7 @@ import { Card, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuthHeader } from 'react-auth-kit';
 import StockConn from '../../services/StockServices/StockConn';
+import CurrentDate from '../../Global/CurrentDate';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -16,10 +17,9 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 export const ArrivalTypesDoughnutChart = () => {
-  // Set date range to current year (Jan 1 to Dec 31)
-  const currentYear = new Date().getFullYear();
-  const startDate = `${currentYear}-01-01`;
-  const endDate = `${currentYear}-12-31`;
+  // Set date range to today's date
+  const startDate = CurrentDate.todaydate();
+  const endDate = CurrentDate.todaydate();
   
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);

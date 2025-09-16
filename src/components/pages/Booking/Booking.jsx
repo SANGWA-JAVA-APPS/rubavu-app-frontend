@@ -554,7 +554,7 @@ export const TableRows = ({ bookings, searchDone }) => {
         <td>{vessel.status}    </td>
 
         <Event item={[vessel.id, vessel.name, vessel.owner_operator]} searchDone={() => {
-          searchDone(vessel.id, vessel.name, vessel.owner_operator)
+          searchDone(vessel.id, vessel.name, vessel.owner_operator, vessel.booking_id)
         }} />
       </tr>)
       )}

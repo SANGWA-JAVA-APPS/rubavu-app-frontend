@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useContext } from 'react';
 import StockRepository from '../services/StockServices/StockRepository';
 import { useAuthHeader } from 'react-auth-kit';
 import { DateRangeContext } from '../globalcomponents/ButtonContext';
+import CurrentDate from './CurrentDate';
 
 const useMonthlyReport = () => {
   const [monthlyData, setMonthlyData] = useState([]);
@@ -29,8 +30,9 @@ const useMonthlyReport = () => {
     // Default to current year if no dates provided
     if (!actualStartDate || !actualEndDate) {
       const currentYear = new Date().getFullYear();
-      actualStartDate = `${currentYear}-01-01`;
-      actualEndDate = `${currentYear}-12-31`;
+      actualStartDate = CurrentDate.todaydate()
+      actualEndDate = CurrentDate.todaydate()
+      console.log(`The current year is set to: ${CurrentDate.todaydate()} from useMnthlyReport.js`)
     }
     
     const dateRangeKey = `${actualStartDate}_${actualEndDate}`;

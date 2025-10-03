@@ -3,6 +3,8 @@ import { Bar } from 'react-chartjs-2';
 import { Card, Row, Col, Spinner, Alert, Nav } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuthHeader } from 'react-auth-kit';
+import StockConn from '../../services/StockServices/StockConn';
+import CurrentDate from '../../Global/CurrentDate';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,10 +26,9 @@ ChartJS.register(
 );
 
 export const TruckAnalyticsChart = () => {
-  // Set date range to current year (Jan 1 to Dec 31)
-  const currentYear = new Date().getFullYear();
-  const startDate = `${currentYear}-01-01`;
-  const endDate = `${currentYear}-12-31`;
+  // Set date range to today's date
+  const startDate = CurrentDate.todaydate();
+  const endDate = CurrentDate.todaydate();
   
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ export const TruckAnalyticsChart = () => {
   console.log('Truck Analytics - startDate:', startDate, 'endDate:', endDate);
 
   useEffect(() => {
-    const fetchTruckAnalyticsData = async () => {
+    const fetchData = async () => {
       if (!startDate || !endDate) {
         console.log('Missing dates, skipping fetch');
         return;
@@ -50,17 +51,13 @@ export const TruckAnalyticsChart = () => {
       setError(null);
       
       try {
-        const token = authHeader();
-        const response = await axios.get('/codeguru/api/truck/analytics/combined', {
+        const response = await axios.get(StockConn.wholePath.name + '/truck/analytics/combined', {
           params: { startDate, endDate },
-          headers: { 
-            Authorization: token,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authHeader()
           }
-        });
-
-        console.log('Truck Analytics API Response:', response.data);
+        });        console.log('Truck Analytics API Response:', response.data);
 
         if (response.data.success) {
           const { topByPayment, topByFrequency } = response.data;
@@ -119,7 +116,7 @@ export const TruckAnalyticsChart = () => {
       }
     };
 
-    fetchTruckAnalyticsData();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount since dates are fixed
 

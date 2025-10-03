@@ -3,6 +3,7 @@ import { Doughnut, Bar } from 'react-chartjs-2';
 import { Card, Row, Col, Spinner, Alert, Nav } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuthHeader } from 'react-auth-kit';
+import StockConn from '../../services/StockServices/StockConn';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,12 +47,11 @@ export const VesselAnalyticsChart = () => {
       
       try {
         const token = authHeader();
-        const response = await axios.get('/codeguru/api/vessel/analytics/combined', {
+        const response = await axios.get(StockConn.wholePath.name + '/vessel/analytics/combined', {
           params: { year: currentYear },
           headers: { 
             Authorization: token,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Content-Type': 'application/json'
           }
         });
 

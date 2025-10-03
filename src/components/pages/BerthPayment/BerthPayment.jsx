@@ -31,10 +31,11 @@ function Berthpayment() {
     const [userType, setUserType] = useState()
     /*#region ---------- ENTITY FIELDS DECLARATIONS ---------------------------*/
     const [id, setId] = useState()
-    const [invoice_id, setInvoice_id] = useState()
+    const [invoice_id, setInvoice_id] = useState(null)
     const [date_time, setDate_time] = useState(new Date())
     const [payment, setPayment] = useState()
     const [description, setDescription] = useState()
+    const [invoiceId, setInvoiceId] = useState(null)
     /*#endregion ENTITY FIELDS DECLARATION */
 
     const [showLoader, setShowLoader] = useState(false)
@@ -67,8 +68,19 @@ function Berthpayment() {
         e.preventDefault()
         setShowLoader(true)
 
+        // Ensure invoiceId is a valid number - use invoice_id if invoiceId is not set
+        const validInvoiceId = invoiceId && invoiceId !== "" ? parseInt(invoiceId) : 
+                              (invoice_id && invoice_id !== "" ? parseInt(invoice_id) : null);
+        
+        // Validate that we have a valid invoice ID
+        if (!validInvoiceId || validInvoiceId === 0) {
+            alert('Please select a valid invoice before making payment.');
+            setShowLoader(false);
+            return;
+        }
+
         var berthpayment = {
-            id: id, invoice_id: invoice_id, date_time: CurrentDate.CurrentDateTime(), payment: payment.replace(/,/g, ""), description: description
+            id: id, invoice_id: invoice_id, date_time: CurrentDate.CurrentDateTime(), payment: payment.replace(/,/g, ""), description: description, invoiceId: validInvoiceId
         }
         if (id) {
             StockCommons.updateBerthpayment(berthpayment, id, authHeader).then((res) => {
@@ -124,6 +136,7 @@ function Berthpayment() {
             setInvoice_id(res.data.invoice_id)
             setDate_time(res.data.date_time)
             setPayment(res.data.payment)
+            setInvoiceId(res.data.invoiceId)
 
             setClearBtn(true)
             showheight('auto')
@@ -157,14 +170,15 @@ function Berthpayment() {
         setShowAlert(true)
         setHeight(0)
         setId(null)
-        setInvoice_id("")
+        setInvoice_id(null)
         setDate_time("")
         setPayment("")
+        setInvoiceId(null)
 
     }
     const clearHandle = () => {
         setId(null)
-        setInvoice_id("")
+        setInvoice_id(null)
         setDate_time("")
         setPayment("")
 

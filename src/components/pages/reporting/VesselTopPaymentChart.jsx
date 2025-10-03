@@ -3,6 +3,7 @@ import { Bar } from 'react-chartjs-2';
 import { Card, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuthHeader } from 'react-auth-kit';
+import StockConn from '../../services/StockServices/StockConn';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -38,12 +39,11 @@ export const VesselTopPaymentChart = () => {
       
       try {
         const token = authHeader();
-        const response = await axios.get('/codeguru/api/vessel/analytics/top-by-payment', {
+        const response = await axios.get(StockConn.wholePath.name + '/vessel/analytics/top-by-payment', {
           params: { year: currentYear },
           headers: { 
             Authorization: token,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Content-Type': 'application/json'
           }
         });
 

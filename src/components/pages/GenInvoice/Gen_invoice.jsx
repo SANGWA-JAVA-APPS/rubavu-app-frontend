@@ -56,6 +56,7 @@ function Gen_invoice() {
   const [date_time, setDate_time] = useState(getFormattedDate());
   const [amount, setAmount] = useState();
   const [ref_id, setRef_id] = useState();
+  const [arrivalNoteId, setArrivalNoteId] = useState();
 
   const [date1, setDate1] = useState(CurrentDate.todaydate());
   const [date2, setDate2] = useState(CurrentDate.todaydate());
@@ -150,6 +151,7 @@ function Gen_invoice() {
       total_weight: total_weight,
       total_amount: total_amount,
       description: description,
+      arrivalNoteId: arrivalNoteId,
     };
     if (id) {
       StockCommons.updateGen_invoice(gen_invoice, id, authHeader).then(
@@ -162,6 +164,7 @@ function Gen_invoice() {
         .then((res) => {
           console.log(res.data);
           if (res.data != null) {
+            setArrivalNoteId(arrival_id);
             resetAfterSave();
           }
         })
@@ -229,12 +232,7 @@ function Gen_invoice() {
   useEffect(() => {
     setObj({});
     setInvoiceTypeDAta({});
-    StockRepository.findArrival_note(
-      date1,
-      date2,
-      user?.userid,
-      authHeader
-    ).then((res) => {
+    StockRepository.findArrival_note(date1,date2, user?.userid,      authHeader    ).then((res) => {
       setAllInvoices(res.data); // this state i sused on the list only, other related states are used on the dropdown
       // setDataLoad(true)
     });
@@ -266,6 +264,7 @@ function Gen_invoice() {
       setAmount(res.data.amount);
       setRef_id(res.data.ref_id);
       setChargeCriteria(res.data.ChargeCriteria);
+      setArrivalNoteId(res.data.arrivalNoteId);
       setClearBtn(true);
       showheight("auto");
     });
@@ -295,6 +294,7 @@ function Gen_invoice() {
     setDate_time("");
     setAmount("");
     setRef_id("");
+    setArrivalNoteId("");
   };
   const clearHandle = () => {
     setId(null);
@@ -433,29 +433,14 @@ function Gen_invoice() {
   const [arrivalPurchasesMovt, setArrivalPurchasesMovt] = useState([]);
   const [movementsSummary, setMovementsSummary] = useState([]);
 
-  const truckarrivalGrpByDestination = (
-    destIName,
-    source_id,
-    dest_id,
-    destCat,
-    arrivalId
-  ) => {
-    console.log();
+  const truckarrivalGrpByDestination = (    destIName,    source_id,    dest_id,    destCat,    arrivalId  ) => {
+    console.log(`yOU HAVE ABSOLUTELY SELECETD AN ARRIVAL NOTICE`);
     const starDate = CurrentDate.todaydate();
     const endDate = CurrentDate.todaydate();
     setShowModal(true);
     setstorageOthercosts(false);
     setArrival_id(arrivalId);
-    StockRepository.truckarrivalGrpByDestination(
-      destIName,
-      source_id,
-      dest_id,
-      destCat,
-      arrivalId,
-      date1,
-      date2,
-      authHeader
-    ).then((res) => {
+    StockRepository.truckarrivalGrpByDestination(      destIName,      source_id,      dest_id,      destCat,      arrivalId,      date1,      date2,      authHeader    ).then((res) => {
       setArrivalTallyMovt(res.data.groupedTallies);
       setArrivalSalesyMovt(res.data.salesmovements);
       setArrivalPurchasesMovt(res.data.purchasessmovements);
@@ -557,36 +542,18 @@ function Gen_invoice() {
         }
       />
 
-      <AnimateHeight
-        id="animForm"
-        duration={300}
-        animateOpacity={true}
-        height={height}
+      <AnimateHeight        id="animForm"        duration={300}        animateOpacity={true}        height={height}
       >
-        <ContainerRowBtwn
-          clearBtn={clearBtn}
-          noTitle={true}
-          form={"Invoice"}
-          showLoader={showLoader}
+        <ContainerRowBtwn          clearBtn={clearBtn}          noTitle={true}          form={"Invoice"}          showLoader={showLoader}
         >
           <ClearBtnSaveStatus
-            height={height}
-            showLoader={showLoader}
-            showAlert={showAlert}
+            height={height}            showLoader={showLoader}            showAlert={showAlert}
           />
           <FormInnerRightPaneFull onSubmitHandler={onSubmitHandler}>
-            <Link
-              className=" mx-3 btn btn-primary"
-              onClick={() => selectAnotherArrival()}
-              title="My arrival  "
-            >
+            <Link              className=" mx-3 btn btn-primary"              onClick={() => selectAnotherArrival()}              title="My arrival  "            >
               Invoice Handling
             </Link>
-            <Link
-              className=" mx-3 btn btn-dark"
-              onClick={() => invoiceByCleint()}
-              title="Invoice Storage"
-            >
+            <Link              className=" mx-3 btn btn-dark"              onClick={() => invoiceByCleint()}              title="Invoice Storage"            >
               Invoice Storage
             </Link>
 
@@ -614,22 +581,12 @@ function Gen_invoice() {
                       </td>
 
                       <td>
-                        <Event
-                          item={[
-                            arrival_note.mdl_destination.name,
-                            arrival_note.source_id,
-                            arrival_note.dest_id,
-                            arrival_note.mdl_destination.category,
+                        <Event item={[
+                            arrival_note.mdl_destination.name,  arrival_note.source_id,                            arrival_note.dest_id,                            arrival_note.mdl_destination.category,
                             arrival_note.id,
                           ]}
-                          searchDone={() => {
-                            truckarrivalGrpByDestination(
-                              arrival_note.mdl_destination.name,
-                              arrival_note.source_id,
-                              arrival_note.dest_id,
-                              arrival_note.mdl_destination.category,
-                              arrival_note.id
-                            );
+                          searchDone={() => {truckarrivalGrpByDestination( arrival_note.mdl_destination.name, arrival_note.source_id,  arrival_note.dest_id,
+                              arrival_note.mdl_destination.category,                              arrival_note.id                            );
                           }}
                         />
                       </td>
@@ -641,9 +598,7 @@ function Gen_invoice() {
             {userType !== usertoEditprint && (
               <Row>
                 <Col md={6}>
-                  <input
-                    type="checkbox"
-                    id="receiptedInvoices"
+                  <input                    type="checkbox"                    id="receiptedInvoices"
                     onChange={() => setShowReceipted(!showRecepted)}
                   />{" "}
                   <label for="receiptedInvoices">Show receipted</label>

@@ -43,6 +43,7 @@ function TruckReceipt() {
   const [get_out_time, setGet_out_time] = useState('2')
   const [amount, setAmount] = useState()
   const [truck_id, setTruckId] = useState()
+  const [truckParkingInvoiceId, setTruckParkingInvoiceId] = useState(null)
   /*#endregion ENTITY FIELDS DECLARATION */
 
   const [showLoader, setShowLoader] = useState(false)
@@ -100,23 +101,44 @@ function TruckReceipt() {
     e.preventDefault()
     setShowLoader(true)
 
-    var mdl_truck_payment = {
-      payment_amount: invoiceDetails[0]?.amount, description: description
+    console.log('TruckReceipt Submit - truckParkingInvoiceId:', truckParkingInvoiceId);
+    console.log('TruckReceipt Submit - invoiceDetails:', invoiceDetails);
+
+    // Ensure truckParkingInvoiceId is a valid number
+    const validTruckParkingInvoiceId = truckParkingInvoiceId && truckParkingInvoiceId !== "" ? 
+      (typeof truckParkingInvoiceId === 'string' ? parseInt(truckParkingInvoiceId) : truckParkingInvoiceId) : null;
+    
+    console.log('TruckReceipt Submit - validTruckParkingInvoiceId:', validTruckParkingInvoiceId);
+    
+    // Validate that we have a valid truck parking invoice ID
+    if (!validTruckParkingInvoiceId || validTruckParkingInvoiceId === 0 || isNaN(validTruckParkingInvoiceId)) {
+      alert('Please select a valid truck parking invoice before creating payment.');
+      setShowLoader(false);
+      return;
     }
+
+    var mdl_truck_payment = {
+      payment_amount: invoiceDetails[0]?.amount, 
+      description: description, 
+      truckParkingInvoiceId: validTruckParkingInvoiceId
+    }
+
+    console.log('TruckReceipt Submit - mdl_truck_payment:', mdl_truck_payment);
+
     if (id) {
       StockCommons.updateTruck_parking_invoice(mdl_truck_payment, id, authHeader).then((res) => {
         resetAfterSave()
       })
     } else {
-
-      StockCommons.saveTruck_payment(mdl_truck_payment, truckParkingInvoices[0].id, authHeader).then((res) => {
+      StockCommons.saveTruck_payment(mdl_truck_payment, validTruckParkingInvoiceId, authHeader).then((res) => {
         console.log(res.data)
         if (res.data != null) {
           resetAfterSave()
         }
       }).catch((error) => {
-        console.log('-----------')
-        alert('Error Occured')
+        console.log('TruckReceipt Submit Error:', error)
+        alert('Error Occurred: ' + error.message)
+        setShowLoader(false)
       })
     }
   }
@@ -205,12 +227,14 @@ function TruckReceipt() {
     setId(null)
     setLicence_plate_number("")
     setGet_out_time("")
+    setTruckParkingInvoiceId(null)
 
   }
   const clearHandle = () => {
     setId(null)
     setLicence_plate_number("")
     setGet_out_time("")
+    setTruckParkingInvoiceId(null)
 
     setClearBtn(false)
   }
@@ -337,6 +361,7 @@ function TruckReceipt() {
   const getTruckParkingInvoiceDetails = (e) => {
     const invId = e.target.value
     settruckParkingInvoice(invId)
+    setTruckParkingInvoiceId(invId)
     if (invId) {
       StockRepository.findTruck_parking_invById(invId, authHeader).then((res) => {
         setInvoiceDetails(res.data)

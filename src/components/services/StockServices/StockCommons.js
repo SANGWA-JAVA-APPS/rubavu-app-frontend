@@ -535,7 +535,11 @@ class StockCommons {
     }
 
     saveClient(client, authHeader) {
-        return axios.post(StockConn.wholePath.name + "/client/register", client, { headers: this.getHeaders(authHeader) });
+        return axios.post(StockConn.wholePath.name + "/client/register", client, { headers: this.getHeaders(authHeader) })
+            .catch((err) => {
+                // Re-throw the error to allow proper handling in the component
+                throw err;
+            });
     }
 
     updateClient(client, id, authHeader) {

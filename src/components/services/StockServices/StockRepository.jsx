@@ -4,6 +4,9 @@ import StockConn from './StockConn';
 import StockCommons from './StockCommons';
 import { useAuthHeader } from 'react-auth-kit';
 
+// Configure axios defaults (removed incorrect CORS header)
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
 class StockRepository {
     static page = (StockRepository.page < 1 || StockRepository.page == undefined) ? 1 : StockRepository.page;
     static size = (StockRepository.size < 1) ? 50 : StockRepository.size;
@@ -27,9 +30,44 @@ class StockRepository {
     }
 
     Login(authRequest) {
-        return axios.post( "/codeguru/authenticate", authRequest, { headers: StockRepository.headers }
-        // return axios.post(StockConn.server.name +StockConn.port.val+ "codeguru/authenticate", authRequest, { headers: StockRepository.headers }
-        )
+        // Construct the correct authentication URL
+        // const authUrl = StockConn.server.name + StockConn.port.val + "/codeguru/authenticate";
+        // online
+        const authUrl = StockConn.server.name + "/codeguru/authenticate";
+
+        // Headers for authentication request (no Authorization header needed for login)
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        
+        console.log("Login URL:", authUrl);
+        console.log("Login Headers:", headers);
+        console.log("Login Request:", authRequest);
+        
+        // Create axios config with timeout and error handling
+        const config = {
+            method: 'POST',
+            url: authUrl,
+            data: authRequest,
+            headers: headers,
+            timeout: 30000, // 30 second timeout
+            withCredentials: false
+        };
+        
+        console.log("Axios config:", config);
+        
+        return axios(config)
+            .then(response => {
+                console.log("Login response:", response);
+                return response;
+            })
+            .catch(error => {
+                console.error("Login error details:", error);
+                console.error("Error response:", error.response);
+                console.error("Error message:", error.message);
+                console.error("Error config:", error.config);
+                throw error;
+            });
     }
     findCategoriesCount() {
         return axios.get(StockRepository.server + "/count/",
@@ -168,8 +206,11 @@ class StockRepository {
         return axios.post(StockRepository.server + "/dailyreport/getTodayReport", SearchByDateOnly, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
     }
     
+    // findMonthlyReport(searchByDateRange, authHeader) {
+    //     return axios.post(StockRepository.server + "/dailyreport/getMonthlyReport", searchByDateRange, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
+    // }
     findMonthlyReport(searchByDateRange, authHeader) {
-        return axios.post(StockRepository.server + "/dailyreport/getMonthlyReport", searchByDateRange, { headers: this.getHeaders(authHeader) }).catch((err) => StockCommons.RedirectToLogin())// 
+        return axios.post(StockRepository.server + "/dailyreport/getMonthlyReport", searchByDateRange, { headers: this.getHeaders(authHeader) }).catch((err) => console.error(err))// 
     }
     findExpenses(authHeader) {
         return axios.get(StockRepository.server + "/expenses/", { headers: this.getHeaders(authHeader) })
@@ -251,6 +292,9 @@ class StockRepository {
 
     findVesselBerthedByOpStat(name, authHeader) {
         return axios.get(StockRepository.server + "/vessel/findVesselBerthedByOpStat/" + name, { headers: this.getHeaders(authHeader) });
+    }
+    findVesselWithBerthedByOpStat(name, authHeader) {
+        return axios.get(StockRepository.server + "/vessel/findvesselwithberhtingidbyopertator/" + name, { headers: this.getHeaders(authHeader) });
     }
 
     findVesselByPlatenumber(plateNumber, authHeader) {
@@ -631,7 +675,7 @@ class StockRepository {
         return axios.get(StockRepository.server + "/truck_parking_invoice/allInvoicesNoGrp", {
             headers: this.getHeaders(authHeader),
             params: { startDate: startDate, endDate: endDate }
-        });
+        }) .catch(() => StockCommons.RedirectToLogin());
     }
     finNongroupedinvoicesbydate(authHeader, startDate, endDate) {
         return axios.get(StockRepository.server + "/truck_parking_invoice/allInvoicesNoGrp", {
@@ -861,6 +905,13 @@ class StockRepository {
         return axios.get(StockRepository.server + "/client/clientByNameLike/" + clientName, { headers: this.getHeaders(authHeader) })
             .catch(() => StockCommons.RedirectToLogin());
     }
+
+    // Search client by TIN number
+    searchClientByTin(tinNumber, authHeader) {
+        return axios.get(StockRepository.server + "/client/searchByTin/" + tinNumber, { headers: this.getHeaders(authHeader) })
+            .catch(() => StockCommons.RedirectToLogin());
+    }
+
     findAuditingBerthingInvoice(username, authHeader) {
         return axios.get(StockRepository.server + "/auditing/berthInvoices", { headers: this.getHeaders(authHeader), params: { username: username } })
         // .catch(() => StockCommons.RedirectToLogin());
@@ -892,6 +943,19 @@ class StockRepository {
     // Email Service Methods
     sendTestEmail(authHeader) {
         return axios.get(StockRepository.server + "/email/test", {
+            headers: this.getHeaders(authHeader)
+        }).catch(() => StockCommons.RedirectToLogin());
+    }
+
+    sendDailyRevenueSummary(startDate, endDate, authHeader) {
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        
+        const url = StockRepository.server + "/email/daily-revenue-summary" + 
+                   (params.toString() ? "?" + params.toString() : "");
+        
+        return axios.get(url, {
             headers: this.getHeaders(authHeader)
         }).catch(() => StockCommons.RedirectToLogin());
     }

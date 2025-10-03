@@ -151,10 +151,7 @@ function Login() {
 
   return (
     <>
-
-
       <Container fluid className="">
-
         <Row className='d-flex   justify-content-around  ' >
           <Col md={12} className='p-3'> </Col>
           <Col md={4} className="">
@@ -180,7 +177,6 @@ function Login() {
                   </Alert>
                 )}
               </Col>
-              
             </Row>
             <Form onSubmit={loginHandler}>
               <Form.Label htmlFor="username">Username</Form.Label>
@@ -200,7 +196,7 @@ function Login() {
                   </Row>
                 </Col>
                 <Col md={12} className='  d-flex justify-content-end pt-5'>
-                  <button type="button" className="btn btn-primary  align-self-right" onClick={loginHandler} style={{ color: 'white' }}  >Login</button>
+                  <button type="submit" className="btn btn-primary  align-self-right" onClick={loginHandler} style={{ color: 'white' }}  >Login</button>
                 </Col>
               </Row>
             </Form>

@@ -3,6 +3,7 @@ import { Card, Table, Button, Badge, Spinner, InputGroup, FormControl } from 're
 import { useAuthHeader } from 'react-auth-kit';
 import PropTypes from 'prop-types';
 import Reporting from '../../services/StockServices/Reporting';
+import CurrentDate from '../../Global/CurrentDate';
 
 
 const UnInvoicedWarehouseMovements = ({ onSelectMovement, selectedMovementId }) => {
@@ -18,13 +19,10 @@ const UnInvoicedWarehouseMovements = ({ onSelectMovement, selectedMovementId }) 
       setLoading(true);
       setError(null);
       
-      // Using the same endpoint as CargoExitDetailedDeferred
-      const today = new Date();
-      const year = today.getFullYear();
-      const startDate = `${year}-01-01`; // January 1st of current year
-      const endDate = `${year}-12-31`; // December 31st of current year
+      // Using today's date for current data only
+      const todayDate = CurrentDate.todaydate();
       
-      const response = await Reporting.cargoExitDetailedReport(startDate, endDate, authHeader());
+      const response = await Reporting.cargoExitDetailedReport(todayDate, todayDate, authHeader());
       
       if (response && response.data) {
         // Filter for movements that don't have invoices 

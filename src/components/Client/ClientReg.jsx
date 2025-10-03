@@ -81,17 +81,23 @@ export const ClientReg = () => {
 
     const clientDTO = { tin_number, name, surname, gender, telephone };
     StockCommons.saveClient(clientDTO, authHeader)
-      .then((res) => {
-        if (res && res.status === 409) {
-          setError("Client with this TIN already exists.");
-        } else {
-          setSuccess(true);
-          fetchClients(0);
-          resetAfterSave();
-        }
+      .then(() => {
+        setSuccess(true);
+        fetchClients(0);
+        resetAfterSave();
+        setShowLoader(false)
       })
-      .catch(() => setError("Registration failed."))
-      .finally(() => setShowLoader(false));
+      .catch((error) => {
+        if (error.response && error.response.status === 409) {
+          setError("Client with this TIN number already exists.");
+        } else if (error.response && error.response.data) {
+          // Handle other specific error messages from backend
+          setError(typeof error.response.data === 'string' ? error.response.data : 'Registration failed.');
+        } else {
+          setError("Registration failed. Please try again.");
+        }
+        
+      });
   };
 
   // Helpers
@@ -141,11 +147,12 @@ export const ClientReg = () => {
         {Array.from({ length: endPage - startPage }).map((_, i) => {
           const pageNum = startPage + i;
           return (
-            <button className="btn btn-primary p-1 border-0" style={{fontSize:'12px'}}
+            <button 
+              className="btn btn-primary p-1 border-0" 
+              style={{fontSize:'12px', margin: "0 2px"}}
               key={pageNum}
               disabled={pageNum === page}
               onClick={() => goToPage(pageNum)}
-              style={{ margin: "0 2px" }}
             >
               {pageNum + 1}
             </button>
@@ -180,18 +187,7 @@ export const ClientReg = () => {
               handle={(e) => setName(e.target.value)}
               label="name"
             />
-            <InputRow
-              name="Surname"
-              val={surname}
-              handle={(e) => setSurname(e.target.value)}
-              label="surname"
-            />
-            <InputRow
-              name="Gender"
-              val={gender}
-              handle={(e) => setGender(e.target.value)}
-              label="gender"
-            />
+           
             <InputRow
               name="Telephone"
               val={telephone}

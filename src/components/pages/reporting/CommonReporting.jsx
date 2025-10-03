@@ -1,82 +1,65 @@
-import React, { useContext, useState } from 'react'
-import PagesWapper from '../../Global/PagesWapper'
-import { ItemsContainer } from '../../globalcomponents/ItemsContainer'
-import { TitleSmallDesc } from '../../globalcomponents/TitleSmallDesc'
-import { DashboardReportsFilters } from '../Dashboard/DashboardReportsFilters'
-import { SingleNumber } from './SingleNumber'
-import Utils from '../../Global/Utils'
-import { useEffect } from 'react'
-import { ColItemContext } from '../../Global/GlobalDataContentx'
-import CustomModalPopup from '../../Global/CustomModalPopup'
-import { SmallSplitter, Splitter } from '../../globalcomponents/Splitter'
-import { Col, Row } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { ArrivalTypesDoughnutChart } from './ArrivalTypesDoughnutChart'
-import { TruckAnalyticsChart } from './TruckAnalyticsChart'
-import { VesselRevenueTypesChart } from './VesselRevenueTypesChart'
-import { VesselTopPaymentChart } from './VesselTopPaymentChart'
-import { VesselTopFrequencyChart } from './VesselTopFrequencyChart'
-import { DateRangeProvider } from '../../globalcomponents/ButtonContext'
+import React, { useContext, useEffect } from "react"
+import { Tabs, Tab, Row, Col } from "react-bootstrap"
+import PagesWapper from "../../Global/PagesWapper"
+import { ColItemContext } from "../../Global/GlobalDataContentx"
+import CustomModalPopup from "../../Global/CustomModalPopup"
+import { DateRangeProvider } from "../../globalcomponents/ButtonContext"
 
-export default function CommonReporting() {
-  const { setModalSize, showModal, setShowModal, modalTitle } = useContext(ColItemContext)
-  const { setupBycolor } = useContext(ColItemContext)
+// Import tab pages
+import CargoTab from "./ReportTabs/CargoTab"
+import VesselTab from "./ReportTabs/VesselTab"
+import ClientTab from "./ReportTabs/ClientTab"
+import MiscTab from "./ReportTabs/MiscTab"
 
+export default function ReportingTabs() {
+  const { setModalSize, showModal, setShowModal, modalTitle, setupBycolor } =
+    useContext(ColItemContext)
+  const [activeTab, setActiveTab] = React.useState("Cargo")
   useEffect(() => {
-
     setupBycolor()
-    setModalSize('custom-modal_97')
+    setModalSize("custom-modal_97")
   }, [])
 
   return (
     <DateRangeProvider>
-      <CustomModalPopup show={showModal} onHide={() => setShowModal(false)} title={modalTitle} content="Loading ..." />
+      <CustomModalPopup
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        title={modalTitle}
+        content="Loading ..."
+      />
       <PagesWapper>
-        <ItemsContainer>
-          {/* <DashboardReportsFilters /> */}
-          <Row>
-            <Col >
-             <Link href="#" to="/rrarec" className='btn btn-primary'>Import from Other sources</Link>
-            </Col>
-            <Col >
-             <Link href="#" to="/appauditing" className='btn btn-info'>Auditing</Link>
-            </Col>
+        <div className="container">
+          <Tabs
+            defaultActiveKey="Cargo"
+            id="reporting-tabs"
+            className="bg-light my-3 mx-auto"
+            mountOnEnter
+            onSelect={(k) => setActiveTab(k)}
+            unmountOnExit
+            transition={true}
+          >
+            <Tab eventKey="Cargo" title="Cargo" tabClassName="px-4">
+              <CargoTab isActive={activeTab === "Cargo"} />
+            </Tab>
 
-            <Col>
-              <a href="http://192.168.92.6/upload_form" className='btn btn-dark'>Upload Form</a>
-            </Col>
+            <Tab eventKey="Vessel" title="Vessel" tabClassName="px-4">
+              <VesselTab isActive={activeTab === "Vessel"} />
+            </Tab>
 
+            <Tab eventKey="Client" title="Client" tabClassName="px-4">
+              <ClientTab isActive={activeTab === "Client"} />
+            </Tab>
 
-          </Row>
-          <SmallSplitter />
-          <TitleSmallDesc title=" Reporting" />
-          
-          {/* Doughnut Chart for Arrival Types */}
-          <Row className="mb-4">
-            <Col md={6}>
-              <ArrivalTypesDoughnutChart />
-            </Col>
-            <Col md={6}>
-              <TruckAnalyticsChart />
-            </Col>
-          </Row>
-
-          {/* Vessel Analytics Charts */}
-          <Row className="mb-4">
-            <Col md={4}>
-              <VesselRevenueTypesChart />
-            </Col>
-            <Col md={4}>
-              <VesselTopPaymentChart />
-            </Col>
-            <Col md={4}>
-              <VesselTopFrequencyChart />
-            </Col>
-          </Row>
-          
-          {/* <SingleNumber /> */}          
-
-        </ItemsContainer>
+            <Tab
+              eventKey="commonReporting"
+              tabClassName="ml-2 px-4"
+              title="Misc"
+            >
+              <MiscTab isActive={activeTab === "Misc"} />
+            </Tab>
+          </Tabs>
+        </div>
       </PagesWapper>
     </DateRangeProvider>
   )

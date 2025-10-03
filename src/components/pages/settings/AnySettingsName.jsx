@@ -483,7 +483,7 @@ function AnySettingsName() {
             </AnimateHeight >
             <ContainerRow mt='3'>
 
-                <ListToolBar logeuserType={localStorage.getItem('catname')} defaultLabel='set company'
+                <ListToolBar logeuserType={localStorage.getItem('catname')} role="addappsettings" defaultLabel='set company'
                     listTitle={`  Settings`} height={height} entity={purchaseSwitchTSstockIn()}
                     changeFormHeightClick={() => setHeight(height === 0 ? 'auto' : 0)} changeSearchheight={() => setSearchHeight(searchHeight === 0 ? 'auto' : 0)}
                     handlePrint={handlePrint} searchHeight={searchHeight} salesPurchaseFilters={true} >

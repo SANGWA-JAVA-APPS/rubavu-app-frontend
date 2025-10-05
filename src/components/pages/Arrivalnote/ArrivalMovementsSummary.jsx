@@ -374,7 +374,7 @@ export const StepTwoContent = ({ clickedDestName, arrivalNoteid, singleArrival, 
         setRef_id(0)
     }
     var gen_invoice = {
-        id: id, date_time: getFormattedDate(date_time), amount: total_Cost, ref_id: ref_id, total_weight: total_Weight, total_amount: total_Cost, description: description, type: 'tally'
+        id: id, date_time: getFormattedDate(date_time), amount: total_Cost, ref_id: ref_id, total_weight: total_Weight, total_amount: total_Cost, description: description, type: 'tally',arrivalNoteId: arrival_id
     }
     const saveInvoice = () => {
 

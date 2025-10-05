@@ -1,4 +1,4 @@
-import React from "react"
+import { useState, useContext } from "react"
 import { Row, Col } from "react-bootstrap"
 import { Link } from "react-router-dom"
 import { SmallSplitter } from "../../../globalcomponents/Splitter"
@@ -8,7 +8,11 @@ import { TruckAnalyticsChart } from "../TruckAnalyticsChart"
 import { VesselRevenueTypesChart } from "../VesselRevenueTypesChart"
 import { VesselTopPaymentChart } from "../VesselTopPaymentChart"
 import { VesselTopFrequencyChart } from "../VesselTopFrequencyChart"
-
+import ListToolBar, { SearchformAnimation } from "../../../Global/ListToolBar";
+import SearchBox from "../../../Global/SearchBox";
+import CurrentDate from "../../../Global/CurrentDate";
+import { useReactToPrint } from "react-to-print";
+import { DateRangeContext } from "../../../globalcomponents/ButtonContext";
 
 import { toPng } from "html-to-image";
 import { useRef } from "react";
@@ -17,6 +21,22 @@ import { useRef } from "react";
 
 export default function MiscTab() {
   const ref = useRef();
+  
+  // Header component states
+  const [searchHeight, setSearchHeight] = useState(0);
+  const [height, setHeight] = useState(0);
+  const { setStartDate, setendDate } = useContext(DateRangeContext);
+  
+  const getCommonSearchByDate = (date1, date2) => {
+    setStartDate(date1);
+    setendDate(date2);
+  };
+  
+  const componentRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+    documentTitle: "misc-report",
+  });
 
   const getScreenShot = () => {
     if (ref.current) {
@@ -28,8 +48,27 @@ export default function MiscTab() {
       });
     }
   };
+  
   return (
-    <div>
+    <div ref={componentRef}>
+      <TitleSmallDesc
+        title={`Miscellaneous Report on ${CurrentDate.todaydate()} `}
+        moreclass="showOnPrint"
+      />
+      <ListToolBar
+        hideSaveBtn={true}
+        height={height}
+        entity="Miscellaneous report"
+        changeFormHeightClick={() => setHeight(height === 0 ? "auto" : 0)}
+        changeSearchheight={() =>
+          setSearchHeight(searchHeight === 0 ? "auto" : 0)
+        }
+        handlePrint={handlePrint}
+        searchHeight={searchHeight}
+      />
+      <SearchformAnimation searchHeight={searchHeight}>
+        <SearchBox getCommonSearchByDate={getCommonSearchByDate} />
+      </SearchformAnimation>
       <Row>
         <Col>
           <Link to="/rrarec" className="btn btn-primary">
@@ -48,8 +87,8 @@ export default function MiscTab() {
         </Col>
         <Col>
 
-        <div ref={ref}  style={{width:'200px', height:'200px',padding:'20px', backgroundColor:'red'}}>Some content</div>
-          <a href="#" onClick={getScreenShot} className="btn btn-dark">
+        <div className="d-none" ref={ref}  style={{width:'200px', height:'200px',padding:'20px', backgroundColor:'red'}}>Some content</div>
+          <a className="d-none" href="#" onClick={getScreenShot} className="btn btn-dark">
             Capture screen
           </a>
         </Col>

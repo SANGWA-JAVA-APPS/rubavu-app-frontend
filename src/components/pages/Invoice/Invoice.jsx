@@ -213,24 +213,25 @@ function Invoice() {
   /*#endregion Listing data*/
 
 
-  const searchDone = (id, name) => {
+  const searchDone = (id, name, berthing_id) => {
     setSearchTableVisible(false)
     setVessel_id(id)
     setSearchItemValue(name)
     setShowSelected(true)
+    
+    setBerthingId(berthing_id)
     // getInvoiceById(id)
     //find the berth charges
     StockRepository.findVesselByVesselId(id, authHeader).then((res) => {
       setVessel_handling_charges(res.data)
       if (res.data && res.data.id) {
-        setBerthingId(res.data.id)
       }
     })
     inputRef.current.focus();
 
   }
   const findVesselByOperator = (searchItemValue) => {
-    StockRepository.findVesselBerthedByOpStat(searchItemValue, authHeader).then((res) => {
+    StockRepository.findVesselWithBerthedByOpStat(searchItemValue, authHeader).then((res) => {
       setItemssbyname(res.data);
       setDataLoad(true)
 
@@ -241,6 +242,7 @@ function Invoice() {
     setSearchTableVisible(true)
     const newVal = e.target.value
     setSearchItemValue(newVal)
+    console.log(`----------------  Something is being typed in the search: ${newVal} ---------------`)
     findVesselByOperator(searchItemValue)
     if (searchItemValue) {//if the user has typed in something
       // setCompletedSearch(false)
@@ -354,8 +356,6 @@ function Invoice() {
               currentTypingVal={searchItemValue} ref={inputRef} sendRequestOnThirdChar={(e) => searchOnThirdSecond(e)} />}
 
             {searchTableVisible && <SearchTableResult tableHead={tableHead} TableRows={() => <TableRows bookings={itemssbyname} searchDone={searchDone} />} />}
-
-
             {/* <InputRow name='Etd ' val={etd} handle={(e) => setEtd(e.target.value)} label='lbletd' /> */}
 
             <Row>
@@ -519,8 +519,8 @@ export const TableRows = ({ bookings, searchDone }) => {
         <td>{vessel.contact_number}   </td>
         <td>{vessel.status}   </td>
 
-        <Event item={[vessel.id, vessel.name]} searchDone={() => {
-          searchDone(vessel.id, vessel.name)
+        <Event item={[vessel.id, vessel.name, vessel.berthing_id]} searchDone={() => {
+          searchDone(vessel.id, vessel.name, vessel.berthing_id)
         }} />
       </tr>)
       )}

@@ -148,7 +148,7 @@ function App() {
                   <BerthPayment /></RequireAuth>} />
                 <Route path="/commonreport" element={<RequireAuth loginPath="/login">
                    <DateRangeProvider>
-                  <CommonReporting />
+                      <CommonReporting />
                   </DateRangeProvider>
                   </RequireAuth>} />
                 {/* -------------------- End of Forms  ----------  */}

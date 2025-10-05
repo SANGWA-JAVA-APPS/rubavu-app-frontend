@@ -2,15 +2,15 @@ import { useAuthHeader } from 'react-auth-kit';
 export default class StockConn {
     static server = {
         // Local development - uncomment for local testing
-        name: 'http://localhost'        
+        // name: 'http://localhost'        
         // Production server - for online access
         // name: 'http://192.168.92.6'
-        // name: 'https://rubavuport.codeguru-pro.com'
+        name: 'https://rubavuport.codeguru-pro.com'
     };
     static port = {
         // Local development port
-        val: ':8097'
-        // val: ''
+        // val: ':8097'
+        val: ''
     }
     static basicPath = {
         val: '/codeguru/api',  // Fixed: Added leading slash

@@ -1,59 +1,59 @@
-import React, { useState } from "react"
-import { Form } from "react-bootstrap"
-import ReportTable from "../SharedTabComponents/ReportTable"
-import { motion, AnimatePresence } from "framer-motion"
-import TabHeader from "../SharedTabComponents/TabHeader"
+import React, { useState, useEffect, useCallback } from "react";
+import { useContext } from "react";
+import { Col, Container, Row } from "react-bootstrap";
+import Reporting from "../../../services/StockServices/Reporting";
+import { useAuthHeader } from "react-auth-kit";
+import { DateRangeContext } from "../../../globalcomponents/ButtonContext";
+import { CargoRevenue } from "../../Dashboard/DetailedReport";
 
 export default function CargoTab() {
-  const [view, setView] = useState("brief") // default view
+  const authHeader = useAuthHeader()();
+  const { startDate, endDate } = useContext(DateRangeContext);
+  
+  // State for cargo data - matching DetailedReportLoaderModal structure
+  const [allTallies, setAllTallies] = useState({});
+  const [dataLoad, setDataLoad] = useState(false);
+
+  // Function to load cargo data - matching DetailedReportLoaderModal
+  const loadCargoData = useCallback(() => {
+    setDataLoad(true);
+    
+    Reporting.allCargoReport(startDate, endDate, authHeader).then((res) => {
+      setAllTallies({
+        tally: res.data.tally,
+        tallyIn: res.data.tallyIn,
+        tallyOut: res.data.tallyOut,
+      });
+      setDataLoad(false);
+    }).catch((error) => {
+      console.error("Error loading cargo data:", error);
+      setDataLoad(false);
+    });
+  }, [startDate, endDate, authHeader]);
+
+  // Load data when component mounts and when date range changes
+  useEffect(() => {
+    if (startDate && endDate) {
+      loadCargoData();
+    }
+  }, [startDate, endDate, loadCargoData]);
 
   return (
-    <div>
-      <TabHeader onSearch={() => {}} title="Cargo" />
-
-      {/* Radio Buttons */}
-      <Form className="d-flex gap-4 mb-3">
-        <Form.Check
-          inline
-          type="radio"
-          label="Brief"
-          name="cargoView"
-          value="brief"
-          checked={view === "brief"}
-          onChange={(e) => setView(e.target.value)}
-        />
-        <Form.Check
-          inline
-          type="radio"
-          label="Summarized"
-          name="cargoView"
-          value="summarized"
-          checked={view === "summarized"}
-          onChange={(e) => setView(e.target.value)}
-        />
-        <Form.Check
-          inline
-          type="radio"
-          label="Details"
-          name="cargoView"
-          value="details"
-          checked={view === "details"}
-          onChange={(e) => setView(e.target.value)}
-        />
-      </Form>
-
-      {/* Dynamic Table with animation */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={view} // important: re-renders on view change
-          initial={{ opacity: 0, y: 50 }}   // start hidden
-          animate={{ opacity: 1, y: 0 }}    // slide in
-          exit={{ opacity: 0, y: -50 }}     // slide out
-          transition={{ duration: 0.2 }}
-        >
-          <ReportTable view={view} />
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  )
+    <Container style={{ height: '100%', width: '100%' }} className='styledVHScrollBar'>
+      <Row>
+        <Col md={12}>
+          {dataLoad && (
+            <Row className="d-flex justify-content-center">
+              <Col className='loader' md={3}>Loading Cargo Data...</Col>
+            </Row>
+          )}
+        </Col>
+        <Col md={12}>
+          {(!dataLoad) && allTallies.tally && (
+            <CargoRevenue cargoAmountReport={allTallies} />
+          )}
+        </Col>
+      </Row>
+    </Container>
+  );
 }

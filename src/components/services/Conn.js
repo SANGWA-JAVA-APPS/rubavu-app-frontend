@@ -1,7 +1,8 @@
 
 export default class Conn {
     static server = {
-        name: '//localhost:'
+        // name: '//localhost:'
+        name: '//192.168.92.6:'
         // name:    '//guruservices.codeguru-pro.com:'
         // name: '//appointment.thediamondsmile.rw:'
     };
